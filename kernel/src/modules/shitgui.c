@@ -1,0 +1,45 @@
+// im really sorry for this code
+// but its called shitgui after all 
+
+#include "shitgui.h"
+
+
+void sg_put_img(SG_Context *ctx, SG_Point *p, SG_Image *img) {
+    if (!ctx->fb || !img) return;
+
+    u32 start_x = p->x;
+    u32 start_y = p->y;
+    u32 draw_w = img->width;
+    u32 draw_h = img->height;
+
+    if (start_x >= ctx->width || start_y >= ctx->height) return;
+    if (start_x + draw_w > ctx->width) draw_w = ctx->width - start_x;
+    if (start_y + draw_h > ctx->height) draw_h = ctx->height - start_y;
+
+    for (u32 y = 0; y < draw_h; y++) {
+        volatile u32 *dest_ptr = &ctx->fb[(start_y + y) * ctx->pitch + start_x];
+        u32 *src_ptr = &img->buffer[y * img->width];
+        for (u32 x = 0; x < draw_w; x++) {
+            dest_ptr[x] = src_ptr[x];
+        }
+    }
+}
+
+void sg_draw_rect(SG_Context *ctx, SG_Point *p, u32 w, u32 h, u32 color) {
+    if (!ctx->fb) return;
+
+    u32 start_x = p->x;
+    u32 start_y = p->y;
+    u32 draw_w = w;
+    u32 draw_h = h;
+
+    if (start_x >= ctx->width || start_y >= ctx->height) return;
+    if (start_x + draw_w > ctx->width) draw_w = ctx->width - start_x;
+    if (start_y + draw_h > ctx->height) draw_h = ctx->height - start_y;
+
+
+    for (u32 y = 0; y < draw_h; y++) {
+        volatile u32 *row_ptr = &ctx->fb[(start_y + y) * ctx->pitch + start_x];
+        for (u32 x = 0; x < draw_w; x++) row_ptr[x] = color;
+    }
+}
