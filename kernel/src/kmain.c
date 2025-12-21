@@ -1,7 +1,9 @@
 #include "../../common/bootinfo.h"
+#include "console.h"
 #include "types.h"
 
 #include "shitgui.h"
+#include "serial.h"
 
 void kmain(Bootinfo* info) {
     u32 *fb = (u32*)info->base;
@@ -28,6 +30,12 @@ void kmain(Bootinfo* info) {
     sg_draw_rect(&sg_ctx, &p, info->width, stripe_h, 0xF5A9B8);
     p.y += stripe_h;
     sg_draw_rect(&sg_ctx, &p, info->width, stripe_h, 0x5BCEFA);
+
+    serial_init();
+    console_init(&sg_ctx);
+    console_set_color(0x000000);
+    kprint("Hello!!!");
+    for (int i = 0; i < 1000; i++) kprint("!");
 
     while (1) { __asm__("hlt"); }
 }

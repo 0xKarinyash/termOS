@@ -43,3 +43,26 @@ void sg_draw_rect(SG_Context *ctx, SG_Point *p, u32 w, u32 h, u32 color) {
         for (u32 x = 0; x < draw_w; x++) row_ptr[x] = color;
     }
 }
+
+void sg_draw_char_bitmap(SG_Context *ctx, SG_Point *p, char c, u32 color, SG_Font *font) {
+    if (!ctx->fb) return;
+
+    u32 start_x = p->x;
+    u32 start_y = p->y;
+    u32 draw_w = font->w;
+    u32 draw_h = font->h;
+
+    if (start_x >= ctx->width || start_y >= ctx->height) return;
+    if (start_x + draw_w > ctx->width) draw_w = ctx->width - start_x;
+    if (start_y + draw_h > ctx->height) draw_h = ctx->height - start_y;
+
+    for (u32 y = 0; y < draw_h; y++) {
+        u8 bitmap_row = font->base[(unsigned char)c * font->h + y];
+        volatile u32 *row_ptr = &ctx->fb[(start_y + y) * ctx->pitch + start_x];
+        for (u32 x = 0; x < draw_w; x++) {
+            if (bitmap_row & (1 << (font->w - 1 - x))) {
+                row_ptr[x] = color;
+            }
+        }
+    }
+}

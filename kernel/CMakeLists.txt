@@ -19,6 +19,9 @@ target_include_directories(shitgui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 add_executable(kernel 
     src/kmain.c
     src/modules/memory.c
+    src/modules/serial.c
+    src/modules/console.c
+    data/font8x8_basic.c
 )
 
 target_include_directories(kernel PRIVATE
@@ -43,4 +46,9 @@ set_target_properties(kernel PROPERTIES
 add_custom_command(TARGET kernel POST_BUILD
     COMMAND objcopy -O binary $<TARGET_FILE:kernel> $<TARGET_FILE_DIR:kernel>/kernel.bin
     COMMENT "Stripping ELF headers -> kernel.bin"
+)
+
+file(GLOB_RECURSE SOURCES 
+    "src/*.c"
+    "data/*.c"
 )
