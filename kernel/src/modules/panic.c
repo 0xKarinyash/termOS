@@ -53,8 +53,8 @@ __attribute__((noreturn)) void panic(Registers *regs) {
     kprintf("\n\n");
     kprintf("\t\t\tKERNEL PANIC  :( \n");
     kprintf("\t\t-------------------------\n");
-    kprintf("\t\tCPU EXCEPTION: %d (%s)\n", regs->int_no, exception_messages[regs->int_no]);
-    kprintf("\t\tError Code: %x\n", regs->err_code);
+    kprintf("\t\tCPU EXCEPTION: %s (%d)\n", exception_messages[regs->int_no], regs->int_no);
+    if (regs->err_code) kprintf("\t\tError Code: %x\n", regs->err_code);
     kprintf("\t\tInstruction Pointer (RIP): %x\n", regs->rip);
     kprintf("\t\tCode Segment (CS): %x\n", regs->cs);
     kprintf("\t\tFlags (RFLAGS): %x\n", regs->rflags);

@@ -115,7 +115,7 @@ static void print_hex(u64 u) {
     while (u > 0) {
         i32 digit = u % 16;
         if (digit < 10) { buffer[i] = digit + '0'; }
-        else { buffer[i] = digit - 10 + 'a'; }
+        else { buffer[i] = digit - 10 + 'A'; }
         u /= 16;
         i++;
     }
