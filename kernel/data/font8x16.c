@@ -1,4 +1,6 @@
-// borrowed from https://github.com/hubenchang0515/font8x16/blob/master/font8x16.h
+// font8x16 bitmap font
+// Source: https://github.com/hubenchang0515/font8x16
+// License: MIT
 
 unsigned char font8x16[][16] = {
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  },       //0x00, 
