@@ -40,6 +40,7 @@ if(QEMU_EXE)
             -net none
             -serial stdio
             -m 512M
+            #-s -S
         DEPENDS image
     )
 endif()

@@ -24,7 +24,9 @@ void kmain(Bootinfo* info) {
     SG_Point logo_point = {sg_ctx.width-100, 100};
     sg_put_img(&sg_ctx, &logo_point, &logo_img);
     kprint("Welcome to termOS!!!\n");
-    kprintf("MemoryMap located at %x; \nMemory map size is %d", (u64)info->mem.map, (u64)info->mem.map_size);
+    kprintf("MemoryMap located at %x; \nMemory map size is %d\n", (u64)info->mem.map, (u64)info->mem.map_size);
+
+    for (i32 i = 0; i < 1000; i++) kprintf("Test %d\n", i);
 
     while (1) { __asm__("hlt"); }
 }
