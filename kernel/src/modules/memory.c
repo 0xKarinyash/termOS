@@ -1,3 +1,4 @@
+#include "memory.h"
 #include "types.h"
 
 void *memset(void *ptr, int value, usize num) {
