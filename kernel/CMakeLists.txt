@@ -19,7 +19,8 @@ add_executable(kernel
     src/modules/serial.c
     src/modules/console.c
     src/modules/panic.c
-    data/font8x8_basic.c
+    src/modules/kfetch.c
+    data/font8x16.c
 )
 
 target_include_directories(kernel PRIVATE

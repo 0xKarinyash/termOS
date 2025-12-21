@@ -10,6 +10,8 @@
 #include "gdt.h"
 #include "idt.h"
 
+#include "kfetch.h"
+
 void kmain(Bootinfo* info) {
     u32 *fb = (u32*)info->framebuffer.base;
     if (!fb) return;
@@ -31,12 +33,10 @@ void kmain(Bootinfo* info) {
     SG_Point logo_point = {sg_ctx.width-100, 100};
     sg_put_img(&sg_ctx, &logo_point, &logo_img);
 
-    kprint("Welcome to termOS!!!\n");
-    kprintf("MemoryMap located at %x; \nMemory map size is %d\n", (u64)info->mem.map, (u64)info->mem.map_size);
+    kprintf("Welcome to ^ptermOS^0!!!\n");
+    kprintf("MemoryMap located at ^g%x^0; \nMemory map size is ^g%x^0\n", (u64)info->mem.map, (u64)info->mem.map_size);
 
-    int a = 1;
-    int b = 0;
-    kprintf("%d", a/b);
+    kfetch();
 
     while (1) { __asm__("hlt"); }
 }

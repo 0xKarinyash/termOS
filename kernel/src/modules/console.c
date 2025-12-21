@@ -6,20 +6,29 @@
 #include "types.h"
 #include <stdarg.h>
 
+#define COLOR_RED    0xFF5555
+#define COLOR_GREEN  0x08bf39
+#define COLOR_BLUE   0x5555FF
+#define COLOR_YELLOW 0xFFFF55
+#define COLOR_CYAN   0x55FFFF
+#define COLOR_MAGENTA 0xFF55FF
+#define COLOR_BLACK 0x000000
+#define COLOR_WHITE 0xFFFFFF
+#define COLOR_PINK 0xFFA3B1
 
 static SG_Context *ctx_ptr = nullptr;
 static SG_Point s_cursor_pos = {0};
 static SG_Font s_font = {0};
-static u32 s_color = 0xFFFFFF;
+static u32 s_color = COLOR_WHITE;
 
 void console_init(SG_Context *ctx) {
     ctx_ptr = ctx;
     s_cursor_pos.x = 0;
     s_cursor_pos.y = 0;
 
-    s_font.h = 8;
+    s_font.h = 16;
     s_font.w = 8;
-    s_font.base = (const unsigned char*)font8x8_basic;
+    s_font.base = (const unsigned char*)font8x16;
 }
 
 void console_clear(u32 color) {
@@ -30,6 +39,17 @@ void console_clear(u32 color) {
     
     s_cursor_pos.x = 0;
     s_cursor_pos.y = 0;
+}
+
+SG_Context* console_get_context() {
+    return ctx_ptr;
+}
+
+SG_Point console_get_dimensions() {
+    SG_Point p = {0};
+    p.x = ctx_ptr->width;
+    p.y = ctx_ptr->height;
+    return p;
 }
 
 void console_set_cursor_pos(SG_Point *p) {
@@ -44,6 +64,8 @@ static void console_putc(char c) {
     if (c == '\n') {
         s_cursor_pos.x = 0;
         s_cursor_pos.y += s_font.h;
+    } else if (c == '\t') {
+        s_cursor_pos.x += s_font.w * 4;
     } else {
         sg_draw_char_bitmap(ctx_ptr, &s_cursor_pos, c, s_color, &s_font);
         s_cursor_pos.x += s_font.w;
@@ -135,6 +157,25 @@ void kprintf(const char *fmt, ...) {
                 default: {
                     console_putc(fmt[i]);
                     break;
+                }
+            }
+        } else if (fmt[i] == '^') {
+            i++;
+            switch (fmt[i]) {
+                case 'r': console_set_color(COLOR_RED); break;
+                case 'g': console_set_color(COLOR_GREEN); break;
+                case 'b': console_set_color(COLOR_BLUE); break;
+                case 'y': console_set_color(COLOR_YELLOW); break;
+                case 'c': console_set_color(COLOR_CYAN); break;
+                case 'm': console_set_color(COLOR_MAGENTA); break;
+                case 'p': console_set_color(COLOR_PINK); break;
+                case '0': console_set_color(COLOR_BLACK); break;
+                case 'w': console_set_color(COLOR_WHITE); break;
+                case '^': console_putc('^'); break;
+                default: { 
+                    console_putc('^');
+                    console_putc(fmt[i]);
+                    break; 
                 }
             }
         } else {
