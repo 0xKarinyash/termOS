@@ -58,13 +58,12 @@ int main()
 
     status = gBS->AllocatePool(EfiLoaderData, sizeof(Bootinfo), (void**)&boot_info);
 
-    boot_info->base = (uintn_t*)gop->Mode->FrameBufferBase;
-    boot_info->base_size = gop->Mode->FrameBufferSize;
-    boot_info->height = gop->Mode->Information->VerticalResolution;
-    boot_info->width = gop->Mode->Information->HorizontalResolution;
-    boot_info->pitch = gop->Mode->Information->PixelsPerScanLine;
+    boot_info->framebuffer.base = (uintn_t*)gop->Mode->FrameBufferBase;
+    boot_info->framebuffer.base_size = gop->Mode->FrameBufferSize;
+    boot_info->framebuffer.height = gop->Mode->Information->VerticalResolution;
+    boot_info->framebuffer.width = gop->Mode->Information->HorizontalResolution;
+    boot_info->framebuffer.pitch = gop->Mode->Information->PixelsPerScanLine;
 
-    // woah letsgoo
     uintn_t map_size = 0;
     efi_memory_descriptor_t *map = NULL;
     uintn_t map_key;
@@ -75,17 +74,30 @@ int main()
 
     gBS->GetMemoryMap(&map_size, NULL, &map_key, &desc_size, &desc_version);
     map_size += 4096;
-    gBS->AllocatePool(EfiLoaderData, map_size, (void**)&map);
-    status = gBS->ExitBootServices(IM, map_key);
+    // woah letsgoo
+    status = gBS->AllocatePool(EfiLoaderData, map_size, (void**)&map);
+    if (EFI_ERROR(status)) {
+        ST->ConOut->OutputString(ST->ConOut, L"Failed to allocate pool");
+    }
 
-    while (EFI_ERROR(status)) {
-        gBS->GetMemoryMap(&map_size, map, &map_key, &desc_size, &desc_version);
+    do {
+        status = gBS->GetMemoryMap(&map_size, map, &map_key, &desc_size, &desc_version);
+        if (EFI_ERROR(status)) {
+            break;
+        }
+        
+        boot_info->mem.descriptor_size = desc_size;
+        boot_info->mem.descriptor_version = desc_version;
+        boot_info->mem.map_size = map_size;
+        boot_info->mem.map_key = map_key;
+        boot_info->mem.map = map;
+
         status = gBS->ExitBootServices(IM, map_key);
         if (status == EFI_SUCCESS) {
             break; // FUCK OFF;
         }
         map_size += 2 * desc_size; 
-    }
+    } while (EFI_ERROR(status));
 
     typedef void (__attribute__((sysv_abi)) *kentry)(Bootinfo*);
     kentry kmain = (kentry)kernel_addr;

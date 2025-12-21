@@ -1,5 +1,6 @@
 #include "shitgui.h"
 
+#define SHITGUI_TRANSPARENCY_KEY 0xFF00FF
 
 void sg_put_img(SG_Context *ctx, SG_Point *p, SG_Image *img) {
     if (!ctx->fb || !img) return;
@@ -17,7 +18,8 @@ void sg_put_img(SG_Context *ctx, SG_Point *p, SG_Image *img) {
         volatile u32 *dest_ptr = &ctx->fb[(start_y + y) * ctx->pitch + start_x];
         u32 *src_ptr = &img->buffer[y * img->width];
         for (u32 x = 0; x < draw_w; x++) {
-            dest_ptr[x] = src_ptr[x];
+            u32 color = src_ptr[x];
+            if (color != SHITGUI_TRANSPARENCY_KEY) dest_ptr[x] = color;
         }
     }
 }
