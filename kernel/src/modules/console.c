@@ -2,6 +2,10 @@
 #include "serial.h"
 #include "font.h"
 #include "shitgui.h"
+#include "math.h"
+#include "types.h"
+#include <stdarg.h>
+
 
 static SG_Context *ctx_ptr = nullptr;
 static SG_Point s_cursor_pos = {0};
@@ -28,6 +32,12 @@ void console_clear(u32 color) {
     s_cursor_pos.y = 0;
 }
 
+void console_set_cursor_pos(SG_Point *p) {
+    if (!p) return;
+    s_cursor_pos.x = p->x;
+    s_cursor_pos.y = p->y;
+}
+
 static void console_putc(char c) {
     serial_writec(c);
     if (!ctx_ptr) return;
@@ -48,7 +58,91 @@ static void console_putc(char c) {
 
 
 void kprint(const char *str) {
-    for (int i = 0; str[i] != '\0'; i++) console_putc(str[i]);
+    for (i32 i = 0; str[i] != '\0'; i++) console_putc(str[i]);
+}
+
+static void print_dec(const i64 n) {
+    if (n < 0) console_putc('-');
+    u64 u = abs(n);
+    char buffer[32];
+    i32 i = 0;
+
+    do {
+        buffer[i] = (u % 10) + '0';
+        u /= 10;
+        i++;
+    } while (u > 0);
+
+    while (--i >= 0) {
+        console_putc(buffer[i]);
+    }
+}
+
+static void print_hex(u64 u) {
+    console_putc('0');
+    console_putc('x');
+
+    if (u == 0) {
+        console_putc('0');
+        return;
+    }
+
+    char buffer[16]; 
+    i32 i = 0;
+
+    while (u > 0) {
+        i32 digit = u % 16;
+        if (digit < 10) { buffer[i] = digit + '0'; }
+        else { buffer[i] = digit - 10 + 'a'; }
+        u /= 16;
+        i++;
+    }
+
+    while (--i >= 0) {
+        console_putc(buffer[i]);
+    }
+}
+
+void kprintf(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+
+    for (i32 i = 0; fmt[i] != '\0'; i++) {
+        if (fmt[i] == '%') {
+            i++;
+            switch (fmt[i]) {
+                case 's': {
+                    const char *str = va_arg(args, const char*);
+                    if (!str) str = "undefined";
+                    kprint(str);
+                    break;
+                }
+                case 'c': {
+                    char c = (char)va_arg(args, int);
+                    console_putc(c);
+                    break;
+                }
+                case 'd': {
+                    i32 num = va_arg(args, i32);
+                    print_dec(num);
+                    break;
+                }
+                case 'x': {
+                    u64 num = va_arg(args, u64);
+                    print_hex(num);
+                    break;    
+                }
+                default: {
+                    console_putc(fmt[i]);
+                    break;
+                }
+            }
+        } else {
+            console_putc(fmt[i]);
+        }
+    }
+
+    va_end(args);
 }
 
 void console_set_color(u32 color) {

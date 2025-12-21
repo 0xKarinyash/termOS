@@ -21,6 +21,7 @@ add_executable(kernel
     src/modules/memory.c
     src/modules/serial.c
     src/modules/console.c
+    src/modules/panic.c
     data/font8x8_basic.c
 )
 
