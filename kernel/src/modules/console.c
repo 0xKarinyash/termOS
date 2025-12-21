@@ -18,6 +18,16 @@ void console_init(SG_Context *ctx) {
     s_font.base = (const unsigned char*)font8x8_basic;
 }
 
+void console_clear(u32 color) {
+    if (!ctx_ptr) return;
+
+    SG_Point p = {0, 0};
+    sg_draw_rect(ctx_ptr, &p, ctx_ptr->width, ctx_ptr->height, color);
+    
+    s_cursor_pos.x = 0;
+    s_cursor_pos.y = 0;
+}
+
 static void console_putc(char c) {
     serial_writec(c);
     if (!ctx_ptr) return;
@@ -35,10 +45,12 @@ static void console_putc(char c) {
     }
 }
 
-void console_set_color(u32 color) {
-    s_color = color;
-}
+
 
 void kprint(const char *str) {
     for (int i = 0; str[i] != '\0'; i++) console_putc(str[i]);
+}
+
+void console_set_color(u32 color) {
+    s_color = color;
 }
