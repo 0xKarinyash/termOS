@@ -11,6 +11,7 @@ add_compile_options(
     -fno-stack-protector
     -fno-builtin
     -Wall -Wextra
+    -g
 )
 
 add_library(shitgui STATIC src/modules/shitgui.c)
