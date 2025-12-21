@@ -60,7 +60,7 @@ void sg_draw_char_bitmap(SG_Context *ctx, SG_Point *p, char c, u32 color, SG_Fon
         u8 bitmap_row = font->base[(unsigned char)c * font->h + y];
         volatile u32 *row_ptr = &ctx->fb[(start_y + y) * ctx->pitch + start_x];
         for (u32 x = 0; x < draw_w; x++) {
-            if (bitmap_row & (1 << (font->w - 1 - x))) {
+            if (bitmap_row & (1 << x)) {
                 row_ptr[x] = color;
             }
         }
