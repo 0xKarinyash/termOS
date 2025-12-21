@@ -14,4 +14,10 @@ typedef signed _BitInt(64)   i64;
 typedef u64 usize;
 typedef u64 uintptr_t;
 
+typedef struct {
+    u64 rax, rbx, rcx, rdx, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15; // Pushed by us
+    u64 int_no, err_code;                                                       // Pushed by macro
+    u64 rip, cs, rflags, rsp, ss;                                               // Pushed by CPU
+} Registers;
+
 #endif

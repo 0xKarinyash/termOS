@@ -1,24 +1,20 @@
 cmake_minimum_required(VERSION 3.20)
-project(termOS_krn LANGUAGES C ASM)
+project(termOS_krn LANGUAGES C ASM_NASM)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
-add_compile_options(
-    -ffreestanding
-    -mno-red-zone
-    -fno-stack-protector
-    -fno-builtin
-    -Wall -Wextra
-    -g
-)
-
 add_library(shitgui STATIC src/modules/shitgui.c)
 target_include_directories(shitgui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-add_executable(kernel 
+add_executable(kernel
+    src/entry.asm
+    src/asm/interrupts.asm
     src/kmain.c
+    src/modules/gdt.c
+    src/modules/idt.c
+    src/modules/interrupts.c
     src/modules/memory.c
     src/modules/serial.c
     src/modules/console.c
@@ -38,6 +34,17 @@ target_link_options(kernel PRIVATE
     -static
     -no-pie
     -T "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
+)
+
+target_compile_options(kernel PRIVATE
+    $<$<COMPILE_LANGUAGE:C>:
+        -ffreestanding
+        -mno-red-zone
+        -fno-stack-protector
+        -fno-builtin
+        -Wall -Wextra
+        -g
+    >
 )
 
 set_target_properties(kernel PROPERTIES 
