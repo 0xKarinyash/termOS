@@ -38,5 +38,7 @@ void kmain(Bootinfo* info) {
 
     kfetch();
 
+    __asm__("ud2"); // panic :(
+
     while (1) { __asm__("hlt"); }
 }
