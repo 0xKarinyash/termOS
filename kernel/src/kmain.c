@@ -15,27 +15,11 @@ void kmain(Bootinfo* info) {
     sg_ctx.width = info->width;
     sg_ctx.pitch = info->pitch;
 
-    SG_Point p = {0};
-    p.x = 0;
-    p.y = 0;
-
-    u32 stripe_h = info->height / 5;
-
-    sg_draw_rect(&sg_ctx, &p, info->width, stripe_h, 0x5BCEFA);
-    p.y += stripe_h;
-    sg_draw_rect(&sg_ctx, &p, info->width, stripe_h, 0xF5A9B8);
-    p.y += stripe_h;
-    sg_draw_rect(&sg_ctx, &p, info->width, stripe_h, 0xFFFFFF);
-    p.y += stripe_h;
-    sg_draw_rect(&sg_ctx, &p, info->width, stripe_h, 0xF5A9B8);
-    p.y += stripe_h;
-    sg_draw_rect(&sg_ctx, &p, info->width, stripe_h, 0x5BCEFA);
-
     serial_init();
     console_init(&sg_ctx);
+    console_clear(0xFFFFFF);
     console_set_color(0x000000);
-    kprint("Hello!!!");
-    for (int i = 0; i < 1000; i++) kprint("!");
+    kprint("Welcome to termOS!!!");
 
     while (1) { __asm__("hlt"); }
 }

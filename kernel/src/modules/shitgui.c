@@ -1,6 +1,3 @@
-// im really sorry for this code
-// but its called shitgui after all 
-
 #include "shitgui.h"
 
 
