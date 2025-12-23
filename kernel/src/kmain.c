@@ -52,7 +52,7 @@ void kmain(Bootinfo* info) {
 
    // rectest(0);
 
-    // __asm__("ud2"); // panic :(
+  //  __asm__("ud2"); // panic :(
 
     while (1) { __asm__("hlt"); }
 }

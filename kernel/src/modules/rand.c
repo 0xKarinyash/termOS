@@ -6,7 +6,7 @@
 
 u64 shitrand() {
     int lo, hi;
-    __asm__ volatile ("rdtsc" : "=a" (lo), "=d" (hi)); // why fucking asm refusing to eat my u32
+    __asm__ volatile ("rdtsc" : "=a" (lo), "=d" (hi));
 
     return ((u64)hi << 32) | lo;
 }

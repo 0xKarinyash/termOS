@@ -25,7 +25,15 @@ const char* fun_messages[] = {
     "You little asshole, make it better",
     "Go and read books for programming u idiot",
     "TIME TO BRAKE! :3 Take a tea and try again later cutie",
-    "Code have been eaten by Aliens"
+    "Code have been eaten by Aliens",
+    "That's all, folks!",
+    "Raiden, answer me, Raiden, respond! Raiden?! RAIDEEEEEEEEEN!",
+    "Fatal error has been occurred. Your device will be terminated in 30 seconds.",
+    "I'll be back",
+    "Hastla la vista, baby",
+    "Ti chego mne tut nagovoril...",
+    "Your access has been denied because of your region. Please, use Chultem VPN and try again later.",
+    "Fatal error has been occurred. Your device will be transformed into Niva in a few seconds."
 };
 
 
@@ -89,6 +97,11 @@ __attribute__((noreturn)) void panic(Registers *regs) {
     kprintf("\t\tCode Segment (CS): %x\n", regs->cs);
     kprintf("\t\tFlags (RFLAGS): %x\n", regs->rflags);
     kprintf("\t\tStack Pointer (RSP): %x\n", regs->rsp);
+    if (regs->int_no == 14) {
+        u64 cr2;
+        __asm__ volatile("mov %%cr2, %0" : "=r"(cr2));
+        kprintf("\t\tFaulting Address (CR2): %x\n", cr2);
+    }
     kprintf("\t\t--------------------------------\n");
     kprintf("\t\t\t\tREGSISTERS\n");
     kprintf("\t\t--------------------------------\n");
