@@ -33,7 +33,16 @@ const char* fun_messages[] = {
     "Hastla la vista, baby",
     "Ti chego mne tut nagovoril...",
     "Your access has been denied because of your region. Please, use Chultem VPN and try again later.",
-    "Fatal error has been occurred. Your device will be transformed into Niva in a few seconds."
+    "Fatal error has been occurred. Your device will be transformed into Niva in a few seconds.",
+    "Have you tried turning it off and on again?",
+    "Put it in rice maybe?",
+    "Just hit the monitor, it usually helps",
+    "I think it needs a rest. Come back tomorrow",
+    "You clicked something wrong, didn't you?",
+    "You hacked it too hard, bro",
+    "I think you deleted the internet",
+    "Stop downloading RAM",
+    "Pro tip: dont crash"
 };
 
 
