@@ -1,6 +1,11 @@
 bits 64
 
 section .bss
+align 4096
+guard_page:
+    resb 4096
+
+section .stack nobits
 align 16
 stack_bottom:
     resb 16384 

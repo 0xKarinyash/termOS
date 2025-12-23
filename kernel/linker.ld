@@ -5,7 +5,7 @@ SECTIONS
     . = 0x100000;
 
     .text : {
-        *(.text.entry)
+        *(.text.entry) 
         *(.text*)
     }
 
@@ -20,6 +20,10 @@ SECTIONS
     .bss : {
         *(.bss*)
         *(COMMON)
+    }
+
+    .stack (ALIGN(16)) : {
+        *(.stack)
     }
 
     /DISCARD/ : {

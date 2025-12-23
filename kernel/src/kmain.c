@@ -12,6 +12,11 @@
 
 #include "kfetch.h"
 
+int rectest(int a) {
+    volatile int b = a + 1;
+    return rectest(b * 2);
+}
+
 void kmain(Bootinfo* info) {
     u32 *fb = (u32*)info->framebuffer.base;
     if (!fb) return;
@@ -32,11 +37,16 @@ void kmain(Bootinfo* info) {
 
     SG_Point logo_point = {sg_ctx.width-100, 100};
     sg_put_img(&sg_ctx, &logo_point, &logo_img);
+    
+    // kprintf("Welcome to ^ptermOS^0!!!\n");
+    // kprintf("MemoryMap located at ^g%x^0; \nMemory map size is ^g%x^0\n", (u64)info->mem.map, (u64)info->mem.map_size);
 
-    kprintf("Welcome to ^ptermOS^0!!!\n");
-    kprintf("MemoryMap located at ^g%x^0; \nMemory map size is ^g%x^0\n", (u64)info->mem.map, (u64)info->mem.map_size);
+    // kfetch();
 
-    kfetch();
+    // kprintf("I cant do anything yet lol");
+    kprintf("stack overflow protection test");
+
+   // rectest(0);
 
     __asm__("ud2"); // panic :(
 
