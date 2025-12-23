@@ -32,6 +32,7 @@ void idt_init() {
 
     const u8 flags = 0x8E;
     const u8 selector = 0x08;
+    
 
     idt_set_gate(0,  (u64)isr0,  selector, flags);
     idt_set_gate(1,  (u64)isr1,  selector, flags);
@@ -46,8 +47,8 @@ void idt_init() {
     idt_set_gate(10, (u64)isr10, selector, flags);
     idt_set_gate(11, (u64)isr11, selector, flags);
     idt_set_gate(12, (u64)isr12, selector, flags);
-    idt_set_gate(13, (u64)isr13, selector, flags); // General Protection Fault
-    idt_set_gate(14, (u64)isr14, selector, flags); // Page Fault
+    idt_set_gate(13, (u64)isr13, selector, flags); 
+    idt_set_gate(14, (u64)isr14, selector, flags); 
     idt_set_gate(15, (u64)isr15, selector, flags);
     idt_set_gate(16, (u64)isr16, selector, flags);
     idt_set_gate(17, (u64)isr17, selector, flags);
@@ -65,6 +66,10 @@ void idt_init() {
     idt_set_gate(29, (u64)isr29, selector, flags);
     idt_set_gate(30, (u64)isr30, selector, flags);
     idt_set_gate(31, (u64)isr31, selector, flags);
+
+    idt[8].ist = 1; // TSS
+    idt[13].ist = 1;
+    idt[14].ist = 1;
 
     __asm__ volatile ("lidt %0" : : "m"(idt_ptr));
 }

@@ -18,6 +18,7 @@ add_executable(kernel
     src/modules/memory.c
     src/modules/serial.c
     src/modules/console.c
+    src/modules/rand.c
     src/modules/panic.c
     src/modules/kfetch.c
     data/font8x16.c
@@ -35,6 +36,7 @@ target_link_options(kernel PRIVATE
     -static
     -no-pie
     -T "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
+    -Wl,-Map,"${CMAKE_BINARY_DIR}/kernel.map"
 )
 
 target_compile_options(kernel PRIVATE
