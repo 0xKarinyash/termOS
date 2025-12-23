@@ -77,8 +77,6 @@ static void console_putc(char c) {
     }
 }
 
-
-
 void kprint(const char *str) {
     for (i32 i = 0; str[i] != '\0'; i++) console_putc(str[i]);
 }

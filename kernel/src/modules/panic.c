@@ -19,7 +19,7 @@ const char* fun_messages[] = {
     "Windows is locked! Password:___ Time left: 5:45:41",
     "GOOOOOAL",
     "\"NAM PIZDA\": hackers dropped our registry",
-    "geeked vs locked",
+    "geeked vs locked in",
     "HEEEELP!",
     "LET ME GO!",
     "You little asshole, make it better",
