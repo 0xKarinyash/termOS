@@ -6,7 +6,7 @@
 
 const char* fun_messages[] = {
     "Ooops! All red!",
-    "Execution finished abnormally with code: KYS",
+    "Execution finished abnormally with code: 0x_x",
     "It's definitely your fault.",
     "No more Roblox!",
     "Call your mom 4 help!",
@@ -42,7 +42,8 @@ const char* fun_messages[] = {
     "You hacked it too hard, bro",
     "I think you deleted the internet",
     "Stop downloading RAM",
-    "Pro tip: dont crash"
+    "Pro tip: dont crash",
+    "Stop ricing the kernel you loonixtard, TermOS is NOT Loonix"
 };
 
 
