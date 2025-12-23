@@ -10,8 +10,6 @@
 #include "gdt.h"
 #include "idt.h"
 
-#include "kfetch.h"
-
 int rectest(int a) {
     volatile int b = a + 1;
     return rectest(b * 2);
@@ -27,28 +25,34 @@ void kmain(Bootinfo* info) {
     sg_ctx.width = info->framebuffer.width;
     sg_ctx.pitch = info->framebuffer.pitch;
 
+
+    SG_Point start_pos = {75, 55}; // greeting
     serial_init();
     console_init(&sg_ctx);
     console_clear(0xFFFFFF);
+    console_set_cursor_pos(&start_pos);
     console_set_color(0x000000);
 
     gdt_init();
     idt_init();
 
-    SG_Point logo_point = {sg_ctx.width-100, 100};
+    SG_Point logo_point = {0, 10};
     sg_put_img(&sg_ctx, &logo_point, &logo_img);
+
+    kprintf("Welcome to ^ptermOS^0!!!\n");
+    SG_Point text_normal_point = {0, 120};  // not nice to hardcode nums like that but we have what we have
+    console_set_cursor_pos(&text_normal_point);
     
-    // kprintf("Welcome to ^ptermOS^0!!!\n");
-    // kprintf("MemoryMap located at ^g%x^0; \nMemory map size is ^g%x^0\n", (u64)info->mem.map, (u64)info->mem.map_size);
+    kprintf("MemoryMap located at ^g%x^0; \nMemory map size is ^g%x^0\n", (u64)info->mem.map, (u64)info->mem.map_size);
 
     // kfetch();
 
     // kprintf("I cant do anything yet lol");
-    kprintf("stack overflow protection test");
+  //  kprintf("stack overflow protection test");
 
    // rectest(0);
 
-    __asm__("ud2"); // panic :(
+    // __asm__("ud2"); // panic :(
 
     while (1) { __asm__("hlt"); }
 }
