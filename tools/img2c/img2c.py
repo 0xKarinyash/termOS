@@ -1,9 +1,6 @@
-#!/usr/bin/env python3
 import sys
 from PIL import Image
 
-# НАШ МАГИЧЕСКИЙ ЦВЕТ (ЯДОВИТО-РОЗОВЫЙ)
-# Выбран, потому что его редко используют в реальных картинках.
 TRANSPARENCY_KEY = 0xFF00FF 
 
 def main():
@@ -15,7 +12,6 @@ def main():
     output_name = sys.argv[2]
     
     try:
-        # Конвертируем в RGBA, чтобы получить доступ к альфа-каналу
         img = Image.open(input_path).convert("RGBA")
     except Exception as e:
         print(f"Error opening image: {e}")
@@ -24,7 +20,6 @@ def main():
     width, height = img.size
     pixels = list(img.getdata())
 
-    # --- Генерация хедера ---
     c_code = []
     c_code.append(f"#pragma once")
     c_code.append(f'#include "shitgui.h"')
@@ -39,8 +34,6 @@ def main():
     for i, p in enumerate(pixels):
         r, g, b, a = p
         
-        # ГЛАВНОЕ ИЗМЕНЕНИЕ: Проверяем прозрачность
-        # Если альфа < 128 (условно, "прозрачный"), используем ключ
         if a < 128:
             val = TRANSPARENCY_KEY
         else:
