@@ -44,7 +44,7 @@ int main()
     uint64_t kernel_size = file_info->FileSize;
     uintn_t kernel_size_read = (uintn_t)kernel_size;
     efi_physical_address_t kernel_addr = 0x100000;
-    uintn_t pages = (kernel_size + 0xFFF) / 0x1000;
+    uintn_t pages = (kernel_size + 0xFFF) / 0x1000 + 32;
 
     status = gBS->AllocatePages(AllocateAddress, EfiLoaderData, pages, &kernel_addr);
     if (EFI_ERROR(status)) {

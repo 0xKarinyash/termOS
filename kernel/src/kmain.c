@@ -1,19 +1,24 @@
 #include "../../common/bootinfo.h"
-#include "console.h"
 #include "types.h"
 
 #include "shitgui.h"
 #include "serial.h"
+#include "console.h"
 #include "panic.h" // IWYU pragma: keep
-#include "../data/logo.h"
 
 #include "gdt.h"
 #include "idt.h"
+#include "pmm.h"
+
+#include "../data/logo.h"
+
 
 int rectest(int a) {
     volatile int b = a + 1;
     return rectest(b * 2);
 }
+
+extern u64 _kernel_end;
 
 void kmain(Bootinfo* info) {
     u32 *fb = (u32*)info->framebuffer.base;
@@ -42,8 +47,13 @@ void kmain(Bootinfo* info) {
     kprintf("Welcome to ^ptermOS^0!!!\n");
     SG_Point text_normal_point = {0, 120};  // not nice to hardcode nums like that but we have what we have
     console_set_cursor_pos(&text_normal_point);
+
+    pmm_init(info->mem);
     
-    kprintf("MemoryMap located at ^g%x^0; \nMemory map size is ^g%x^0\n", (u64)info->mem.map, (u64)info->mem.map_size);
+    kprintf("MemoryMap located at ^g%x^0 (^r%X^0); \
+      \nMemory map size is ^g%x^0\
+      \nKernel ends at ^g%x^0\
+      \nBITMAP located at ^g%x^0", (u64)info->mem.map, (u64)info->mem.map,(u64)info->mem.map_size, &_kernel_end, get_bitmap());
 
     // kfetch();
 
@@ -52,7 +62,7 @@ void kmain(Bootinfo* info) {
 
    // rectest(0);
 
-  //  __asm__("ud2"); // panic :(
+    // __asm__("ud2"); // panic :(
 
     while (1) { __asm__("hlt"); }
 }

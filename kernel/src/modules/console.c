@@ -7,8 +7,13 @@
 #include <stdarg.h>
 
 #define COLOR_RED    0xFF5555
+#define COLOR_VERYRED 0xFF0000
 #define COLOR_GREEN  0x08bf39
+#define COLOR_VERYGREEN 0x00FF00
+#define COLOR_TURQUOISE 0x5effaf
 #define COLOR_BLUE   0x5555FF
+#define COLOR_VERYBLUE 0x0000FF
+#define COLOR_LIGHTBLUE 0x3890e8
 #define COLOR_YELLOW 0xFFFF55
 #define COLOR_CYAN   0x55FFFF
 #define COLOR_MAGENTA 0xFF55FF
@@ -98,30 +103,36 @@ static void print_dec(const i64 n) {
     }
 }
 
-static void print_hex(u64 u) {
+static void print_hex(u64 u, u8 padding) {
     console_putc('0');
     console_putc('x');
 
     if (u == 0) {
         console_putc('0');
+        for (i32 i = 1; i < padding; i++) console_putc('0'); 
         return;
     }
 
-    char buffer[16]; 
+    char buffer[16] = {0}; 
     i32 i = 0;
 
-    while (u > 0) {
+    do {
         i32 digit = u % 16;
-        if (digit < 10) { buffer[i] = digit + '0'; }
-        else { buffer[i] = digit - 10 + 'A'; }
+        if (digit < 10) buffer[i++] = digit + '0';
+        else            buffer[i++] = digit - 10 + 'A';
         u /= 16;
-        i++;
+    } while (u > 0);
+
+    while(i < padding) {
+        console_putc('0');
+        padding--;
     }
 
     while (--i >= 0) {
         console_putc(buffer[i]);
     }
 }
+
 
 void kprintf(const char *fmt, ...) {
     va_list args;
@@ -149,8 +160,13 @@ void kprintf(const char *fmt, ...) {
                 }
                 case 'x': {
                     u64 num = va_arg(args, u64);
-                    print_hex(num);
+                    print_hex(num, 0);
                     break;    
+                }
+                case 'X' : {
+                    u64 num = va_arg(args, u64);
+                    print_hex(num, 16);
+                    break;
                 }
                 default: {
                     console_putc(fmt[i]);
@@ -161,8 +177,13 @@ void kprintf(const char *fmt, ...) {
             i++;
             switch (fmt[i]) {
                 case 'r': console_set_color(COLOR_RED); break;
+                case 'R': console_set_color(COLOR_VERYRED); break;
                 case 'g': console_set_color(COLOR_GREEN); break;
+                case 'G': console_set_color(COLOR_VERYGREEN); break;
+                case 't': console_set_color(COLOR_TURQUOISE); break;
                 case 'b': console_set_color(COLOR_BLUE); break;
+                case 'B': console_set_color(COLOR_VERYBLUE); break;
+                case 'l': console_set_color(COLOR_LIGHTBLUE); break;
                 case 'y': console_set_color(COLOR_YELLOW); break;
                 case 'c': console_set_color(COLOR_CYAN); break;
                 case 'm': console_set_color(COLOR_MAGENTA); break;

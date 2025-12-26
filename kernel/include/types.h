@@ -20,4 +20,32 @@ typedef struct {
     u64 rip, cs, rflags, rsp, ss;                                               // Pushed by CPU
 } Registers;
 
+typedef struct {
+    u32 type;
+    u32 pad;
+    u64 physical_start;
+    u64 virtual_start;
+    u64 number_of_pages;
+    u64 attribute;
+} __attribute__((packed)) efi_memory_descriptor_k;
+
+typedef enum {
+    EfiReservedMemoryType,
+    EfiLoaderCode,
+    EfiLoaderData, 
+    EfiBootServicesCode,
+    EfiBootServicesData,
+    EfiRuntimeServicesCode,
+    EfiRuntimeServicesData,
+    EfiConventionalMemory,
+    EfiUnusableMemory,
+    EfiACPIReclaimMemory,
+    EfiACPIMemoryNVS,
+    EfiMemoryMappedIO,
+    EfiMemoryMappedIOPortSpace,
+    EfiPalCode,
+    EfiPersistentMemory,
+    EfiMaxMemoryType
+} EFI_MEMORY_TYPE;
+
 #endif
