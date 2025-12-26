@@ -2,5 +2,5 @@
 #include "types.h"
 
 void isr_handler_c(Registers *regs) {
-    panic(regs);
+    panic_exception(regs);
 }

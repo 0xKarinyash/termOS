@@ -12,7 +12,7 @@ add_subdirectory(kernel)
 find_program(MCOPY_EXE mcopy)
 find_program(MKFS_EXE mkfs.fat)
 find_program(QEMU_EXE qemu-system-x86_64)
-set(OVMF_PATH "/usr/share/qemu/ovmf-x86_64.bin" CACHE FILEPATH "Path to OVMF bios")
+set(OVMF_PATH "/usr/share/edk2/ovmf/OVMF_CODE.fd" CACHE FILEPATH "Path to OVMF bios")
 
 if(MCOPY_EXE AND MKFS_EXE)
     set(IMG_FILE "${CMAKE_BINARY_DIR}/termOS.img")
