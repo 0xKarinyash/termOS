@@ -56,7 +56,6 @@ def main():
     c_code.append(f"    .buffer = (u32*){output_name}_data")
     c_code.append(f"}};")
 
-    # Сохраняем в файл
     output_filename = f"{output_name}.h"
     with open(output_filename, "w") as f:
         f.write("\n".join(c_code))

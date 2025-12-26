@@ -65,25 +65,18 @@ void kmain(Bootinfo* info) {
     vmm_init(info);
 
     kprintf("\nIM ALIVE :D");
-    kprintf("\nSetting up guard page test");
-    u64* new_stack_phys = pmm_alloc_page();
-    u64 stack_top = 0x40000000;
-    vmm_map_page(pml4_kernel, (u64)new_stack_phys, stack_top, PTE_PRESENT | PTE_RW);
+
+    // kprintf("\nSetting up guard page test");
+    // u64* new_stack_phys = pmm_alloc_page();
+    // u64 stack_top = 0x40000000;
+    // vmm_map_page(pml4_kernel, (u64)new_stack_phys, stack_top, PTE_PRESENT | PTE_RW);
     
-    __asm__ volatile (
-      "mov %0, %%rsp \n" 
-      "call *%1"       
-      :: "r"(stack_top + 4096), "r"(rectest), "D"(0) : "memory"
-    );
+    // __asm__ volatile (
+    //   "mov %0, %%rsp \n"      
+    //   :: "r"(stack_top + 4096)
+    // );
 
-    // kfetch();
-
-    // kprintf("I cant do anything yet lol");
-  //  kprintf("stack overflow protection test");
-
-    rectest(0);
-
-    // __asm__("ud2"); // panic :(
+   // rectest(0);
 
     while (1) { __asm__("hlt"); }
 }
