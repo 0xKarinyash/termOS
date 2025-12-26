@@ -16,6 +16,7 @@ add_executable(kernel
     src/modules/idt.c
     src/modules/interrupts.c
     src/modules/pmm.c
+    src/modules/vmm.c
     src/modules/memory.c
     src/modules/serial.c
     src/modules/console.c

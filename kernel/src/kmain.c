@@ -9,16 +9,22 @@
 #include "gdt.h"
 #include "idt.h"
 #include "pmm.h"
+#include "vmm.h"
 
 #include "../data/logo.h"
+#include "vmm.h"
 
 
 int rectest(int a) {
     volatile int b = a + 1;
+    kprintf("%d", b);
     return rectest(b * 2);
 }
 
 extern u64 _kernel_end;
+extern u8* bitmap;
+extern u64 bitmap_size_g;
+extern u64* pml4_kernel;
 
 void kmain(Bootinfo* info) {
     u32 *fb = (u32*)info->framebuffer.base;
@@ -53,14 +59,29 @@ void kmain(Bootinfo* info) {
     kprintf("MemoryMap located at ^g%x^0 (^r%X^0); \
       \nMemory map size is ^g%x^0\
       \nKernel ends at ^g%x^0\
-      \nBITMAP located at ^g%x^0", (u64)info->mem.map, (u64)info->mem.map,(u64)info->mem.map_size, &_kernel_end, get_bitmap());
+      \nBITMAP located at ^g%x^0 (^r%x^0)", (u64)info->mem.map, (u64)info->mem.map,(u64)info->mem.map_size, &_kernel_end, bitmap, bitmap_size_g);
+
+
+    vmm_init(info);
+
+    kprintf("\nIM ALIVE :D");
+    kprintf("\nSetting up guard page test");
+    u64* new_stack_phys = pmm_alloc_page();
+    u64 stack_top = 0x40000000;
+    vmm_map_page(pml4_kernel, (u64)new_stack_phys, stack_top, PTE_PRESENT | PTE_RW);
+    
+    __asm__ volatile (
+      "mov %0, %%rsp \n" 
+      "call *%1"       
+      :: "r"(stack_top + 4096), "r"(rectest), "D"(0) : "memory"
+    );
 
     // kfetch();
 
     // kprintf("I cant do anything yet lol");
   //  kprintf("stack overflow protection test");
 
-   // rectest(0);
+    rectest(0);
 
     // __asm__("ud2"); // panic :(
 
