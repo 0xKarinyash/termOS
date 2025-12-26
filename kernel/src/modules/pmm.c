@@ -5,8 +5,6 @@
 #include "memory.h" // IWYU pragma: keep // clangd is stupid af
 #include "math.h"
 
-#define SAFE_SPACE_START_ADDR 0x100000
-
 extern u64 _kernel_start; 
 extern u64 _kernel_end;
 
@@ -59,10 +57,10 @@ void pmm_init(BI_MemoryMap mmap) {
     u64 k_end   = (u64)&_kernel_end;
 
     u64 bitmap_start = (u64)bitmap;
-    u64 bitmap_end = bitmap_start + bitmap_size_g;
+    u64 bitmap_end   = bitmap_start + bitmap_size_g;
 
     for (u64 i = 0; i < SAFE_SPACE_START_ADDR; i += PAGE_SIZE) BITMAP_SET(bitmap, i); // mem, that addr < 1MB is NOT safe to use on x86
-    for (u64 i = k_start; i < k_end; i += PAGE_SIZE) BITMAP_SET(bitmap, i); 
+    for (u64 i = k_start; i < k_end; i += PAGE_SIZE)           BITMAP_SET(bitmap, i); 
     for (u64 i = bitmap_start; i < bitmap_end; i += PAGE_SIZE) BITMAP_SET(bitmap, i);
 }
 
@@ -82,8 +80,4 @@ void* pmm_alloc_page() {
 
 void pmm_free_page(void* addr) {
     BITMAP_UNSET(bitmap, (u64)addr);
-}
-
-u8* get_bitmap() {
-    return bitmap;
 }
