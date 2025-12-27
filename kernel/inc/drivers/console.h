@@ -7,6 +7,7 @@
 #include <drivers/shitgui.h>
 
 void console_init(SG_Context *ctx);
+u64 console_get_colors();
 void console_clear(u32 color);
 SG_Context* console_get_context();
 SG_Point console_get_dimensions();
