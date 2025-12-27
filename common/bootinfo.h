@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2025 0xKarinyash
+
 #pragma once
 
 typedef unsigned _BitInt(32) bi_u32;

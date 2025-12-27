@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2025 0xKarinyash
+
 #pragma once
 #ifndef PANIC_H
 #define PANIC_H

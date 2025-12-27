@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2025 0xKarinyash
+
 #include "uefi.h" // IWYU pragma: keep
 #include "../../common/bootinfo.h"
 

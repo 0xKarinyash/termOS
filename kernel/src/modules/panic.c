@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2025 0xKarinyash
+
 #include "panic.h"
 #include "console.h"
 #include "rand.h"
@@ -42,7 +45,9 @@ const char* fun_messages[] = {
     "I think you deleted the internet",
     "Stop downloading RAM",
     "Pro tip: dont crash",
-    "Stop ricing the kernel you loonixtard, TermOS is NOT Loonix"
+    "Stop ricing the kernel you loonixtard, TermOS is NOT Loonix",
+    "Attaboy, Jack. He's good. Really good.",
+    ""
 };
 
 

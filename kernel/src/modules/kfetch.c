@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2025 0xKarinyash
+
 // yes. *fetch in kernel
 // WHY FUCKING NOT?? its my OS, my rules
 

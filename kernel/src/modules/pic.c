@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2025 0xKarinyash
+
 #include "pic.h"
 #include "io.h"
 #include "types.h"
@@ -7,26 +10,25 @@
 #define SLAVE_COMMAND  0xA0
 #define SLAVE_DATA     0xA1
 
-static inline void send(unsigned short port, unsigned char val) {
-    outb(port, val); 
-    io_wait();
-}
+u16 pic_remap() {
+    u8 curr_master = inb(MASTER_DATA);
+    u8 curr_slave  = inb(SLAVE_DATA);
 
-void pic_remap() {
-    u64 curr_master = inb(MASTER_DATA);
-    u64 curr_slave  = inb(SLAVE_DATA);
+    // initialization; icw1
+    outb_wait(MASTER_COMMAND, 0x11);
+    outb_wait(SLAVE_COMMAND, 0x11);
 
-    // initialization
-    send(MASTER_COMMAND, 0x11);
-    send(SLAVE_COMMAND, 0x11);
+    // icw2
+    outb_wait(MASTER_DATA, 0x20); // master now controlling idt[32..39]
+    outb_wait(SLAVE_DATA, 0x28); // idt[40..47]
 
-    send(MASTER_DATA, 0x20); // master now controlling idt[32..39]
-    send(SLAVE_DATA, 0x28); // idt[40..47]
+    // icw3
+    outb_wait(MASTER_DATA, 0x04); // slave on irq2
+    outb_wait(SLAVE_DATA, 0x02); // assign id = 2 to slave
 
-    send(MASTER_DATA, 0x04); // slave on irq2
-    send(SLAVE_DATA, 0x02); // assign id = 2 to slave
+    // icw4; 0x01 -- 8086 mode
+    outb_wait(MASTER_DATA, 0x01);
+    outb_wait(SLAVE_DATA, 0x01); 
 
-    
-
-    
+    return ((u16) curr_master << 8) | curr_slave;
 }
