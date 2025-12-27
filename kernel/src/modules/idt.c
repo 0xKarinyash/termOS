@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2025 0xKarinyash
+
 #include "idt.h"
 #include "types.h"
 

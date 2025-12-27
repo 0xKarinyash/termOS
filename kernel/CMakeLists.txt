@@ -12,7 +12,6 @@ add_executable(kernel
     src/entry.asm
     src/asm/interrupts.asm
     src/kmain.c
-    src/modules/io.c
     src/modules/pic.c
     src/modules/gdt.c
     src/modules/idt.c

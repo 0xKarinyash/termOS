@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2025 0xKarinyash
+
 #ifndef PMM_H
 #define PMM_H
 

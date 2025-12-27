@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2025 0xKarinyash
+
 #pragma once
 #ifndef GDT_H
 #define GDT_H
