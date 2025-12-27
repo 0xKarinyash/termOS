@@ -1,22 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#include "../../common/bootinfo.h"
-#include "types.h"
-
-#include "shitgui.h"
-#include "serial.h"
-#include "console.h"
-#include "panic.h" // IWYU pragma: keep
-
-#include "gdt.h"
-#include "idt.h"
-#include "pic.h"
-#include "pmm.h"
-#include "vmm.h"
-
+#include "bootinfo.h"
 #include "../data/logo.h"
-#include "vmm.h"
+
+#include <types.h>
+
+#include <drivers/shitgui.h>
+#include <drivers/serial.h>
+#include <drivers/console.h>
+
+#include <gdt.h>
+#include <idt.h>
+#include <pic.h>
+#include <mm/pmm.h>
+#include <mm/vmm.h>
 
 extern u64 _kernel_end;
 extern u8* bitmap;
@@ -54,15 +52,8 @@ void kmain(Bootinfo* info) {
 
     pmm_init(info->mem);
     
-    kprintf("MemoryMap located at ^g%x^0 (^r%X^0); \
-      \nMemory map size is ^g%x^0\
-      \nKernel ends at ^g%x^0\
-      \nBITMAP located at ^g%x^0 (^r%x^0)", (u64)info->mem.map, (u64)info->mem.map,(u64)info->mem.map_size, &_kernel_end, bitmap, bitmap_size_g);
-
-
     vmm_init(info);
 
-    kprintf("\nIM ALIVE :D");
     __asm__ volatile ("sti");
 
     while (1) { __asm__("hlt"); }

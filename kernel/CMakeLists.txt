@@ -5,42 +5,34 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
-add_library(shitgui STATIC src/modules/shitgui.c)
-target_include_directories(shitgui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+if (NOT DEFINED ARCH)
+    set(ARCH "x86_64")
+endif()
 
-add_executable(kernel
-    src/entry.asm
-    src/asm/interrupts.asm
-    src/kmain.c
-    src/modules/pic.c
-    src/modules/gdt.c
-    src/modules/idt.c
-    src/modules/interrupts.c
-    src/modules/pmm.c
-    src/modules/vmm.c
-    src/modules/memory.c
-    src/modules/serial.c
-    src/modules/console.c
-    src/modules/rand.c
-    src/modules/panic.c
-    src/modules/keyboard.c
-    src/modules/kfetch.c
-    data/font8x16.c
+message(STATUS "TermOS Kernel: Building for architecture '${ARCH}'")
+
+
+file(GLOB_RECURSE KERNEL_SOURCES
+    "src/kmain.c"
+    
+    "src/arch/${ARCH}/*.c"
+    "src/arch/${ARCH}/*.asm"
+
+    "src/core/*.c"
+    "src/drivers/*.c"
+    "src/mm/*.c"
+    "src/shell/*.c"
+    
+    "data/*.c"
 )
+
+add_executable(kernel ${KERNEL_SOURCES})
 
 target_include_directories(kernel PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/../common" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/include" 
-)
-
-target_link_libraries(kernel PRIVATE shitgui)
-
-target_link_options(kernel PRIVATE
-    -nostdlib
-    -static
-    -no-pie
-    -T "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
-    -Wl,-Map,"${CMAKE_BINARY_DIR}/kernel.map"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../common"
+    "${CMAKE_CURRENT_SOURCE_DIR}/inc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/inc/arch/${ARCH}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/data"
 )
 
 target_compile_options(kernel PRIVATE
@@ -54,6 +46,15 @@ target_compile_options(kernel PRIVATE
     >
 )
 
+target_link_options(kernel PRIVATE
+    -nostdlib
+    -static
+    -no-pie
+    -T "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
+    -Wl,-Map,"${CMAKE_BINARY_DIR}/kernel.map"
+    -z max-page-size=0x1000 
+)
+
 set_target_properties(kernel PROPERTIES 
     OUTPUT_NAME "kernel.elf"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
@@ -61,10 +62,5 @@ set_target_properties(kernel PROPERTIES
 
 add_custom_command(TARGET kernel POST_BUILD
     COMMAND objcopy -O binary $<TARGET_FILE:kernel> $<TARGET_FILE_DIR:kernel>/kernel.bin
-    COMMENT "Stripping ELF headers -> kernel.bin"
-)
-
-file(GLOB_RECURSE SOURCES 
-    "src/*.c"
-    "data/*.c"
+    COMMENT "Generating raw binary kernel.bin..."
 )
