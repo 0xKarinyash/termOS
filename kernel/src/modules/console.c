@@ -6,20 +6,20 @@
 #include "types.h"
 #include <stdarg.h>
 
-#define COLOR_RED    0xFF5555
-#define COLOR_VERYRED 0xFF0000
-#define COLOR_GREEN  0x08bf39
+#define COLOR_RED       0xFF5555
+#define COLOR_VERYRED   0xFF0000
+#define COLOR_GREEN     0x08bf39
 #define COLOR_VERYGREEN 0x00FF00
 #define COLOR_TURQUOISE 0x5effaf
-#define COLOR_BLUE   0x5555FF
-#define COLOR_VERYBLUE 0x0000FF
+#define COLOR_BLUE      0x5555FF
+#define COLOR_VERYBLUE  0x0000FF
 #define COLOR_LIGHTBLUE 0x3890e8
-#define COLOR_YELLOW 0xFFFF55
-#define COLOR_CYAN   0x55FFFF
-#define COLOR_MAGENTA 0xFF55FF
-#define COLOR_BLACK 0x000000
-#define COLOR_WHITE 0xFFFFFF
-#define COLOR_PINK 0xFFA3B1
+#define COLOR_YELLOW    0xFFFF55
+#define COLOR_CYAN      0x55FFFF
+#define COLOR_MAGENTA   0xFF55FF
+#define COLOR_BLACK     0x000000
+#define COLOR_WHITE     0xFFFFFF
+#define COLOR_PINK      0xFFA3B1
 
 static SG_Context *ctx_ptr = nullptr;
 static SG_Point s_cursor_pos = {0};
