@@ -3,7 +3,7 @@
 // Copyright (c) 2025 0xKarinyash
 
 #pragma once
-#include "shitgui.h"
+#include <drivers/shitgui.h>
 
 #define LOGO_TRANSPARENCY_KEY 0xFF00FF
 
