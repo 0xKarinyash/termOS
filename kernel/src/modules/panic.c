@@ -47,7 +47,9 @@ const char* fun_messages[] = {
     "Pro tip: dont crash",
     "Stop ricing the kernel you loonixtard, TermOS is NOT Loonix",
     "Attaboy, Jack. He's good. Really good.",
-    ""
+    "Zhenih priehal",
+    "YOUR PC WAS BLOCKED BY FBI FOR WATCHING PORNOGRAPHY SEND 20 US DOLLARS",
+    "fuck off"
 };
 
 

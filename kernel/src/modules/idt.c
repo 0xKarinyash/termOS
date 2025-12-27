@@ -15,6 +15,7 @@ extern void isr16(); extern void isr17(); extern void isr18(); extern void isr19
 extern void isr20(); extern void isr21(); extern void isr22(); extern void isr23();
 extern void isr24(); extern void isr25(); extern void isr26(); extern void isr27();
 extern void isr28(); extern void isr29(); extern void isr30(); extern void isr31();
+extern void irq0(void); extern void irq1(void);
 
 extern void idt_load(u64); // asm: lidt [rdi] / ret
 
@@ -73,6 +74,9 @@ void idt_init() {
     idt[8].ist = 1; // TSS
     idt[13].ist = 1;
     idt[14].ist = 1;
+
+    idt_set_gate(32, (u64)irq0, selector, flags);
+    idt_set_gate(33, (u64)irq1, selector, flags);
 
     __asm__ volatile ("lidt %0" : : "m"(idt_ptr));
 }

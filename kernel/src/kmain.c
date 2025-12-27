@@ -11,18 +11,12 @@
 
 #include "gdt.h"
 #include "idt.h"
+#include "pic.h"
 #include "pmm.h"
 #include "vmm.h"
 
 #include "../data/logo.h"
 #include "vmm.h"
-
-
-int rectest(int a) {
-    volatile int b = a + 1;
-    kprintf("%d", b);
-    return rectest(b * 2);
-}
 
 extern u64 _kernel_end;
 extern u8* bitmap;
@@ -49,6 +43,7 @@ void kmain(Bootinfo* info) {
 
     gdt_init();
     idt_init();
+    pic_remap();
 
     SG_Point logo_point = {0, 10};
     sg_put_img(&sg_ctx, &logo_point, &logo_img);
@@ -68,18 +63,7 @@ void kmain(Bootinfo* info) {
     vmm_init(info);
 
     kprintf("\nIM ALIVE :D");
-
-    // kprintf("\nSetting up guard page test");
-    // u64* new_stack_phys = pmm_alloc_page();
-    // u64 stack_top = 0x40000000;
-    // vmm_map_page(pml4_kernel, (u64)new_stack_phys, stack_top, PTE_PRESENT | PTE_RW);
-    
-    // __asm__ volatile (
-    //   "mov %0, %%rsp \n"      
-    //   :: "r"(stack_top + 4096)
-    // );
-
-   // rectest(0);
+    __asm__ volatile ("sti");
 
     while (1) { __asm__("hlt"); }
 }
