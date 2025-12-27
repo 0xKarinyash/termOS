@@ -3,12 +3,15 @@
 
 #include "bootinfo.h"
 #include "../data/logo.h"
+#include "shell/ksh.h"
 
 #include <types.h>
 
 #include <drivers/shitgui.h>
 #include <drivers/serial.h>
 #include <drivers/console.h>
+
+#include <core/panic.h>
 
 #include <gdt.h>
 #include <idt.h>
@@ -49,12 +52,7 @@ void kmain(Bootinfo* info) {
     SG_Point text_normal_point = {0, 120};  // not nice to hardcode nums like that but we have what we have
     console_set_cursor_pos(&text_normal_point);
 
-    kprintf("ksh_> ");
-    char buff[32];
-    kgets(buff, 32);
-    kprintf("You typed: %s", buff);
-
-    __asm__ volatile ("sti");
-
-    while (1) { __asm__("hlt"); }
+    ksh();
+    
+    panic("Kernel main loop exited");
 }

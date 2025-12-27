@@ -43,6 +43,10 @@ void console_init(SG_Context *ctx) {
     s_font.base = (const unsigned char*)font8x16;
 }
 
+u64 console_get_colors() {
+    return ((u64) s_color << 32) | s_bg_color;
+}
+
 void console_clear(u32 color) {
     if (!ctx_ptr) return;
 

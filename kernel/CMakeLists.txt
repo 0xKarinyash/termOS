@@ -51,7 +51,6 @@ target_link_options(kernel PRIVATE
     -static
     -no-pie
     -T "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
-    -Wl,-Map,"${CMAKE_BINARY_DIR}/kernel.map"
     -z max-page-size=0x1000 
 )
 
