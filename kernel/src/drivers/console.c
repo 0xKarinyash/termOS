@@ -31,6 +31,7 @@ static SG_Context *ctx_ptr = nullptr;
 static SG_Point s_cursor_pos = {0};
 static SG_Font s_font = {0};
 static u32 s_color = COLOR_WHITE;
+static u32 s_bg_color = COLOR_BLACK;
 
 void console_init(SG_Context *ctx) {
     ctx_ptr = ctx;
@@ -50,6 +51,7 @@ void console_clear(u32 color) {
     
     s_cursor_pos.x = 0;
     s_cursor_pos.y = 0;
+    s_bg_color = color;
 }
 
 SG_Context* console_get_context() {
@@ -77,6 +79,9 @@ static void console_putc(char c) {
         s_cursor_pos.y += s_font.h;
     } else if (c == '\t') {
         s_cursor_pos.x += s_font.w * 4;
+    } else if (c == '\b') {
+        s_cursor_pos.x -= s_font.w;
+        sg_draw_rect(ctx_ptr, &s_cursor_pos, s_font.w, s_font.h, s_bg_color);
     } else {
         sg_draw_char_bitmap(ctx_ptr, &s_cursor_pos, c, s_color, &s_font);
         s_cursor_pos.x += s_font.w;
