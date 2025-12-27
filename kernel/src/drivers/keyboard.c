@@ -83,15 +83,19 @@ unsigned char keyboard_map_shifted[128] = {
 };
 
 bool shift_pressed = false;
+kb_buffer kb_buf = {0};
 
 void kb_handler(Registers *regs) {
+    u16 next_head = (kb_buf.head + 1) % KB_BUFF_SIZE;
+
     u8 scancode = inb(0x60);
     // make code 0x00 - 0x7F; break code = make code + 0x80
     if (scancode < 0x80) {
         unsigned char* arr = shift_pressed ? keyboard_map_shifted : keyboard_map;
         char ascii = arr[scancode];
-        if (ascii) {
-            kprintf("%c", ascii);
+        if (ascii && next_head != kb_buf.tail) {
+            kb_buf.buffer[kb_buf.head] = ascii;
+            kb_buf.head = next_head;
         } else {
             switch (scancode) {
                 case 0x2A: shift_pressed = true; break;

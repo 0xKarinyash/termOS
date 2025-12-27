@@ -5,6 +5,7 @@
 #include <drivers/serial.h>
 #include <drivers/font.h>
 #include <drivers/shitgui.h>
+#include <drivers/keyboard.h>
 
 #include <core/math.h>
 #include <types.h>
@@ -212,4 +213,41 @@ void kprintf(const char *fmt, ...) {
 
 void console_set_color(u32 color) {
     s_color = color;
+}
+
+static char console_getc() {
+    while (kb_buf.head == kb_buf.tail) __asm__ volatile ("sti; hlt");
+    __asm__ volatile ("cli");
+    char temp = kb_buf.buffer[kb_buf.tail];
+    kb_buf.tail = (kb_buf.tail + 1) % KB_BUFF_SIZE;
+    __asm__ volatile ("sti");
+    return temp;
+}
+
+void kgets(char* buff, u32 lim) {
+    u32 i = 0;
+    while (true) {
+        char c = console_getc();
+        switch (c) {
+            case '\n': { 
+                buff[i] = '\0';
+                kprintf("\n");
+                return;
+            }
+            case '\b': {
+                if (i > 0) {
+                    i--;
+                    kprintf("\b \b");
+                }
+                break;
+            }
+            default: {
+                if (i < lim - 1) { 
+                    buff[i] = c;
+                    kprintf("%c", c);
+                    i++;
+                }
+            }
+        }
+    }
 }
