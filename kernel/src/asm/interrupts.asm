@@ -4,6 +4,7 @@
 bits 64
 
 extern isr_handler_c
+extern irq_handler_c
 
 section .text
 
@@ -20,6 +21,60 @@ global isr%1
 isr%1:
     push %1
     jmp isr_common_stub
+%endmacro
+
+%macro PUSHALL 0
+    push r15
+    push r14
+    push r13
+    push r12
+    push r11
+    push r10
+    push r9
+    push r8
+    push rbp
+    push rdi
+    push rsi
+    push rdx
+    push rcx
+    push rbx
+    push rax
+%endmacro
+
+%macro POPALL 0
+    pop rax
+    pop rbx
+    pop rcx
+    pop rdx
+    pop rsi
+    pop rdi
+    pop rbp
+    pop r8
+    pop r9
+    pop r10
+    pop r11
+    pop r12
+    pop r13
+    pop r14
+    pop r15
+%endmacro
+
+%macro IRQ_HANDLER 2
+global %2
+%2:
+    push 0   ; dummy err code 
+    push %1         
+    
+    PUSHALL
+    
+    mov rdi, rsp
+    cld 
+    call irq_handler_c
+    
+    POPALL
+    
+    add rsp, 16 
+    iretq
 %endmacro
 
 ISR_NOERRCODE 0   ; Divide by zero
@@ -56,40 +111,12 @@ ISR_ERRCODE   30  ; Security Exception
 ISR_NOERRCODE 31  ; Reserved
 
 isr_common_stub:
-    push r15
-    push r14
-    push r13
-    push r12
-    push r11
-    push r10
-    push r9
-    push r8
-    push rdi
-    push rsi
-    push rbp
-    push rdx
-    push rcx
-    push rbx
-    push rax
+    PUSHALL
 
     mov rdi, rsp
     call isr_handler_c
 
-    pop rax
-    pop rbx
-    pop rcx
-    pop rdx
-    pop rbp
-    pop rsi
-    pop rdi
-    pop r8
-    pop r9
-    pop r10
-    pop r11
-    pop r12
-    pop r13
-    pop r14
-    pop r15
+    POPALL
 
     add rsp, 16
     iretq
@@ -98,3 +125,6 @@ global idt_load
 idt_load:
     lidt [rdi]
     ret
+
+IRQ_HANDLER 32, irq0
+IRQ_HANDLER 33, irq1

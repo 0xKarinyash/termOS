@@ -4,4 +4,8 @@
 #ifndef PIC_H
 #define PIC_H
 
+#include "types.h"
+
+u16 pic_remap();
+
 #endif

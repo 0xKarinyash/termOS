@@ -4,6 +4,11 @@
 #ifndef IO_H
 #define IO_H
 
+#define MASTER_COMMAND 0x20
+#define MASTER_DATA    0x21
+#define SLAVE_COMMAND  0xA0
+#define SLAVE_DATA     0xA1
+
 static inline void outb(unsigned short port, unsigned char val) {
     __asm__ volatile( 
         "outb %0, %1" 

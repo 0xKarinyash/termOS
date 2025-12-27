@@ -23,6 +23,7 @@ add_executable(kernel
     src/modules/console.c
     src/modules/rand.c
     src/modules/panic.c
+    src/modules/keyboard.c
     src/modules/kfetch.c
     data/font8x16.c
 )
