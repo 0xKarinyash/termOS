@@ -19,7 +19,6 @@
 #define PTE_GET_ADDR(entry)  ((entry) & PTE_ADDR_MASK)  // get physical address
 #define PTE_GET_FLAGS(entry) ((entry) & ~PTE_ADDR_MASK) // get flags
 
-
 #define VMM_PT_INDEX(virt)   (((virt) >> 12) & 0x1FF) // Table Index (bits 12-20)
 #define VMM_PD_INDEX(virt)   (((virt) >> 21) & 0x1FF) // Page Directory Index (bits 21-29) 
 #define VMM_PDPT_INDEX(virt) (((virt) >> 30) & 0x1FF) // PDPT Index (bits 30-38)
