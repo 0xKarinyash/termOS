@@ -52,7 +52,7 @@ void kmain(Bootinfo* info) {
     kprintf("ksh_> ");
     char buff[32];
     kgets(buff, 32);
-    kprintf("You typed: %s", &buff);
+    kprintf("You typed: %s", buff);
 
     __asm__ volatile ("sti");
 
