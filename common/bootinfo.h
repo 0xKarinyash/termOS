@@ -3,8 +3,8 @@
 
 #pragma once
 
-typedef unsigned _BitInt(32) bi_u32;
-typedef unsigned _BitInt(64) bi_u64;
+typedef unsigned int       bi_u32;
+typedef unsigned long long bi_u64; 
 
 typedef struct {
     bi_u32 *base;

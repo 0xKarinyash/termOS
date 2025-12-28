@@ -61,7 +61,7 @@ int main()
 
     status = gBS->AllocatePool(EfiLoaderData, sizeof(Bootinfo), (void**)&boot_info);
 
-    boot_info->framebuffer.base = (uintn_t*)gop->Mode->FrameBufferBase;
+    boot_info->framebuffer.base = (uint32_t*)gop->Mode->FrameBufferBase;
     boot_info->framebuffer.base_size = gop->Mode->FrameBufferSize;
     boot_info->framebuffer.height = gop->Mode->Information->VerticalResolution;
     boot_info->framebuffer.width = gop->Mode->Information->HorizontalResolution;

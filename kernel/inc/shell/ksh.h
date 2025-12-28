@@ -5,6 +5,6 @@
 
 #include <drivers/shitgui.h>
 
-void ksh(SG_Context* sg_ctx);
+void ksh();
 
 #endif

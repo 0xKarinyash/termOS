@@ -11,6 +11,7 @@
 #include "bootinfo.h"
 
 u64* pml4_kernel = nullptr;
+static bool is_initialized = false;
 
 extern u64 _kernel_start; 
 extern u64 _kernel_end;
@@ -20,6 +21,12 @@ extern GDTDescriptor gdt[];
 extern TSS tss[];
 extern IDTEntry idt[];
 extern u8 double_fault_stack[];
+extern u8 stack_guard;
+
+static u64* get_table_virt(u64 phys) {
+    if (is_initialized) return (u64*)PHYS_TO_HHDM(phys);
+    return (u64*)phys;
+}
 
 void vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
     u64 pt_idx = VMM_PT_INDEX(virt);
@@ -29,26 +36,54 @@ void vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
 
     if (!(pml4[pml4_idx] & PTE_PRESENT)) {
         u64* addr = pmm_alloc_page();
-        memset(addr, 0, PAGE_SIZE);
+        u64* addr_virt = get_table_virt((u64)addr);
+        memset(addr_virt, 0, PAGE_SIZE);
         pml4[pml4_idx] = (u64)addr | PTE_PRESENT | PTE_RW; 
     }
 
     u64* pdpt = (u64*)PTE_GET_ADDR(pml4[pml4_idx]);
-    if (!(pdpt[pdpt_idx] & PTE_PRESENT)) {
+    u64* pdpt_virt = get_table_virt((u64)pdpt);
+
+    if (!(pdpt_virt[pdpt_idx] & PTE_PRESENT)) {
         u64* addr = pmm_alloc_page();
-        memset(addr, 0, PAGE_SIZE);
-        pdpt[pdpt_idx] = (u64)addr | PTE_PRESENT | PTE_RW;
+        u64* addr_virt = get_table_virt((u64)addr);
+        memset(addr_virt, 0, PAGE_SIZE);
+        pdpt_virt[pdpt_idx] = (u64)addr | PTE_PRESENT | PTE_RW;
     }
 
-    u64* pd = (u64*)PTE_GET_ADDR(pdpt[pdpt_idx]);
-    if (!(pd[pd_idx] & PTE_PRESENT)) {
+    u64* pd = (u64*)PTE_GET_ADDR(pdpt_virt[pdpt_idx]);
+    u64* pd_virt = get_table_virt((u64)pd);
+
+    if (!(pd_virt[pd_idx] & PTE_PRESENT)) {
         u64* addr = pmm_alloc_page();
-        memset(addr, 0, PAGE_SIZE);
-        pd[pd_idx] = (u64)addr | PTE_PRESENT | PTE_RW;
+        u64* addr_virt = get_table_virt((u64)addr);
+        memset(addr_virt, 0, PAGE_SIZE);
+        pd_virt[pd_idx] = (u64)addr | PTE_PRESENT | PTE_RW;
     }
 
-    u64* pt = (u64*)PTE_GET_ADDR(pd[pd_idx]);
-    pt[pt_idx] = phys | flags;
+    u64* pt = (u64*)PTE_GET_ADDR(pd_virt[pd_idx]);
+    u64* pt_virt = get_table_virt((u64)pt);
+    pt_virt[pt_idx] = phys | flags;
+}
+
+void vmm_unmap_page(u64* pml4, u64 virt) {
+    u64 pt_idx = VMM_PT_INDEX(virt);
+    u64 pd_idx = VMM_PD_INDEX(virt);
+    u64 pdpt_idx = VMM_PDPT_INDEX(virt);
+    u64 pml4_idx = VMM_PML4_INDEX(virt);
+
+    if (!(pml4[pml4_idx] & PTE_PRESENT)) return;
+    u64* pdpt = get_table_virt(PTE_GET_ADDR(pml4[pml4_idx]));
+    
+    if (!(pdpt[pdpt_idx] & PTE_PRESENT)) return;
+    u64* pd = get_table_virt(PTE_GET_ADDR(pdpt[pdpt_idx]));
+    
+    if (!(pd[pd_idx] & PTE_PRESENT)) return;
+    u64* pt = get_table_virt(PTE_GET_ADDR(pd[pd_idx]));
+
+    pt[pt_idx] = 0; 
+    
+    __asm__ volatile("invlpg (%0)" :: "r" (virt) : "memory");
 }
 
 static inline void load_cr3(u64 pml4_addr) {
@@ -59,34 +94,21 @@ void vmm_init(Bootinfo* info) {
     pml4_kernel = pmm_alloc_page();
     memset(pml4_kernel, 0, PAGE_SIZE);
 
-    u64 k_start = (u64)&_kernel_start; 
-    u64 k_end   = (u64)&_kernel_end;
-
-    u64 bitmap_start = (u64)bitmap;
-    u64 bitmap_end   = bitmap_start + bitmap_size_g;
-
-    u64 bi_addr = (u64)info;
+    u64 k_virt_start = (u64)&_kernel_start; 
+    u64 k_virt_end   = (u64)&_kernel_end;
 
     u64 fb_start = (u64)info->framebuffer.base;
     u64 fb_end   = fb_start + info->framebuffer.base_size;
+    u64 fb_size = fb_end - fb_start;
 
-    u64 gdt_addr = (u64)&gdt;
-    u64 idt_addr = (u64)&idt;
-    u64 tss_addr = (u64)&tss;
-    u64 df_stack_addr = (u64)double_fault_stack;
+    u64 max_mem = pmm_get_total_mem();
+    for (u64 i = 0; i < max_mem; i += PAGE_SIZE)               vmm_map_page(pml4_kernel, i, PHYS_TO_HHDM(i), PTE_PRESENT | PTE_RW);
+    for (u64 i = k_virt_start; i < k_virt_end; i += PAGE_SIZE) vmm_map_page(pml4_kernel, KERNEL_VIRT_TO_PHYS(i), i, PTE_PRESENT | PTE_RW);
+    for (u64 i = 0; i < fb_size; i += PAGE_SIZE)         vmm_map_page(pml4_kernel, fb_start + i, FB_VIRT_BASE + i, PTE_PRESENT | PTE_RW);
+    vmm_unmap_page(pml4_kernel, (u64)&stack_guard);
 
-    for (u64 i = k_start; i < k_end; i += PAGE_SIZE)           vmm_map_page(pml4_kernel, i, i, PTE_PRESENT | PTE_RW);
-    for (u64 i = bitmap_start; i < bitmap_end; i += PAGE_SIZE) vmm_map_page(pml4_kernel, i, i, PTE_PRESENT | PTE_RW);
-    for (u64 i = fb_start; i < fb_end; i += PAGE_SIZE)         vmm_map_page(pml4_kernel, i, i, PTE_PRESENT | PTE_RW);
-    for (u64 i = 0; i < SAFE_SPACE_START_ADDR; i += PAGE_SIZE) vmm_map_page(pml4_kernel, i, i, PTE_PRESENT | PTE_RW);
-
-    vmm_map_page(pml4_kernel, bi_addr, bi_addr,   PTE_PRESENT | PTE_RW);
-    vmm_map_page(pml4_kernel, gdt_addr, gdt_addr, PTE_PRESENT | PTE_RW);
-    vmm_map_page(pml4_kernel, idt_addr, idt_addr, PTE_PRESENT | PTE_RW);
-    vmm_map_page(pml4_kernel, tss_addr, tss_addr, PTE_PRESENT | PTE_RW);
-    
-    vmm_map_page(pml4_kernel, df_stack_addr, df_stack_addr, PTE_PRESENT | PTE_RW);
-    vmm_map_page(pml4_kernel, df_stack_addr + 4096, df_stack_addr + 4096, PTE_PRESENT | PTE_RW);
-
+    bitmap = (u8*)PHYS_TO_HHDM((u64)bitmap);
+    info->framebuffer.base = (u32*)FB_VIRT_BASE;
     load_cr3((u64)pml4_kernel);
+    is_initialized = true;
 }

@@ -96,6 +96,9 @@ static void console_putc(char c) {
         s_cursor_pos.x = 0;
         s_cursor_pos.y += s_font.h;
     }
+    if (s_cursor_pos.y >= ctx_ptr->height) {
+        console_clear(s_bg_color); // TODO: do scrolling
+    }
 }
 
 void kprint(const char *str) {

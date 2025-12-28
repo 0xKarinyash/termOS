@@ -3,35 +3,42 @@
 
 ENTRY(_start)
 
+KERNEL_VMA_OFFSET = 0xFFFFFFFF80000000;
+KERNEL_PHYS_START = 0x00100000;
+
 SECTIONS
 {
-    . = 0x100000;
-    _kernel_start = .;
+    . = KERNEL_VMA_OFFSET + KERNEL_PHYS_START;
 
-    .text : {
+    _kernel_start = .;
+    _kernel_phys_start = . - KERNEL_VMA_OFFSET;
+
+    .text : AT(ADDR(.text) - KERNEL_VMA_OFFSET) {
         *(.text.entry) 
         *(.text*)
     }
 
-    .rodata : {
+    .rodata : AT(ADDR(.rodata) - KERNEL_VMA_OFFSET) {
         *(.rodata*)
     }
 
-    .data : {
+    .data : AT(ADDR(.data) - KERNEL_VMA_OFFSET) {
         *(.data*)
     }
 
-    .bss : {
+    .bss : AT(ADDR(.bss) - KERNEL_VMA_OFFSET) {
         *(.bss*)
         *(COMMON)
     }
 
-    .stack (ALIGN(16)) : {
+    .stack (ALIGN(16)) : AT(ADDR(.stack) - KERNEL_VMA_OFFSET) {
         *(.stack)
     }
 
     . = ALIGN(4096);
+    
     _kernel_end = .;
+    _kernel_phys_end = . - KERNEL_VMA_OFFSET;
 
     /DISCARD/ : {
         *(.note*)

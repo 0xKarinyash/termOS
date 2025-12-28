@@ -15,6 +15,6 @@ typedef struct {
 
 extern kb_buffer kb_buf;
 
-void kb_handler(Registers *regs);
+void kb_handler();
 
 #endif

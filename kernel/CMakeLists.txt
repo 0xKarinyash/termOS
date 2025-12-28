@@ -42,6 +42,7 @@ target_compile_options(kernel PRIVATE
         -fno-stack-protector
         -fno-builtin
         -Wall -Wextra
+        -mcmodel=kernel
         -g
     >
 )
