@@ -88,7 +88,7 @@ unsigned char keyboard_map_shifted[128] = {
 bool shift_pressed = false;
 kb_buffer kb_buf = {0};
 
-void kb_handler(Registers *regs) {
+void kb_handler() {
     u16 next_head = (kb_buf.head + 1) % KB_BUFF_SIZE;
 
     u8 scancode = inb(0x60);
@@ -112,5 +112,4 @@ void kb_handler(Registers *regs) {
         }
     }
     outb(MASTER_COMMAND, 0x20);
-   // kprintf("Key: %x; shift is %spressed\n", scancode, shift_pressed ? "" : "not ");
 }

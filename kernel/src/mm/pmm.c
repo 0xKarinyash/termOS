@@ -9,29 +9,42 @@
 #include <types.h>
 
 #include "bootinfo.h"
+#include "mm/vmm.h"
 
 extern u64 _kernel_start; 
 extern u64 _kernel_end;
 
 u8* bitmap = nullptr;
 u64 bitmap_size_g = 0;
+static u64 total_mem_size = 0;
 
-void pmm_init(BI_MemoryMap mmap) {
-    u64 descriptors_count = mmap.map_size / mmap.descriptor_size;
+u64 pmm_get_total_mem() {
+    return total_mem_size;
+}
+
+void pmm_init(BI_MemoryMap* mmap) {
+    u64 descriptors_count = mmap->map_size / mmap->descriptor_size;
     u64 max_physical_address = 0;
 
     for (u64 i = 0; i < descriptors_count; i++) {
-        efi_memory_descriptor_k* descriptor  = (efi_memory_descriptor_k*)((u8*)mmap.map + (i * mmap.descriptor_size));
+        efi_memory_descriptor_k* descriptor  = (efi_memory_descriptor_k*)((u8*)mmap->map + (i * mmap->descriptor_size));
+        if (descriptor->type == EfiMemoryMappedIO || 
+            descriptor->type == EfiMemoryMappedIOPortSpace || 
+            descriptor->type == EfiUnusableMemory || 
+            descriptor->type == EfiReservedMemoryType || 
+            descriptor->type == EfiPalCode) continue;
+
         u64 nominee = descriptor->physical_start + descriptor->number_of_pages * PAGE_SIZE;
         max_physical_address = MAX(nominee, max_physical_address);
     }
+    total_mem_size = max_physical_address;
 
     u64 pages_count = max_physical_address / PAGE_SIZE;
     u64 bitmap_size = (pages_count + 7) / 8;
     efi_memory_descriptor_k* desc_to_save = nullptr;
 
     for (u64 i = 0; i < descriptors_count; i++) {
-        efi_memory_descriptor_k* descriptor = (efi_memory_descriptor_k*)((u8*)mmap.map + (i * mmap.descriptor_size));
+        efi_memory_descriptor_k* descriptor = (efi_memory_descriptor_k*)((u8*)mmap->map + (i * mmap->descriptor_size));
         // scary
         if ((descriptor->type == EfiConventionalMemory) && \
             ((descriptor->number_of_pages * PAGE_SIZE) >= bitmap_size) && \
@@ -51,15 +64,15 @@ void pmm_init(BI_MemoryMap mmap) {
     memset(bitmap, 0xFF, bitmap_size);
 
     for (u64 i = 0; i < descriptors_count; i++) {
-        efi_memory_descriptor_k* descriptor = (efi_memory_descriptor_k*)((u8*)mmap.map + (i * mmap.descriptor_size));// this shit will haunt my dreams
+        efi_memory_descriptor_k* descriptor = (efi_memory_descriptor_k*)((u8*)mmap->map + (i * mmap->descriptor_size));// this shit will haunt my dreams
         if (descriptor->type != EfiConventionalMemory) continue;
         u64 start_addr = descriptor->physical_start;
         u64 end_addr = start_addr + (descriptor->number_of_pages * PAGE_SIZE);
         for (u64 j = start_addr; j < end_addr; j += PAGE_SIZE) BITMAP_UNSET(bitmap, j);
     }
     
-    u64 k_start = (u64)&_kernel_start; 
-    u64 k_end   = (u64)&_kernel_end;
+    u64 k_start = KERNEL_VIRT_TO_PHYS((u64)&_kernel_start); 
+    u64 k_end   = KERNEL_VIRT_TO_PHYS((u64)&_kernel_end);
 
     u64 bitmap_start = (u64)bitmap;
     u64 bitmap_end   = bitmap_start + bitmap_size_g;

@@ -18,7 +18,7 @@ void isr_handler_c(Registers *regs) {
 void irq_handler_c(Registers *regs) {
     switch (regs->int_no) {
         case 32: return outb(MASTER_COMMAND, 0x20);
-        case 33: return kb_handler(regs);
+        case 33: return kb_handler();
         default: outb(SLAVE_COMMAND, 0x20); break;
     }
 

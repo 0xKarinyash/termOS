@@ -5,6 +5,7 @@
 #define PMM_H
 
 #include "bootinfo.h"
+#include <types.h>
 
 #define PAGE_SIZE 4096
 #define BLOCKS_PER_BYTE 8
@@ -17,7 +18,8 @@
 #define BITMAP_SET(bitmap, addr)   (bitmap[BITMAP_BYTE_INDEX(addr)] |= (1 << BITMAP_BIT_OFFSET(addr)))
 #define BITMAP_UNSET(bitmap, addr) (bitmap[BITMAP_BYTE_INDEX(addr)] &= ~(1 << BITMAP_BIT_OFFSET(addr)))
 
-void  pmm_init(BI_MemoryMap mmap);
+u64   pmm_get_total_mem();
+void  pmm_init(BI_MemoryMap* mmap);
 void* pmm_alloc_page();
 void  pmm_free_page(void* addr);
 

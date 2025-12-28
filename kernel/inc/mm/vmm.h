@@ -27,6 +27,14 @@
 #define VMM_PDPT_INDEX(virt) (((virt) >> 30) & 0x1FF) // PDPT Index (bits 30-38)
 #define VMM_PML4_INDEX(virt) (((virt) >> 39) & 0x1FF) // PML4 Index (bits 39-47): main page
 
+
+#define KERNEL_VMA          0xFFFFFFFF80000000
+#define HHDM_OFFSET         0xFFFF888000000000
+#define FB_VIRT_BASE        0xFFFFFFFFFC000000
+#define KERNEL_VIRT_TO_PHYS(virt) ((virt) - KERNEL_VMA)
+#define PHYS_TO_HHDM(phys)  ((phys) + HHDM_OFFSET)
+#define HHDM_TO_PHYS(virt)  ((virt) - HHDM_OFFSET)
+
 void vmm_init(Bootinfo* info);
 void vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags);
 

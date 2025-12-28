@@ -112,16 +112,16 @@ void draw_panic_bg() {
     u8 rand_num = shitrand() % msg_count;
 
     kprintf("\n\n");
-    kprintf("\t\t\t\t^tKERNEL PANIC^!  :( \n");
+    kprintf("\t\t\t\t^bKERNEL PANIC^!  :( \n");
     kprintf("\t\t--------------------------------\n");
-    kprintf("\t\t\t\t^r%s^!\n", fun_messages[rand_num]);
+    kprintf("\t\t^y%s^!\n", fun_messages[rand_num]);
     kprintf("\t\t--------------------------------\n");
 }
 
 __attribute__((noreturn)) void panic_exception(Registers *regs) {
     draw_panic_bg();
 
-    kprintf("\t\t^yCPU EXCEPTION^!: ^m%s^! (%d)\n", exception_messages[regs->int_no], regs->int_no);
+    kprintf("\t\t^yCPU EXCEPTION^!: ^b%s^! (%d)\n", exception_messages[regs->int_no], regs->int_no);
     if (regs->err_code) kprintf("\t\t^yError Code^!: %X\n", regs->err_code);
     kprintf("\t\t^yInstruction Pointer^! (^yRIP^!): %X\n", regs->rip);
     kprintf("\t\t^yCode Segment^! (^yCS^!): %X\n", regs->cs);
@@ -133,7 +133,7 @@ __attribute__((noreturn)) void panic_exception(Registers *regs) {
         kprintf("\t\t^yFaulting Address^! (^yCR2^!): %X\n", cr2);
     }
     kprintf("\t\t--------------------------------\n");
-    kprintf("\t\t\t\t^yREGSISTERS^!\n");
+    kprintf("\t\t\t\t^yREGISTERS^!\n");
     kprintf("\t\t--------------------------------\n");
     kprintf("\t\t^yRAX^!=%X, ^yRBX^!=%X\n", regs->rax, regs->rbx);
     kprintf("\t\t^yRCX^!=%X, ^yRDX^!=%X\n", regs->rcx, regs->rdx);
@@ -144,7 +144,7 @@ __attribute__((noreturn)) void panic_exception(Registers *regs) {
     kprintf("\t\t^yR13^!=%X, ^yR14^!=%X\n", regs->r13, regs->r14);
     kprintf("\t\t^yR15^!=%X\n",regs->r15);
     kprintf("\t\t--------------------------------\n");
-    kprintf("\t\t\t\t^tSystem halted.^!\n");
+    kprintf("\t\t\t\t^bSystem halted.^!\n");
     
     die();
 } 
@@ -154,7 +154,7 @@ __attribute__((noreturn)) void panic(const char* msg) {
 
     kprintf("\t\t^yReason^!: %s\n", msg);
     kprintf("\t\t--------------------------------\n");
-    kprintf("\t\t\t\t^tSystem halted.^!\n");
+    kprintf("\t\t\t\t^bSystem halted.^!\n");
 
     die();
 }

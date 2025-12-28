@@ -25,6 +25,7 @@ typedef enum {
     TOKEN_MEOW,
 
     TOKEN_REGS,
+    TOKEN_RECTEST,
     TOKEN_PANIC,
     TOKEN_PANIC_UD2,
     TOKEN_PANIC_PF,
@@ -55,6 +56,7 @@ static const ksh_command_map token_map[] = {
     {"neofetch", TOKEN_KFETCH},
     
     {"regs", TOKEN_REGS},
+    {"rectest", TOKEN_RECTEST},
     {"panic", TOKEN_PANIC},
     {"ud2", TOKEN_PANIC_UD2},
     {"pf", TOKEN_PANIC_PF},
@@ -70,7 +72,7 @@ ksh_token char2token(char* token) {
     return TOKEN_ILLEGAL;
 }
 
-void ksh(SG_Context* sg_ctx) {
+void ksh() {
     while (true) {
         kprintf("ksh_> ");
         char cmdbuff[256];
@@ -81,11 +83,12 @@ void ksh(SG_Context* sg_ctx) {
             case TOKEN_QUIT: return; // that'll cause panic lol
 
             case TOKEN_REGS: cmd_regs(); break;
+            case TOKEN_RECTEST: rectest(0); break;
             case TOKEN_PANIC: panic("Manually initiated panic");
             case TOKEN_PANIC_UD2: __asm__ volatile ("ud2");
             case TOKEN_PANIC_PF: u64* bad_ptr = (u64*)0xDEADBEEF; *bad_ptr = 666;
             
-            case TOKEN_SPLASH: show_splash(sg_ctx); break;
+            case TOKEN_SPLASH: show_splash(console_get_context()); break;
             case TOKEN_CLEAR: console_clear((u32) console_get_colors() & 0xFFFFFFFF); break;
             case TOKEN_HELP: cmd_help(); break;
             case TOKEN_KFETCH: cmd_kfetch(); break;
