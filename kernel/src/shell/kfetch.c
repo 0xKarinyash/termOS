@@ -19,6 +19,9 @@ const char* ascii_logo[] = {
 
 
 void kfetch() {
+    char cpu_brand[49];
+    //cpu_get_brand_string(cpu_brand);
+
     kprintf("\n\n");
     kprintf("^p %s ^0\t\t^g kernel^0@^gtermos\n^0", ascii_logo[0]);
     kprintf("^p %s ^0\t\t^0-------------\n^0", ascii_logo[1]);   
@@ -27,6 +30,6 @@ void kfetch() {
     kprintf("^p %s ^0\t\t^gUptime^0: 0h 0m\n^0", ascii_logo[4]);   
     kprintf("^p %s ^0\t\t^gShell^0: termosh\n^0", ascii_logo[5]);   
     kprintf("^p %s ^p\t\t^gDE^0: shitgui\n^0", ascii_logo[6]);   
-    kprintf("^p %s ^p\t\t^gCPU^0: cool one\n^0", ascii_logo[7]);
+    kprintf("^p %s ^p\t\t^gCPU^0: %s\n^0", ascii_logo[7], cpu_brand);
     kprintf("\n\n");
 }
