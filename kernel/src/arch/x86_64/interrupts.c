@@ -4,10 +4,14 @@
 #include <io.h>
 #include <core/panic.h>
 #include <drivers/keyboard.h>
+#include <shell/builtins.h>
 #include <types.h>
 
 
 void isr_handler_c(Registers *regs) {
+    if (regs->int_no == 3) {
+        return print_regs();
+    }
     panic_exception(regs);
 }
 

@@ -97,8 +97,9 @@ __attribute__((noreturn)) void die() {
 }
 
 void draw_panic_bg() {
-    console_clear(0x101010);
+    console_clear(0x000000);
     console_set_color(0xFFFFFF);
+    console_set_default_color(0xFFFFFF);
 
     SG_Point p = console_get_dimensions();
     p.x /= 2;
@@ -111,39 +112,39 @@ void draw_panic_bg() {
     u8 rand_num = shitrand() % msg_count;
 
     kprintf("\n\n");
-    kprintf("\t\t\t\t^tKERNEL PANIC^w  :( \n");
+    kprintf("\t\t\t\t^tKERNEL PANIC^!  :( \n");
     kprintf("\t\t--------------------------------\n");
-    kprintf("\t\t\t\t^r%s^w\n", fun_messages[rand_num]);
+    kprintf("\t\t\t\t^r%s^!\n", fun_messages[rand_num]);
     kprintf("\t\t--------------------------------\n");
 }
 
 __attribute__((noreturn)) void panic_exception(Registers *regs) {
     draw_panic_bg();
 
-    kprintf("\t\t^yCPU EXCEPTION^w: ^m%s^w (%d)\n", exception_messages[regs->int_no], regs->int_no);
-    if (regs->err_code) kprintf("\t\t^yError Code^w: %X\n", regs->err_code);
-    kprintf("\t\t^yInstruction Pointer^w (^yRIP^w): %X\n", regs->rip);
-    kprintf("\t\t^yCode Segment^w (^yCS^w): %X\n", regs->cs);
-    kprintf("\t\t^yFlags^w (^yRFLAGS^w): %X\n", regs->rflags);
-    kprintf("\t\t^yStack Pointer^w (^yRSP^w): %X\n", regs->rsp);
+    kprintf("\t\t^yCPU EXCEPTION^!: ^m%s^! (%d)\n", exception_messages[regs->int_no], regs->int_no);
+    if (regs->err_code) kprintf("\t\t^yError Code^!: %X\n", regs->err_code);
+    kprintf("\t\t^yInstruction Pointer^! (^yRIP^!): %X\n", regs->rip);
+    kprintf("\t\t^yCode Segment^! (^yCS^!): %X\n", regs->cs);
+    kprintf("\t\t^yFlags^! (^yRFLAGS^!): %X\n", regs->rflags);
+    kprintf("\t\t^yStack Pointer^! (^yRSP^!): %X\n", regs->rsp);
     if (regs->int_no == 14) {
         u64 cr2;
         __asm__ volatile("mov %%cr2, %0" : "=r"(cr2));
-        kprintf("\t\t^yFaulting Address^w (^yCR2^w): %X\n", cr2);
+        kprintf("\t\t^yFaulting Address^! (^yCR2^!): %X\n", cr2);
     }
     kprintf("\t\t--------------------------------\n");
-    kprintf("\t\t\t\t^yREGSISTERS^w\n");
+    kprintf("\t\t\t\t^yREGSISTERS^!\n");
     kprintf("\t\t--------------------------------\n");
-    kprintf("\t\t^yRAX^w=%X, ^yRBX^w=%X\n", regs->rax, regs->rbx);
-    kprintf("\t\t^yRCX^w=%X, ^yRDX^w=%X\n", regs->rcx, regs->rdx);
-    kprintf("\t\t^yRSI^w=%X, ^yRDI^w=%X\n", regs->rsi, regs->rdi);
-    kprintf("\t\t^yRBP^w=%X, ^yR8^w =%X\n", regs->rbp, regs->r8);
-    kprintf("\t\t^yR9^w =%X, ^yR10^w=%X \n", regs->r9, regs->r10);
-    kprintf("\t\t^yR11^w=%X, ^yR12^w=%X\n", regs->r11, regs->r12);
-    kprintf("\t\t^yR13^w=%X, ^yR14^w=%X\n", regs->r13, regs->r14);
-    kprintf("\t\t^yR15^w=%X\n",regs->r15);
+    kprintf("\t\t^yRAX^!=%X, ^yRBX^!=%X\n", regs->rax, regs->rbx);
+    kprintf("\t\t^yRCX^!=%X, ^yRDX^!=%X\n", regs->rcx, regs->rdx);
+    kprintf("\t\t^yRSI^!=%X, ^yRDI^!=%X\n", regs->rsi, regs->rdi);
+    kprintf("\t\t^yRBP^!=%X, ^yR8^! =%X\n", regs->rbp, regs->r8);
+    kprintf("\t\t^yR9^! =%X, ^yR10^!=%X \n", regs->r9, regs->r10);
+    kprintf("\t\t^yR11^!=%X, ^yR12^!=%X\n", regs->r11, regs->r12);
+    kprintf("\t\t^yR13^!=%X, ^yR14^!=%X\n", regs->r13, regs->r14);
+    kprintf("\t\t^yR15^!=%X\n",regs->r15);
     kprintf("\t\t--------------------------------\n");
-    kprintf("\t\t\t\t^tSystem halted.^w\n");
+    kprintf("\t\t\t\t^tSystem halted.^!\n");
     
     die();
 } 
@@ -151,9 +152,9 @@ __attribute__((noreturn)) void panic_exception(Registers *regs) {
 __attribute__((noreturn)) void panic(const char* msg) {
     draw_panic_bg();
 
-    kprintf("\t\t^yReason^w: %s\n", msg);
+    kprintf("\t\t^yReason^!: %s\n", msg);
     kprintf("\t\t--------------------------------\n");
-    kprintf("\t\t\t\t^tSystem halted.^w\n");
+    kprintf("\t\t\t\t^tSystem halted.^!\n");
 
     die();
 }
