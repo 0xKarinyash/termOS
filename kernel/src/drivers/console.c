@@ -31,6 +31,7 @@ static SG_Context *ctx_ptr = nullptr;
 static SG_Point s_cursor_pos = {0};
 static SG_Font s_font = {0};
 static u32 s_color = COLOR_WHITE;
+static u32 s_def_color = COLOR_WHITE;
 static u32 s_bg_color = COLOR_BLACK;
 
 void console_init(SG_Context *ctx) {
@@ -205,6 +206,8 @@ void kprintf(const char *fmt, ...) {
                 case 'p': console_set_color(COLOR_PINK); break;
                 case '0': console_set_color(COLOR_BLACK); break;
                 case 'w': console_set_color(COLOR_WHITE); break;
+                case '!': console_set_color(s_def_color); break;
+                case '~': console_set_color(~s_bg_color); break;
                 case '^': console_putc('^'); break;
                 default: { 
                     console_putc('^');
@@ -222,6 +225,10 @@ void kprintf(const char *fmt, ...) {
 
 void console_set_color(u32 color) {
     s_color = color;
+}
+
+void console_set_default_color(u32 color) {
+    s_def_color = color;
 }
 
 static char console_getc() {
