@@ -9,6 +9,7 @@ void cmd_meow();
 void cmd_help();
 void cmd_regs();
 void print_regs();
+void cmd_sleep();
 int rectest(int a);
 
 #endif

@@ -4,8 +4,10 @@
 #include <drivers/console.h>
 #include <core/rand.h>
 
+#include <drivers/timer.h>
+#include <types.h>
+
 #include "../data/cats.h"
-#include "types.h"
 
 const char* ascii_logo[] = {
     "      /\\___/\\     ", 
@@ -25,13 +27,15 @@ int rectest(int a) {
 }
 
 void cmd_kfetch() {
+    u64 uptime_s = get_uptime() / 1000;
+
     kprintf("\n\n");
     kprintf("^p %s ^!\t\t^g kernel^!@^gtermos\n^0", ascii_logo[0]);
     kprintf("^p %s ^!\t\t^!-------------\n^!", ascii_logo[1]);   
     kprintf("^p %s ^!\t\t^gOS^!: termOS 0.0.1\n^!", ascii_logo[2]);   
     kprintf("^p %s ^!\t\t^gKernel^!: sucks\n^!", ascii_logo[3]);   
-    kprintf("^p %s ^!\t\t^gUptime^!: 0h 0m\n^!", ascii_logo[4]);   
-    kprintf("^p %s ^!\t\t^gShell^!: termosh\n^!", ascii_logo[5]);   
+    kprintf("^p %s ^!\t\t^gUptime^!: %d seconds\n^!", ascii_logo[4], uptime_s);   
+    kprintf("^p %s ^!\t\t^gShell^!: ksh\n^!", ascii_logo[5]);   
     kprintf("^p %s ^p\t\t^gDE^!: shitgui\n^!", ascii_logo[6]);   
     kprintf("^p %s ^p\t\t^gCPU^!: %s\n^!", ascii_logo[7], "cool one");
     kprintf("\n\n");
@@ -65,4 +69,9 @@ void print_regs(Registers *regs) {
     kprintf("^gR13^!=%X, ^gR14^!=%X\n", regs->r13, regs->r14);
     kprintf("^gR15^!=%X\n",regs->r15);
     kprintf("--------------------------------\n");
+}
+
+
+void cmd_sleep() {
+    sleep(3000);
 }
