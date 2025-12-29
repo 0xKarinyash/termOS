@@ -2,6 +2,7 @@
 // Copyright (c) 2025 0xKarinyash
 
 #include "bootinfo.h"
+#include "drivers/timer.h"
 #include <shell/ksh.h>
 
 #include <types.h>
@@ -39,6 +40,8 @@ void kmain(Bootinfo* info) {
     serial_write("PMM initialized\n");
     vmm_init(info);
     serial_write("VMM initialized\n");
+    timer_init(1000);
+    serial_write("Timer initialized\n");
 
     info = (Bootinfo*)PHYS_TO_HHDM((u64)info);
 
