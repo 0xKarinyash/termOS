@@ -8,6 +8,7 @@
 #include <types.h>
 
 #include "../data/cats.h"
+#include "shell/dbgcmd.h"
 
 const char* ascii_logo[] = {
     "      /\\___/\\     ", 
@@ -74,4 +75,9 @@ void print_regs(Registers *regs) {
 
 void cmd_sleep() {
     sleep(3000);
+}
+
+void cmd_debug() {
+    debug();
+    return;
 }

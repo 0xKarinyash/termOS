@@ -6,6 +6,7 @@
 
 #include <types.h>
 
-void *memset(void *ptr, int value, usize num);
+void* memset(void* ptr, int value, usize num);
+void* memcpy(void* dest, const void* src, u64 n);
 
 #endif

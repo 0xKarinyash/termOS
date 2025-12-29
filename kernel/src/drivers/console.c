@@ -234,7 +234,7 @@ void console_set_default_color(u32 color) {
     s_def_color = color;
 }
 
-static char console_getc() {
+char console_getc() {
     while (kb_buf.head == kb_buf.tail) __asm__ volatile ("sti; hlt");
     __asm__ volatile ("cli");
     char temp = kb_buf.buffer[kb_buf.tail];

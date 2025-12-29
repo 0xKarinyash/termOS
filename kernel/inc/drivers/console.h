@@ -14,6 +14,7 @@ SG_Point console_get_dimensions();
 void console_set_color(u32 color);
 void console_set_default_color(u32 color);
 void console_set_cursor_pos(SG_Point *p);
+char console_getc();
 void kprint(const char *str);
 void kprintf(const char *fmt, ...);
 void kgets(char* buff, u32 lim);

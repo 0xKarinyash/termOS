@@ -27,6 +27,7 @@ typedef enum {
     TOKEN_SLEEP,
 
     TOKEN_REGS,
+    TOKEN_DEBUG,
     TOKEN_RECTEST,
     TOKEN_PANIC,
     TOKEN_PANIC_UD2,
@@ -58,6 +59,7 @@ static const ksh_command_map token_map[] = {
     {"neofetch", TOKEN_KFETCH},
     
     {"sleep", TOKEN_SLEEP},
+    {"dbg", TOKEN_DEBUG},
     {"regs", TOKEN_REGS},
     {"rectest", TOKEN_RECTEST},
     {"panic", TOKEN_PANIC},
@@ -87,6 +89,7 @@ void ksh() {
             case TOKEN_QUIT: return; // that'll cause panic lol
 
             case TOKEN_SLEEP: cmd_sleep(); break;
+            case TOKEN_DEBUG: cmd_debug(); break;
             case TOKEN_REGS: cmd_regs(); break;
             case TOKEN_RECTEST: rectest(0); break;
             case TOKEN_PANIC: panic("Manually initiated panic");
