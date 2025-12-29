@@ -28,24 +28,29 @@ static u64* get_table_virt(u64 phys) {
     return (u64*)phys;
 }
 
-void vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
+u64* vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
     u64 pt_idx = VMM_PT_INDEX(virt);
     u64 pd_idx = VMM_PD_INDEX(virt);
     u64 pdpt_idx = VMM_PDPT_INDEX(virt);
     u64 pml4_idx = VMM_PML4_INDEX(virt);
 
-    if (!(pml4[pml4_idx] & PTE_PRESENT)) {
+    u64* pml4_virt = pml4;
+    if (is_initialized) pml4_virt = (u64*)PHYS_TO_HHDM((u64)pml4);
+
+    if (!(pml4_virt[pml4_idx] & PTE_PRESENT)) {
         u64* addr = pmm_alloc_page();
+        if (!addr) return nullptr;
         u64* addr_virt = get_table_virt((u64)addr);
         memset(addr_virt, 0, PAGE_SIZE);
-        pml4[pml4_idx] = (u64)addr | PTE_PRESENT | PTE_RW; 
+        pml4_virt[pml4_idx] = (u64)addr | PTE_PRESENT | PTE_RW; 
     }
 
-    u64* pdpt = (u64*)PTE_GET_ADDR(pml4[pml4_idx]);
+    u64* pdpt = (u64*)PTE_GET_ADDR(pml4_virt[pml4_idx]);
     u64* pdpt_virt = get_table_virt((u64)pdpt);
 
     if (!(pdpt_virt[pdpt_idx] & PTE_PRESENT)) {
         u64* addr = pmm_alloc_page();
+        if (!addr) return nullptr;
         u64* addr_virt = get_table_virt((u64)addr);
         memset(addr_virt, 0, PAGE_SIZE);
         pdpt_virt[pdpt_idx] = (u64)addr | PTE_PRESENT | PTE_RW;
@@ -56,6 +61,7 @@ void vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
 
     if (!(pd_virt[pd_idx] & PTE_PRESENT)) {
         u64* addr = pmm_alloc_page();
+        if (!addr) return nullptr;
         u64* addr_virt = get_table_virt((u64)addr);
         memset(addr_virt, 0, PAGE_SIZE);
         pd_virt[pd_idx] = (u64)addr | PTE_PRESENT | PTE_RW;
@@ -64,6 +70,10 @@ void vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
     u64* pt = (u64*)PTE_GET_ADDR(pd_virt[pd_idx]);
     u64* pt_virt = get_table_virt((u64)pt);
     pt_virt[pt_idx] = phys | flags;
+
+    __asm__ volatile("invlpg (%0)" :: "r" (virt) : "memory");
+    
+    return (u64*)virt;
 }
 
 void vmm_unmap_page(u64* pml4, u64 virt) {
