@@ -26,6 +26,15 @@ typedef struct {
     const unsigned char* base;
 } SG_Font;
 
+typedef struct {
+    SG_Context *ctx;
+    SG_Point pos;
+    const char *title;
+} SG_Window;
+
+void sg_init(SG_Context *ctx);
 void sg_put_img(SG_Context *ctx, SG_Point *p, SG_Image *img);
 void sg_draw_rect(SG_Context *ctx, SG_Point *p, u32 w, u32 h, u32 color);
 void sg_draw_char_bitmap(SG_Context *ctx, SG_Point *p, char c, u32 color, SG_Font *font);
+SG_Window* create_window(const char *title, SG_Point* size, SG_Point* position);
+void composer_task();

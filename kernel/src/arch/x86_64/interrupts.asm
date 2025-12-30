@@ -70,9 +70,10 @@ global %2
     mov rdi, rsp
     cld 
     call irq_handler_c
+
+    mov rsp, rax
     
     POPALL
-    
     add rsp, 16 
     iretq
 %endmacro

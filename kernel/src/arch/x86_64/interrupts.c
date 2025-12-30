@@ -16,12 +16,14 @@ void isr_handler_c(Registers *regs) {
     panic_exception(regs);
 }
 
-void irq_handler_c(Registers *regs) {
+u64 irq_handler_c(Registers *regs) {
+    u64 curr_rsp = (u64)regs;
     switch (regs->int_no) {
-        case 32: return timer_handler();
-        case 33: return kb_handler();
+        case 32: curr_rsp = timer_handler(regs); break;
+        case 33: kb_handler(); break;
         default: outb(SLAVE_COMMAND, 0x20); break;
     }
 
     outb(MASTER_COMMAND, 0x20);
+    return curr_rsp;
 }
