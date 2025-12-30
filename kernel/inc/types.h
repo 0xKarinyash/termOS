@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#ifndef TYPES_H
-#define TYPES_H
+#pragma once
 
 typedef unsigned char      u8;
 typedef unsigned short     u16;
@@ -55,7 +54,4 @@ typedef enum {
     #define bool _Bool
     #define true 1
     #define false 0
-#endif
-
-
 #endif

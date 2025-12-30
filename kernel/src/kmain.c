@@ -68,4 +68,5 @@ void kmain(Bootinfo* info) {
     ksh();
     
     panic("Kernel main loop exited");
+    
 }

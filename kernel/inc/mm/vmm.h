@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#ifndef VMM_H
-#define VMM_H
-
+#pragma once
 #include "bootinfo.h"
 #include <types.h>
 
@@ -39,5 +37,3 @@
 
 void vmm_init(Bootinfo* info);
 u64* vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags);
-
-#endif

@@ -2,9 +2,6 @@
 // Copyright (c) 2025 0xKarinyash
 
 #pragma once
-#ifndef GDT_H
-#define GDT_H
-
 #include <types.h>
 
 typedef struct {
@@ -41,5 +38,3 @@ typedef struct {
 } __attribute__((packed)) TSS;
 
 void gdt_init();
-
-#endif

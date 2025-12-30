@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#ifndef PMM_H
-#define PMM_H
-
+#pragma once
 #include "bootinfo.h"
 #include <types.h>
 
@@ -22,6 +20,3 @@ u64   pmm_get_total_mem();
 void  pmm_init(BI_MemoryMap* mmap);
 void* pmm_alloc_page();
 void  pmm_free_page(void* addr);
-
-
-#endif

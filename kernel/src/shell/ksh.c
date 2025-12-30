@@ -33,7 +33,6 @@ typedef enum {
     TOKEN_PANIC_UD2,
     TOKEN_PANIC_PF,
 
-    TOKEN_QUIT,
     TOKEN_CLEAR
 } ksh_token;
 
@@ -44,9 +43,6 @@ typedef struct {
 
 static const ksh_command_map token_map[] = {
     {"", TOKEN_EMPTY},
-    {"q", TOKEN_QUIT},
-    {"quit", TOKEN_QUIT},
-    {"exit", TOKEN_QUIT},
 
     {"cls", TOKEN_CLEAR},
     {"clear", TOKEN_CLEAR},
@@ -85,9 +81,7 @@ void ksh() {
         kgets(cmdbuff, 256);
         switch(char2token(cmdbuff)) {
             case TOKEN_EMPTY: continue;
-
-            case TOKEN_QUIT: return; // that'll cause panic lol
-
+            
             case TOKEN_SLEEP: cmd_sleep(); break;
             case TOKEN_DEBUG: cmd_debug(); break;
             case TOKEN_REGS: cmd_regs(); break;

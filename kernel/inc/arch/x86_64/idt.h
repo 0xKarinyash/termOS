@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#ifndef IDT_H
-#define IDT_H
 #pragma once
 #include <types.h>
 
@@ -22,5 +20,3 @@ typedef struct {
 } __attribute__((packed)) IDTPtr;
 
 void idt_init();
-
-#endif

@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#ifndef CONSOLE_H
-#define CONSOLE_H
-
+#pragma once
 #include <drivers/shitgui.h>
 
 void console_init(SG_Context *ctx);
@@ -18,5 +16,3 @@ char console_getc();
 void kprint(const char *str);
 void kprintf(const char *fmt, ...);
 void kgets(char* buff, u32 lim);
-
-#endif
