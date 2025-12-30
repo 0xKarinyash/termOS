@@ -5,6 +5,6 @@
 #include <types.h>
 
 void timer_init(u32 freq);
-void timer_handler();
+u64 timer_handler(Registers *regs);
 void sleep(u64 ms);
 u64 get_uptime();

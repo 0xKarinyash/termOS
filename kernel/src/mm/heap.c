@@ -8,7 +8,7 @@
 #include <core/panic.h>
 #include <types.h>
 
-#define HEAP_SIZE_PAGES 32
+#define HEAP_SIZE_PAGES 1024
 
 extern u64* pml4_kernel;
 static block_header* heap_list_head = nullptr;

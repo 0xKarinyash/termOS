@@ -4,6 +4,7 @@
 #include <drivers/timer.h>
 #include <io.h>
 #include <types.h>
+#include <core/scheduler.h>
 
 #define PIT_BASE_CLOCK 1193180
 #define PIT_CMD  0x43
@@ -23,9 +24,10 @@ void timer_init(u32 freq) {
     outb(0x21, mask);
 }
 
-void timer_handler() {
+u64 timer_handler(Registers *regs) {
     ticks++;
     outb(MASTER_COMMAND, 0x20);
+    return sched_next((u64)regs);
 }
 
 void sleep(u64 ms) {

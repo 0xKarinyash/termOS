@@ -2,6 +2,7 @@
 // Copyright (c) 2025 0xKarinyash
 
 #include "bootinfo.h"
+#include "core/scheduler.h"
 #include <shell/ksh.h>
 
 #include <types.h>
@@ -48,6 +49,10 @@ void kmain(Bootinfo* info) {
     kprintf("Timer initialized\n");
     heap_init();
     kprintf("Heap initialized\n");
+    sched_init();
+    kprintf("Scheduler initialized\n");
+    sg_init(&sg_ctx);
+    kprintf("Shitgui initialized");
 
     info = (Bootinfo*)PHYS_TO_HHDM((u64)info);
 
@@ -65,8 +70,10 @@ void kmain(Bootinfo* info) {
 
     show_splash(&sg_ctx);
 
-    ksh();
+    sched_spawn(composer_task);
+    sched_spawn(ksh);
+    __asm__ volatile("sti");
     
-    panic("Kernel main loop exited");
-    
+    while (true) __asm__ volatile("hlt");
+    panic("How in the name of God you got here?");
 }
