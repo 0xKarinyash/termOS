@@ -1,0 +1,6 @@
+[target.x86_64-unknown-none]
+linker = "ld"
+
+[alias]
+run-os = "run --package xtask -- run"
+build-os = "run --package xtask -- build"

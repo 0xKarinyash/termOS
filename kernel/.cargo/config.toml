@@ -1,0 +1,24 @@
+[build]
+target = "x86_64-unknown-none"
+
+[target.x86_64-unknown-none]
+# Теперь он точно увидит, что надо юзать ld
+linker = "ld"
+
+rustflags = [
+    # Путь к скрипту линковки (относительно корня, где запускаешь cargo!)
+    "-C", "link-arg=-Tkernel/linker.ld",
+
+    # УБИВАЕМ PIE
+    "-C", "link-arg=-no-pie",
+    
+    # Чтобы адреса не ехали
+    "-C", "link-arg=-zmax-page-size=0x1000",
+    
+    # Говорим Расту генерировать код как ядро
+    "-C", "relocation-model=static",
+    "-C", "code-model=kernel",
+    
+    # Отключаем Red Zone (обязательно для прерываний)
+    "-C", "no-redzone=yes"
+]

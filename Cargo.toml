@@ -1,0 +1,9 @@
+[workspace]
+members = ["bootloader", "kernel", "xtask"]
+resolver = "2"
+
+[profile.release]
+panic = "abort"
+lto = true
+codegen-units = 1
+

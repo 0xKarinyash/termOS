@@ -1,0 +1,13 @@
+{
+    "rust-analyzer.cargo.target": "x86_64-unknown-uefi",
+
+    "rust-analyzer.check.extraArgs": [
+        "-Zbuild-std=std,panic_abort"
+    ],
+
+    "rust-analyzer.server.extraEnv": {
+        "RUSTUP_TOOLCHAIN": "nightly"
+    },
+    
+    "rust-analyzer.cargo.allFeatures": true
+}
