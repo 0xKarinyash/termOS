@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#ifndef IO_H
-#define IO_H
+#pragma once
 
 #define MASTER_COMMAND 0x20
 #define MASTER_DATA    0x21
@@ -38,5 +37,3 @@ static inline void outb_wait(unsigned short port, unsigned char val) {
     outb(port, val);
     io_wait();
 }
-
-#endif

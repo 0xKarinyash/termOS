@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#ifndef KEYBOARD_H
-#define KEYBOARD_H
-
+#pragma once
 #include <types.h>
 
 #define KB_BUFF_SIZE 256
@@ -16,5 +14,3 @@ typedef struct {
 extern kb_buffer kb_buf;
 
 void kb_handler();
-
-#endif

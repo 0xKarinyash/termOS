@@ -37,6 +37,7 @@ if(QEMU_EXE)
             -enable-kvm
             -bios ${OVMF_PATH} 
             -drive file=${IMG_FILE},format=raw 
+            -vga std
             -net none
             -serial stdio
             -m 512M

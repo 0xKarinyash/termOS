@@ -78,6 +78,7 @@ void cmd_sleep() {
 }
 
 void cmd_debug() {
-    debug();
+    u64 status = debug();
+    kprintf("\nDebug ended with code %d\n", status);
     return;
 }

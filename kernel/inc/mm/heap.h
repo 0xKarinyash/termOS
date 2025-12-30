@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#ifndef HEAP_H
-#define HEAP_H
-
+#pragma once
 #include <types.h>
 
 #define KERNEL_HEAP_START   0xFFFFFFFFC0000000
@@ -24,5 +22,3 @@ void heap_init();
 void* malloc(u64 size);
 void free(void* ptr);
 void* realloc(void* ptr, u64 new_size);
-
-#endif
