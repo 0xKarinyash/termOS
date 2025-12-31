@@ -47,7 +47,7 @@ pub struct BootInfo {
 #[entry]
 fn main() -> Status {
     uefi::helpers::init().unwrap();
-    info!("Bootloader: Loading Kernel for ASM Trampoline...");
+    info!("Bootloader: Loading Kernel...");
 
     let gop_handle = boot::get_handle_for_protocol::<GraphicsOutput>().unwrap();
     let mut gop = boot::open_protocol_exclusive::<GraphicsOutput>(gop_handle).unwrap();
@@ -77,6 +77,7 @@ fn main() -> Status {
     let segments = elf.segments().expect("No segments");
 
     let kernel_vma_offset = 0xFFFFFFFF80000000u64;
+    let mut kernel_loaded = false;
 
     for phdr in segments {
         if phdr.p_type == PT_LOAD {
@@ -84,6 +85,8 @@ fn main() -> Status {
                 info!("Skipping segment V={:#x} (headers/garbage)", phdr.p_vaddr);
                 continue;
             }
+
+            kernel_loaded = true;
 
             let phys_addr = if phdr.p_paddr != 0 {
                 phdr.p_paddr
@@ -112,6 +115,10 @@ fn main() -> Status {
                 unsafe { core::ptr::copy_nonoverlapping(data.as_ptr(), dest, file_size) };
             }
         }
+    }
+
+    if !kernel_loaded {
+        panic!("Fatal: no kernel found!");
     }
 
     let boot_info = Box::leak(Box::new(BootInfo {
