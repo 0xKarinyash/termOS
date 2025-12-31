@@ -57,7 +57,7 @@ void cmd_regs() {
     __asm__ volatile ("int3");
 }
 
-void print_regs(Registers *regs) {
+extern "C" void print_regs(Registers *regs) {
     kprintf("--------------------------------\n");
     kprintf("\t\t^gREGISTERS^!\n");
     kprintf("--------------------------------\n");

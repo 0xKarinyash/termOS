@@ -4,6 +4,7 @@
 #include <mm/memory.h>
 #include <types.h>
 
+extern "C" {
 void *memset(void *ptr, int value, usize num) {
     u8 *p = (u8 *)ptr;
     while (num--) {
@@ -29,4 +30,5 @@ void* memcpy(void* dest, const void* src, u64 n) {
     }
 
     return dest;
+}
 }

@@ -37,7 +37,7 @@ typedef enum {
 } ksh_token;
 
 typedef struct {
-    char* str;
+    const char* str;
     ksh_token token;
 } ksh_command_map;
 
@@ -86,9 +86,14 @@ void ksh() {
             case TOKEN_DEBUG: cmd_debug(); break;
             case TOKEN_REGS: cmd_regs(); break;
             case TOKEN_RECTEST: rectest(0); break;
-            case TOKEN_PANIC: panic("Manually initiated panic");
-            case TOKEN_PANIC_UD2: __asm__ volatile ("ud2");
-            case TOKEN_PANIC_PF: u64* bad_ptr = (u64*)0xDEADBEEF; *bad_ptr = 666;
+            case TOKEN_PANIC: panic("Manually initiated panic"); break;
+            case TOKEN_PANIC_UD2: __asm__ volatile ("ud2"); break;
+            
+            case TOKEN_PANIC_PF: {
+                u64* bad_ptr = (u64*)0xDEADBEEF; 
+                *bad_ptr = 666;
+                break;
+            }
             
             case TOKEN_SPLASH: show_splash(console_get_context()); break;
             case TOKEN_CLEAR: console_clear((u32) console_get_colors() & 0xFFFFFFFF); break;

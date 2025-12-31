@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
-project(termOS_krn LANGUAGES C ASM_NASM)
+project(termOS_krn LANGUAGES CXX ASM_NASM)
 
-set(CMAKE_C_STANDARD 23)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (NOT DEFINED ARCH)
     set(ARCH "x86_64")
@@ -13,17 +13,17 @@ message(STATUS "TermOS Kernel: Building for architecture '${ARCH}'")
 
 
 file(GLOB_RECURSE KERNEL_SOURCES
-    "src/kmain.c"
+    "src/kmain.cpp"
     
-    "src/arch/${ARCH}/*.c"
+    "src/arch/${ARCH}/*.cpp"
     "src/arch/${ARCH}/*.asm"
 
-    "src/core/*.c"
-    "src/drivers/*.c"
-    "src/mm/*.c"
-    "src/shell/*.c"
+    "src/core/*.cpp"
+    "src/drivers/*.cpp"
+    "src/mm/*.cpp"
+    "src/shell/*.cpp"
     
-    "data/*.c"
+    "data/*.cpp"
 )
 
 add_executable(kernel ${KERNEL_SOURCES})
@@ -36,14 +36,19 @@ target_include_directories(kernel PRIVATE
 )
 
 target_compile_options(kernel PRIVATE
-    $<$<COMPILE_LANGUAGE:C>:
+    $<$<COMPILE_LANGUAGE:CXX>:
         -ffreestanding
+        -mcmodel=kernel
+        -fno-pic
+        -fno-PIE
         -mno-red-zone
         -fno-stack-protector
         -fno-builtin
         -Wall -Wextra
         -mcmodel=kernel
         -g
+        -fno-exceptions
+        -fno-rtti
     >
 )
 

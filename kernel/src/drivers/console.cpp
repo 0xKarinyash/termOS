@@ -10,6 +10,8 @@
 #include <core/math.h>
 #include <types.h>
 
+#include <../data/font8x16.h>
+
 #include <stdarg.h>
 
 #define COLOR_RED       0xFF5555

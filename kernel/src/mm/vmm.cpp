@@ -38,7 +38,7 @@ u64* vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
     if (is_initialized) pml4_virt = (u64*)PHYS_TO_HHDM((u64)pml4);
 
     if (!(pml4_virt[pml4_idx] & PTE_PRESENT)) {
-        u64* addr = pmm_alloc_page();
+        u64* addr = (u64*)pmm_alloc_page();
         if (!addr) return nullptr;
         u64* addr_virt = get_table_virt((u64)addr);
         memset(addr_virt, 0, PAGE_SIZE);
@@ -49,7 +49,7 @@ u64* vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
     u64* pdpt_virt = get_table_virt((u64)pdpt);
 
     if (!(pdpt_virt[pdpt_idx] & PTE_PRESENT)) {
-        u64* addr = pmm_alloc_page();
+        u64* addr = (u64*)pmm_alloc_page();
         if (!addr) return nullptr;
         u64* addr_virt = get_table_virt((u64)addr);
         memset(addr_virt, 0, PAGE_SIZE);
@@ -60,7 +60,7 @@ u64* vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
     u64* pd_virt = get_table_virt((u64)pd);
 
     if (!(pd_virt[pd_idx] & PTE_PRESENT)) {
-        u64* addr = pmm_alloc_page();
+        u64* addr = (u64*)pmm_alloc_page();
         if (!addr) return nullptr;
         u64* addr_virt = get_table_virt((u64)addr);
         memset(addr_virt, 0, PAGE_SIZE);
@@ -101,7 +101,7 @@ static inline void load_cr3(u64 pml4_addr) {
 }
 
 void vmm_init(Bootinfo* info) {
-    pml4_kernel = pmm_alloc_page();
+    pml4_kernel = (u64*)pmm_alloc_page();
     memset(pml4_kernel, 0, PAGE_SIZE);
 
     u64 k_virt_start = (u64)&_kernel_start; 

@@ -37,7 +37,7 @@ void write_tss(int num) {
 }
 
 
-extern void gdt_flush(u64 gdt_ptr_addr); // entry.asm
+extern "C" void gdt_flush(u64 gdt_ptr_addr); // entry.asm
 
 void gdt_init() {
     gdt_ptr.limit = (sizeof(GDTDescriptor) * 5) - 1;

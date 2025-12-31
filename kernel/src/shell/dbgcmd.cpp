@@ -58,9 +58,15 @@ u64 debug() {
     pos_b.x = 512;
     pos_b.y = 40;
     win_a = create_window("A", &sizes, &pos_a);
-    if (!win_a) panic("No win a");
+    if (!win_a) {
+        destroy_window(win_a);
+        return 1;
+    }
     win_b = create_window("B", &sizes, &pos_b);
-    if (!win_b) panic("No win b");
+    if (!win_b) {
+        destroy_window(win_b);
+        return 1;
+    }
     sched_spawn(a);
     sched_spawn(b);
     return 0;

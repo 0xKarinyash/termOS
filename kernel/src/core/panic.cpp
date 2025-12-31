@@ -128,9 +128,29 @@ __attribute__((noreturn)) void panic_exception(Registers *regs) {
     kprintf("\t\t^yFlags^! (^yRFLAGS^!): %X\n", regs->rflags);
     kprintf("\t\t^yStack Pointer^! (^yRSP^!): %X\n", regs->rsp);
     if (regs->int_no == 14) {
+        kprintf("\t\t--------------------------------\n");
+        kprintf("\t\t\t^yPage fault helper^!\n");
+        kprintf("\t\t--------------------------------\n");
         u64 cr2;
         __asm__ volatile("mov %%cr2, %0" : "=r"(cr2));
         kprintf("\t\t^yFaulting Address^! (^yCR2^!): %X\n", cr2);
+        kprintf("\t\t^yERRCODE^!: 0x%X\n", regs->err_code);
+        u64 present = (regs->err_code & (1 << 0)) != 0;
+        u64 write   = (regs->err_code & (1 << 1)) != 0;
+        u64 user   = (regs->err_code & (1 << 2)) != 0;
+        u64 reserved   = (regs->err_code & (1 << 3)) != 0;
+        u64 instruction   = (regs->err_code & (1 << 4)) != 0;
+
+        const char* present_msg = present ? "Page Protection violation" : "Non-present page";
+        const char* write_msg = write ? "WRITE" : "READ";
+        const char* user_msg = user ? "RING 3" : "RING 0";
+
+        kprintf("\t\t^yReason^!:\n");
+        kprintf("\t\t\t%s\n", present_msg);
+        kprintf("\t\t\tCaused by a ^y%s^! access\n", write_msg);
+        kprintf("\t\t\tHappened in ^y%s^!\n", user_msg);
+        if (reserved) kprintf("\t\t\tWrote to a reserved field in PTE. Corrupt page table?\n");
+        if (instruction) kprintf("\t\t\tTried to exec in NX\n");
     }
     kprintf("\t\t--------------------------------\n");
     kprintf("\t\t\t\t^yREGISTERS^!\n");

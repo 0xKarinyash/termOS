@@ -32,7 +32,7 @@ void sg_put_img(SG_Context *ctx, SG_Point *p, SG_Image *img) {
 
     for (u32 y = 0; y < draw_h; y++) {
         volatile u32 *dest_ptr = &ctx->fb[(start_y + y) * ctx->pitch + start_x];
-        u32 *src_ptr = &img->buffer[y * img->width];
+        u32 *src_ptr = (u32*)&img->buffer[y * img->width];
         for (u32 x = 0; x < draw_w; x++) {
             u32 color = src_ptr[x];
             if (color != SHITGUI_TRANSPARENCY_KEY) dest_ptr[x] = color;
@@ -92,7 +92,7 @@ SG_Window* create_window(const char *title, SG_Point* size, SG_Point* position) 
     if (!ctx) goto fail; // goto is GOOD for cleaning up in C stfu. 
                          // Mainline linux kernel contains 100k gotos
 
-    fb = malloc(size->x * size->y * sizeof(u32));
+    fb = (u32*)malloc(size->x * size->y * sizeof(u32));
     if (!fb) goto fail;
     memset(fb, 0, size->x * size->y * sizeof(u32));
 
@@ -121,6 +121,12 @@ fail:
     if (window) free(window);
 
     return nullptr;
+}
+
+void destroy_window(SG_Window* window) {
+   // free(window->ctx->fb);
+    free(window->ctx);
+    free(window);
 }
 
 void render_window(SG_Context *ctx, SG_Window *window) {
