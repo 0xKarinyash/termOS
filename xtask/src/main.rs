@@ -46,8 +46,13 @@ fn build() {
             "build",
             "--package", "kernel",
             "--target", "x86_64-unknown-none",
+            "-Zbuild-std=core,alloc", 
             "--release",
         ])
+        // !!! ДОБАВЬ ВОТ ЭТО !!!
+        // Это принудительно скажет компилятору юзать скрипт, даже если build.rs тупит
+        // Путь должен быть правильным относительно места запуска xtask (корня репо)
+        .env("RUSTFLAGS", "-C link-arg=-Tkernel/linker.ld") 
         .status()
         .expect("Failed to run cargo build for kernel");
 
