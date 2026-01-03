@@ -24,7 +24,6 @@ use elf::abi::PT_LOAD;
 static ALLOCATOR: uefi::allocator::Allocator = uefi::allocator::Allocator;
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
 pub struct Framebuffer {
     pub base: *mut u8,
     pub size: usize,
@@ -34,14 +33,18 @@ pub struct Framebuffer {
 }
 
 #[repr(C)]
-#[derive(Debug)]
-pub struct BootInfo {
-    pub framebuffer: Framebuffer,
+struct MMap {
     pub map: *mut u8,
     pub map_size: usize,
     pub descriptor_size: usize,
     pub map_key: usize,
     pub phys_mem_offset: u64,
+}
+
+#[repr(C)]
+struct BootInfo {
+    pub framebuffer: Framebuffer,
+    pub mmap: MMap
 }
 
 #[entry]
@@ -122,13 +125,17 @@ fn main() -> Status {
         panic!("Fatal: no kernel found!");
     }
 
-    let boot_info = Box::leak(Box::new(BootInfo {
-        framebuffer: fb_struct,
+    let memmap = MMap {
         map: core::ptr::null_mut(),
         map_size: 0,
         descriptor_size: 0,
         map_key: 0,
-        phys_mem_offset: kernel_vma_offset,
+        phys_mem_offset: kernel_vma_offset
+    };
+
+    let boot_info = Box::leak(Box::new(BootInfo {
+        framebuffer: fb_struct,
+        mmap: memmap
     }));
 
     let memory_map = unsafe { boot::exit_boot_services(Some(MemoryType::LOADER_CODE)) };
@@ -146,9 +153,9 @@ fn main() -> Status {
 
     let total_count = memory_map.entries().len();
 
-    boot_info.map = first_addr as *mut u8;
-    boot_info.descriptor_size = stride;
-    boot_info.map_size = total_count * stride;
+    boot_info.mmap.map = first_addr as *mut u8;
+    boot_info.mmap.descriptor_size = stride;
+    boot_info.mmap.map_size = total_count * stride;
 
     core::mem::forget(memory_map);
 

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 0xKarinyash
+
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => {

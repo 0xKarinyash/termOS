@@ -1,5 +1,8 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 0xKarinyash
+
 use core::panic::PanicInfo;
-use crate::arch::x86_64::interrupts::TrapFrame;
+use crate::arch::x86_64::interrupts::{TrapFrame, disable_interrupts};
 
 const EXCEPTION_MESSAGES: [&str; 32] = [
     "Division By Zero",
@@ -36,21 +39,21 @@ const EXCEPTION_MESSAGES: [&str; 32] = [
     "Reserved"
 ];
 
-
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {}
-}
+fn panic(info: &PanicInfo) -> ! {
 
-fn die() -> ! {
-    loop {
-        unsafe {
-            core::arch::asm!("cli; hlt");
-        }
+    println!("Kernel panic!!");
+    if let Some(location) = info.location() {
+        println!("Location: {}:{}", location.file(), location.line());
     }
+
+    println!("Message:  {}", info.message());
+
+    disable_interrupts();
 }
 
-pub fn panic_exception(frame: &TrapFrame) {
+pub fn panic_exception(frame: &TrapFrame) -> !{
+
     println!("Kernel panic!!");
     let msg = EXCEPTION_MESSAGES.get(frame.int_num as usize).unwrap_or(&"Unknown exception");
     println!("CPU Exception: {msg} ({})", frame.int_num);
@@ -90,5 +93,5 @@ pub fn panic_exception(frame: &TrapFrame) {
     println!("R13 = 0x{:016X}, R14 = 0x{:016X}", frame.r13, frame.r14);
     println!("R15 = 0x{:016X}", frame.r15);
     println!("System halted");
-    die();
+    disable_interrupts();
 }

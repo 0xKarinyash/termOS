@@ -1,4 +1,7 @@
-use crate::panic::panic_exception;
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 0xKarinyash
+
+use crate::system::panic::panic_exception;
 use crate::println;
 
 
@@ -42,4 +45,12 @@ pub extern "C" fn isr_handler_c(frame: &mut TrapFrame) {
 #[unsafe(no_mangle)]
 pub extern "C" fn irq_handler_c(frame: &mut TrapFrame) {
     println!("{:?}", frame);
+}
+
+pub fn disable_interrupts() -> ! {
+    loop {
+        unsafe {
+            core::arch::asm!("cli; hlt");
+        }
+    }
 }

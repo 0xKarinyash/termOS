@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 0xKarinyash
+
 use core::fmt;
 use core::fmt::Write;
 use spin::Mutex;
@@ -44,9 +47,6 @@ impl fmt::Write for SerialPort {
         Ok(())
     }
 }
-
-
-
 
 pub static COM1: Mutex<SerialPort> = Mutex::new(SerialPort::new(0x3F8));
     
