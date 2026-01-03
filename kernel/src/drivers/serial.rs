@@ -1,7 +1,7 @@
 use core::fmt;
 use core::fmt::Write;
 use spin::Mutex;
-use crate::io::{*};
+use crate::arch::x86_64::io::{*};
 
 pub struct SerialPort {
     port: u16

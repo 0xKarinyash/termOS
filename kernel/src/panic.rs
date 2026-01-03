@@ -1,5 +1,5 @@
 use core::panic::PanicInfo;
-use crate::arch::interrupts::TrapFrame;
+use crate::arch::x86_64::interrupts::TrapFrame;
 
 const EXCEPTION_MESSAGES: [&str; 32] = [
     "Division By Zero",

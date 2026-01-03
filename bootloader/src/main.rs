@@ -86,11 +86,14 @@ fn main() -> Status {
                 continue;
             }
 
-            kernel_loaded = true;
+            let phys_addr = phdr.p_vaddr - kernel_vma_offset; 
 
-// Грузим физически начиная с 1 Мб, чтобы не затереть BIOS
-            let phys_base = 0x100000; 
-            let phys_addr = (phdr.p_vaddr - kernel_vma_offset) + phys_base;
+            if phys_addr < 0x100000 {
+                info!("Skipping header/low segment at P={:#x}", phys_addr);
+                continue;
+            }
+
+            kernel_loaded = true;
 
             let mem_size = phdr.p_memsz as usize;
             let file_size = phdr.p_filesz as usize;

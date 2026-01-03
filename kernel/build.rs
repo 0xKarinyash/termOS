@@ -2,7 +2,7 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    let linker_script = "linker.ld";
+    let linker_script = "src/arch/x86_64/linker.ld"; // TODO make abstraction
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let script_path = manifest_dir.join(linker_script);
 
@@ -10,13 +10,8 @@ fn main() {
         panic!("Linker script not found at: {}", script_path.display());
     }
 
-    println!("cargo:rustc-link-arg=-T{}", script_path.display());
-    println!("cargo:rustc-link-arg=-no-pie");
-    println!("cargo:rustc-link-arg=-zmax-page-size=0x1000");
-    println!("cargo:rerun-if-changed={}", script_path.display());
-
-    let entry_asm_path = "src/arch/entry.asm";
-    let interrupts_asm_path = "src/arch/interrupts.asm";
+    let entry_asm_path      = "src/arch/x86_64/entry.asm";
+    let interrupts_asm_path = "src/arch/x86_64/interrupts.asm";
     
     println!("cargo:rerun-if-changed={}", entry_asm_path);
     println!("cargo:rerun-if-changed={}", interrupts_asm_path);
@@ -25,13 +20,13 @@ fn main() {
         .file(entry_asm_path)
         .compile("asm_entry");
 
-    entry_build_res.expect("Failed to build entry.asm!");
+    entry_build_res.unwrap();
     
     let interrupts_build_res = nasm_rs::Build::new()
         .file(interrupts_asm_path)
         .compile("asm_interrupts");
 
-    interrupts_build_res.expect("Failed to build interrupts.asm!");
+    interrupts_build_res.unwrap();
 
     println!("cargo:rustc-link-lib=static=asm_entry");
     println!("cargo:rustc-link-lib=static=asm_interrupts");

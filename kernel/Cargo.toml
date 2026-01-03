@@ -1,5 +1,6 @@
 [package]
 name = "kernel"
+build = "build.rs"
 version = "0.1.0"
 edition = "2024"
 
@@ -9,10 +10,13 @@ path = "src/main.rs"
 test = false
 bench = false
 
+
+
 [dependencies]
 spin = "0.10.0"
 volatile = "0.6.1"
-x86_64 = "0.15.2"
 
 [build-dependencies]
 nasm-rs = "0.3.1"
+
+
