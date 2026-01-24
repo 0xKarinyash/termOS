@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
+#include "core/scheduler.h"
 #include <drivers/console.h>
 #include <drivers/serial.h>
 #include <drivers/font.h>
@@ -33,6 +34,9 @@ static SG_Font s_font = {0};
 static u32 s_color = COLOR_WHITE;
 static u32 s_def_color = COLOR_WHITE;
 static u32 s_bg_color = COLOR_BLACK;
+static bool s_are_we_blinkin = true;
+static bool s_waiting_for_input = false;
+static bool s_cursor_visible = false;
 
 void console_init(SG_Context *ctx) {
     ctx_ptr = ctx;
@@ -235,11 +239,17 @@ void console_set_default_color(u32 color) {
 }
 
 char console_getc() {
-    while (kb_buf.head == kb_buf.tail) __asm__ volatile ("sti; hlt");
+    s_waiting_for_input = true;
+    while (kb_buf.head == kb_buf.tail) { __asm__ volatile ("sti"); yield(1); }
     __asm__ volatile ("cli");
+    s_waiting_for_input = false;
     char temp = kb_buf.buffer[kb_buf.tail];
     kb_buf.tail = (kb_buf.tail + 1) % KB_BUFF_SIZE;
     __asm__ volatile ("sti");
+    if (s_cursor_visible) {
+        cursor_blink();
+        s_cursor_visible = false;
+    }
     return temp;
 }
 
@@ -269,4 +279,27 @@ void kgets(char* buff, u32 lim) {
             }
         }
     }
+}
+
+void cursor_blink() {
+    sg_draw_rect(ctx_ptr, &s_cursor_pos, s_font.w, s_font.h, sg_get_pixel(ctx_ptr, &s_cursor_pos) ^ 0xFFFFFF);
+}
+
+void cursor_blinker_sched_task() {
+    while (true) {
+        if (s_are_we_blinkin) {
+            if (s_waiting_for_input) {
+                cursor_blink();
+                s_cursor_visible = !s_cursor_visible;
+            }
+        } else if (s_cursor_visible) { 
+            cursor_blink(); 
+            s_cursor_visible = !s_cursor_visible;
+        }
+        yield(500);
+    }
+}
+
+void console_toggle_cursor_blink() {
+    s_are_we_blinkin = !s_are_we_blinkin;
 }

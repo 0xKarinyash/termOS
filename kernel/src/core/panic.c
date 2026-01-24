@@ -101,12 +101,12 @@ void draw_panic_bg() {
     console_set_color(0xFFFFFF);
     console_set_default_color(0xFFFFFF);
 
-    SG_Point p = console_get_dimensions();
-    p.x /= 2;
-    p.y /= 2;
-    p.y -= 200;
+    // SG_Point p = console_get_dimensions();
+    // p.x /= 2;
+    // p.y /= 2;
+    // p.y -= 200;
     
-    console_set_cursor_pos(&p);
+    // console_set_cursor_pos(&p);
 
     u64 msg_count = sizeof(fun_messages) / sizeof(fun_messages[0]);
     u8 rand_num = shitrand() % msg_count;
@@ -128,9 +128,23 @@ __attribute__((noreturn)) void panic_exception(Registers *regs) {
     kprintf("\t\t^yFlags^! (^yRFLAGS^!): %X\n", regs->rflags);
     kprintf("\t\t^yStack Pointer^! (^yRSP^!): %X\n", regs->rsp);
     if (regs->int_no == 14) {
+        kprintf("\t\t--------------------------------\n");
+        kprintf("\t\t       ^yPage Fault Helper^!        \n");
+        kprintf("\t\t--------------------------------\n");
         u64 cr2;
         __asm__ volatile("mov %%cr2, %0" : "=r"(cr2));
         kprintf("\t\t^yFaulting Address^! (^yCR2^!): %X\n", cr2);
+        kprintf("\t\t^yERRCode^!: %X\n", regs->err_code);
+        u64 present     = (regs->err_code & (1 << 0)) != 0;
+        u64 write       = (regs->err_code & (1 << 1)) != 0;
+        u64 user        = (regs->err_code & (1 << 2)) != 0;
+        u64 reserved    = (regs->err_code & (1 << 3)) != 0;
+        u64 instruction = (regs->err_code & (1 << 4)) != 0;
+        kprintf("\t\t\t[^bP^!] ^yReason^! %s\n", present ? "Page Protection violation" : "Non-present page");
+        kprintf("\t\t\t[^bW^!] ^yCaused by^! %s\n", write ? "WRITE" : "READ"); 
+        kprintf("\t\t\t[^bU^!] ^yRing^! %s\n", user ? "3" : "0");
+        if (reserved) kprintf("\t\t\t[^bR^!] CPU Wrote 1 to a reserved field in page table entry. ^rCorrupt page table?^!\n");
+        if (instruction) kprintf("\t\t\t[^bI^!] ^yTried to^! execute ^ycode from^! NX ^ymemory^!\n");
     }
     kprintf("\t\t--------------------------------\n");
     kprintf("\t\t\t\t^yREGISTERS^!\n");

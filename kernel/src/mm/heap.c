@@ -90,7 +90,7 @@ void* realloc(void* ptr, u64 new_size) {
 
     if (curr->next &&
         curr->next->is_free &&
-        (curr->size + sizeof(block_header) + curr->next->size) >= new_size) { // why ts shit so fucking unreadable
+        (curr->size + sizeof(block_header) + curr->next->size) >= new_size) { // why ts so fucking unreadable
             combine_forward(curr);
             return ptr;
     }

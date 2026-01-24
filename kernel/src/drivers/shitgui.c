@@ -18,6 +18,11 @@ void sg_init(SG_Context *ctx) {
     main_context = ctx;
 }
 
+u32 sg_get_pixel(SG_Context *ctx, SG_Point *p) {
+    if (!ctx->fb || !p || p->x >= ctx->width || p->y >= ctx->height) return 0;
+    return ctx->fb[p->y * ctx->pitch + p->x];
+}
+
 void sg_put_img(SG_Context *ctx, SG_Point *p, SG_Image *img) {
     if (!ctx->fb || !img) return;
 
