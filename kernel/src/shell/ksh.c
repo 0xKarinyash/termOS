@@ -7,6 +7,7 @@
 #include <drivers/console.h>
 #include <drivers/shitgui.h>
 
+#include <core/scheduler.h>
 #include <core/string.h>
 #include <core/rand.h>
 #include <core/splash.h>
@@ -33,7 +34,8 @@ typedef enum {
     TOKEN_PANIC_UD2,
     TOKEN_PANIC_PF,
 
-    TOKEN_CLEAR
+    TOKEN_CLEAR,
+    TOKEN_BLINKING
 } ksh_token;
 
 typedef struct {
@@ -46,6 +48,7 @@ static const ksh_command_map token_map[] = {
 
     {"cls", TOKEN_CLEAR},
     {"clear", TOKEN_CLEAR},
+    {"blinking", TOKEN_BLINKING},
 
     {"meow", TOKEN_MEOW},
     {"nya", TOKEN_MEOW},
@@ -75,6 +78,7 @@ ksh_token char2token(char* token) {
 }
 
 void ksh() {
+    sched_spawn(cursor_blinker_sched_task);
     while (true) {
         kprintf("ksh_> ");
         char cmdbuff[256];
@@ -95,6 +99,7 @@ void ksh() {
             case TOKEN_HELP: cmd_help(); break;
             case TOKEN_KFETCH: cmd_kfetch(); break;
             case TOKEN_MEOW: cmd_meow(); break;
+            case TOKEN_BLINKING: console_toggle_cursor_blink(); break;
             
             default: kprintf("Unknown command!!\n"); break;
         }

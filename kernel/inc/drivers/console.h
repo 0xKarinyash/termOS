@@ -16,3 +16,6 @@ char console_getc();
 void kprint(const char *str);
 void kprintf(const char *fmt, ...);
 void kgets(char* buff, u32 lim);
+void cursor_blink();
+void cursor_blinker_sched_task();
+void console_toggle_cursor_blink();
