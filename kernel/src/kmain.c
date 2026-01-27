@@ -2,7 +2,6 @@
 // Copyright (c) 2025 0xKarinyash
 
 #include "bootinfo.h"
-#include "core/scheduler.h"
 #include <shell/ksh.h>
 
 #include <types.h>
@@ -13,6 +12,7 @@
 #include <drivers/timer.h>
 
 #include <core/panic.h>
+#include <core/scheduler.h>
 #include <core/splash.h>
 
 #include <gdt.h>
@@ -22,6 +22,8 @@
 #include <mm/pmm.h>
 #include <mm/vmm.h>
 #include <mm/heap.h>
+
+#include <fs/cpio.h>
 
 #define FG_COLOR 0xffffff
 #define BG_COLOR 0x111111
@@ -34,6 +36,8 @@ void kmain(Bootinfo* info) {
     serial_write("Kernel started\n");
 
     console_init(&sg_ctx);
+
+    if (info->magic != BOOTINFO_MAGIC) panic("Corrupt bootinfo!");
 
     gdt_init();
     kprintf("GDT initialized\n");
@@ -52,9 +56,11 @@ void kmain(Bootinfo* info) {
     sched_init();
     kprintf("Scheduler initialized\n");
     sg_init(&sg_ctx);
-    kprintf("Shitgui initialized");
+    kprintf("Shitgui initialized\n");
 
     info = (Bootinfo*)PHYS_TO_HHDM((u64)info);
+
+    cpio_mount(PHYS_TO_HHDM(info->initramfs.addr), info->initramfs.size);
 
     u32 *fb = (u32*)info->framebuffer.base;
     if (!fb) return serial_write("No framebuffer found!!");
@@ -72,6 +78,7 @@ void kmain(Bootinfo* info) {
 
     sched_spawn(composer_task);
     sched_spawn(ksh);
+    if (!info->initramfs.addr) kprintf("^rWARNING^!: Failed to load ^yinitramfs^!, VFS is empty.\n\n");
     __asm__ volatile("sti");
     
     while (true) __asm__ volatile("hlt");

@@ -35,7 +35,10 @@ typedef enum {
     TOKEN_PANIC_PF,
 
     TOKEN_CLEAR,
-    TOKEN_BLINKING
+    TOKEN_BLINKING,
+
+    TOKEN_BACK,
+    TOKEN_FORWARD,
 } ksh_token;
 
 typedef struct {
@@ -46,17 +49,10 @@ typedef struct {
 static const ksh_command_map token_map[] = {
     {"", TOKEN_EMPTY},
 
-    {"cls", TOKEN_CLEAR},
-    {"clear", TOKEN_CLEAR},
+    // customisation
     {"blinking", TOKEN_BLINKING},
-
-    {"meow", TOKEN_MEOW},
-    {"nya", TOKEN_MEOW},
-    {"splash", TOKEN_SPLASH},
-    {"kfetch", TOKEN_KFETCH},
-    {"fastfetch", TOKEN_KFETCH},
-    {"neofetch", TOKEN_KFETCH},
     
+    // debug
     {"sleep", TOKEN_SLEEP},
     {"dbg", TOKEN_DEBUG},
     {"regs", TOKEN_REGS},
@@ -65,8 +61,14 @@ static const ksh_command_map token_map[] = {
     {"ud2", TOKEN_PANIC_UD2},
     {"pf", TOKEN_PANIC_PF},
 
+    // fun
+    {"meow", TOKEN_MEOW},
+    {"splash", TOKEN_SPLASH},
+    {"kfetch", TOKEN_KFETCH},
 
+    // misc
     {"help", TOKEN_HELP},
+    {"clear", TOKEN_CLEAR},
     {nullptr, TOKEN_NULL}
 };
 
@@ -85,7 +87,10 @@ void ksh() {
         kgets(cmdbuff, 256);
         switch(char2token(cmdbuff)) {
             case TOKEN_EMPTY: continue;
-            
+
+            case TOKEN_CLEAR: console_clear((u32) console_get_colors() & 0xFFFFFFFF); break;
+            case TOKEN_BLINKING: console_toggle_cursor_blink(); break;
+
             case TOKEN_SLEEP: cmd_sleep(); break;
             case TOKEN_DEBUG: cmd_debug(); break;
             case TOKEN_REGS: cmd_regs(); break;
@@ -95,12 +100,10 @@ void ksh() {
             case TOKEN_PANIC_PF: u64* bad_ptr = (u64*)0xDEADBEEF; *bad_ptr = 666;
             
             case TOKEN_SPLASH: show_splash(console_get_context()); break;
-            case TOKEN_CLEAR: console_clear((u32) console_get_colors() & 0xFFFFFFFF); break;
-            case TOKEN_HELP: cmd_help(); break;
             case TOKEN_KFETCH: cmd_kfetch(); break;
             case TOKEN_MEOW: cmd_meow(); break;
-            case TOKEN_BLINKING: console_toggle_cursor_blink(); break;
             
+            case TOKEN_HELP: cmd_help(); break;
             default: kprintf("Unknown command!!\n"); break;
         }
     }

@@ -100,14 +100,7 @@ void draw_panic_bg() {
     console_clear(0x000000);
     console_set_color(0xFFFFFF);
     console_set_default_color(0xFFFFFF);
-
-    // SG_Point p = console_get_dimensions();
-    // p.x /= 2;
-    // p.y /= 2;
-    // p.y -= 200;
     
-    // console_set_cursor_pos(&p);
-
     u64 msg_count = sizeof(fun_messages) / sizeof(fun_messages[0]);
     u8 rand_num = shitrand() % msg_count;
 

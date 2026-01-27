@@ -49,8 +49,31 @@ void cmd_meow() {
 }
 
 void cmd_help() {
-    kprintf("\tWelcome to ^ptermOS^!'s kernel shell!\n");
-    kprintf("\tIt can almost nothing! yet.\n");
+    kprintf("Welcome to ^ptermOS^!'s ^gk^!ernel ^gsh^!ell!\n");
+    kprintf("It loads when userspace is failed to load and acts as a basic rescue environment\n");
+    kprintf("At this moment i dont have userspace so it loads always\n");
+    kprintf("Available commands:\n");
+    
+    kprintf("\t^rDebug^!:\n");
+    kprintf("\t\t^ysleep^!       \t\tSleep for 3seconds\n");
+    kprintf("\t\t^ydbg^!         \t\tTest new stuff\n");
+    kprintf("\t\t^yregs^!        \t\tPrint current regs\n");
+    kprintf("\t\t^yrectest^!     \t\tTSS test\n");
+    kprintf("\t\t^ypanic^!       \t\tPanics (lol)\n");
+    kprintf("\t\t^yud2^!         \t\tPanics with #UD\n");
+    kprintf("\t\t^ypf^!          \t\tPanics with #PF\n");
+    
+    kprintf("\t^pFun^!:\n");
+    kprintf("\t\t^ysplash^!      \t\tShows splash (works kinda unstable)\n");
+    kprintf("\t\t^ymeow^!        \t\tcats!!!\n");
+    kprintf("\t\t^ykfetch^!      \t\tr/unixporn compatible\n");
+    
+    kprintf("\t^gCustomisation^!:\n");
+    kprintf("\t\t^yblinking^!    \t\tDisable/Enable cursor blinking\n");
+
+    kprintf("\t^bMisc^!:\n");
+    kprintf("\t\t^yclear^!       \t\tClear console\n");
+    kprintf("\t\t^yhelp^!        \t\tShow this menu\n");
 }
 
 void cmd_regs() {
