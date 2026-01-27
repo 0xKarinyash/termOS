@@ -12,7 +12,7 @@ endif()
 message(STATUS "TermOS Kernel: Building for architecture '${ARCH}'")
 
 
-file(GLOB_RECURSE KERNEL_SOURCES
+file(GLOB_RECURSE KERNEL_SOURCES CMAKE_CONFIGURE_DEPENDS
     "src/kmain.c"
     
     "src/arch/${ARCH}/*.c"
@@ -22,6 +22,7 @@ file(GLOB_RECURSE KERNEL_SOURCES
     "src/drivers/*.c"
     "src/mm/*.c"
     "src/shell/*.c"
+    "src/fs/*.c"
     
     "data/*.c"
 )
