@@ -8,9 +8,10 @@ typedef struct task {
     struct task* next;
     u32 id;
     u32 sleep_ticks;
-} task_t;
+    u64 kernel_stack_top;
+} task;
 
 void sched_init();
-task_t* sched_spawn(void(*entry)());
+task* sched_spawn(void(*entry)());
 u64 sched_next(u64 curr_rsp);
 void yield(u64 ticks);

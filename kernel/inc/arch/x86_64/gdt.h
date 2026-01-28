@@ -37,4 +37,6 @@ typedef struct {
     u16 iomap_base;
 } __attribute__((packed)) TSS;
 
+extern TSS tss;
+
 void gdt_init();

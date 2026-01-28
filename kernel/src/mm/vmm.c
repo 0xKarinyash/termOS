@@ -18,7 +18,6 @@ extern u64 _kernel_end;
 extern u8* bitmap;
 extern u64 bitmap_size_g;
 extern GDTDescriptor gdt[];
-extern TSS tss[];
 extern IDTEntry idt[];
 extern u8 double_fault_stack[];
 extern u8 stack_guard;
@@ -37,12 +36,16 @@ u64* vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
     u64* pml4_virt = pml4;
     if (is_initialized) pml4_virt = (u64*)PHYS_TO_HHDM((u64)pml4);
 
+    u64 table_flags = PTE_PRESENT | PTE_RW | (flags & PTE_USER);
+
     if (!(pml4_virt[pml4_idx] & PTE_PRESENT)) {
         u64* addr = pmm_alloc_page();
         if (!addr) return nullptr;
         u64* addr_virt = get_table_virt((u64)addr);
         memset(addr_virt, 0, PAGE_SIZE);
-        pml4_virt[pml4_idx] = (u64)addr | PTE_PRESENT | PTE_RW; 
+        pml4_virt[pml4_idx] = (u64)addr | table_flags; 
+    } else {
+        pml4_virt[pml4_idx] |= (flags & PTE_USER);
     }
 
     u64* pdpt = (u64*)PTE_GET_ADDR(pml4_virt[pml4_idx]);
@@ -53,7 +56,9 @@ u64* vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
         if (!addr) return nullptr;
         u64* addr_virt = get_table_virt((u64)addr);
         memset(addr_virt, 0, PAGE_SIZE);
-        pdpt_virt[pdpt_idx] = (u64)addr | PTE_PRESENT | PTE_RW;
+        pdpt_virt[pdpt_idx] = (u64)addr | table_flags;
+    } else {
+        pdpt_virt[pdpt_idx] |= (flags & PTE_USER);
     }
 
     u64* pd = (u64*)PTE_GET_ADDR(pdpt_virt[pdpt_idx]);
@@ -64,7 +69,9 @@ u64* vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags) {
         if (!addr) return nullptr;
         u64* addr_virt = get_table_virt((u64)addr);
         memset(addr_virt, 0, PAGE_SIZE);
-        pd_virt[pd_idx] = (u64)addr | PTE_PRESENT | PTE_RW;
+        pd_virt[pd_idx] = (u64)addr | table_flags;
+    } else {
+        pd_virt[pd_idx] |= (flags & PTE_USER);
     }
 
     u64* pt = (u64*)PTE_GET_ADDR(pd_virt[pd_idx]);

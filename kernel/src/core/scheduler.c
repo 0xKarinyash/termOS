@@ -4,14 +4,15 @@
 #include <core/panic.h>
 #include <core/scheduler.h>
 #include <mm/heap.h>
+#include <gdt.h>
 
-task_t* curr_task = nullptr;
+task* curr_task = nullptr;
 u32 next_pid = 1;
 
 extern void irq0_handler();
 
 void sched_init() {
-    task_t* kt = (task_t*)malloc(sizeof(task_t));
+    task* kt = (task*)malloc(sizeof(task));
 
     kt->id = 0;
     kt->sleep_ticks = 0;
@@ -20,8 +21,8 @@ void sched_init() {
     curr_task = kt;
 }
 
-task_t* sched_spawn(void(*entry)()) {
-    task_t* t = (task_t*)malloc(sizeof(task_t));
+task* sched_spawn(void(*entry)()) {
+    task* t = (task*)malloc(sizeof(task));
     if (!t) return nullptr;
     
     u64 stack_size = 16384;
@@ -44,8 +45,8 @@ task_t* sched_spawn(void(*entry)()) {
     t->id = next_pid++;
     t->sleep_ticks = 0;
     t->next = curr_task->next;
+    t->kernel_stack_top = (u64)stack_base + stack_size;
     curr_task->next = t;
-
     return t;
 }
 
@@ -53,7 +54,7 @@ u64 sched_next(u64 curr_rsp) {
     if (!curr_task) return curr_rsp;
 
     curr_task->rsp = curr_rsp;
-    task_t* it = curr_task->next;
+    task* it = curr_task->next;
 
     do {
         if (it->sleep_ticks > 0) it->sleep_ticks--;
@@ -62,10 +63,11 @@ u64 sched_next(u64 curr_rsp) {
 
     if (curr_task->sleep_ticks > 0) curr_task->sleep_ticks--;
 
-    task_t* next = curr_task->next;
+    task* next = curr_task->next;
     while (next != curr_task && next->sleep_ticks > 0) next = next->next; // what the fuck i just wrote  
 
     curr_task = next;
+    tss.rsp0 = curr_task->kernel_stack_top;
     return curr_task->rsp;
 }
 
