@@ -34,4 +34,4 @@ typedef struct {
     BI_Initramfs initramfs;
 } Bootinfo;
 
-#define BOOTINFO_MAGIC 0x7E833055 // termOS
+#define BOOTINFO_MAGIC 0x7465726D // term

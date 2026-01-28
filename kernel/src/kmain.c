@@ -24,6 +24,7 @@
 #include <mm/heap.h>
 
 #include <fs/cpio.h>
+#include <fs/vfs.h>
 
 #define FG_COLOR 0xffffff
 #define BG_COLOR 0x111111
@@ -60,7 +61,9 @@ void kmain(Bootinfo* info) {
 
     info = (Bootinfo*)PHYS_TO_HHDM((u64)info);
 
-    cpio_mount(PHYS_TO_HHDM(info->initramfs.addr), info->initramfs.size);
+    fs_node* root = cpio_mount(PHYS_TO_HHDM(info->initramfs.addr), info->initramfs.size);
+    vfs_init(root);
+    kprintf("VFS initialized");
 
     u32 *fb = (u32*)info->framebuffer.base;
     if (!fb) return serial_write("No framebuffer found!!");

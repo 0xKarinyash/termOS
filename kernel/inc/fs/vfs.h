@@ -31,3 +31,8 @@ struct fs_node {
     struct fs_node* ptr;
     struct fs_node* next;
 };
+
+void vfs_init(fs_node* root_node);
+u64 vfs_read(fs_node* node, u64 offset, u64 size, u8* buff);
+fs_node* vfs_open(const char* path);
+void vfs_close(fs_node* node);
