@@ -52,6 +52,7 @@ u64 hex_to_u64(const char* s, i32 len) {
 u64 cpio_read(fs_node* node, u64 offset, u64 size, u8* buff) {
     if (offset > node->len) return 0; // EOF
     if ((offset + size) > node->len) size = node->len - offset;
+
     memcpy(buff, (char*)node->impl_data + offset, size);
     return size;
 }
@@ -66,6 +67,8 @@ fs_node* cpio_mount(void* base, u64 size) {
     strcpy(root->name, "/");
     root->flags = FS_DIR;
     root->ops = &cpio_ops;
+
+    fs_node* tail = nullptr;
 
     while (ptr < end) {
         cpio_header* header = (cpio_header*)ptr;
@@ -84,7 +87,7 @@ fs_node* cpio_mount(void* base, u64 size) {
         fs_node* new_node = malloc(sizeof(fs_node));
         if (!new_node) panic("CPIO: Failed to malloc for new node!");
         memset(new_node, 0, sizeof(fs_node));
-        strcpy(new_node->name, filename);
+        strncpy(new_node->name, filename, sizeof(new_node->name) - 1);
 
         new_node->len = filesize;
         new_node->inode = hex_to_u64(header->c_ino, 8);
@@ -95,7 +98,12 @@ fs_node* cpio_mount(void* base, u64 size) {
         if ((mode & 0xF000) == 0x4000) new_node->flags = FS_DIR;
         else new_node->flags = FS_FILE;
 
-        kprintf("^bCPIO^!: Found file '^y%s^!' (size ^y%d^!) at ^y%x^!\n", filename, filesize, &file_content);
+        if (root->ptr == nullptr) root->ptr = new_node;
+        else if (tail) tail->next = new_node;
+
+        tail = new_node;
+
+        kprintf("^bCPIO^!: Found file '^y%s^!' (size ^y%d^!) at ^y%x^!\n", filename, filesize, file_content);
 
         u64 data_len = ALIGN4(filesize);
         ptr += offset_to_data + data_len;
