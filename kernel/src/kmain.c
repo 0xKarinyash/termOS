@@ -63,10 +63,10 @@ void kmain(Bootinfo* info) {
 
     fs_node* root = cpio_mount(PHYS_TO_HHDM(info->initramfs.addr), info->initramfs.size);
     vfs_init(root);
-    kprintf("VFS initialized");
+    kprintf("VFS initialized\n");
 
     u32 *fb = (u32*)info->framebuffer.base;
-    if (!fb) return serial_write("No framebuffer found!!");
+    if (!fb) return kprintf("No framebuffer found!!");
 
     sg_ctx.fb = fb;
     sg_ctx.height = info->framebuffer.height;

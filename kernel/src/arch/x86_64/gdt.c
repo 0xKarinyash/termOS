@@ -4,8 +4,9 @@
 // just fucking kill me already
 
 #include <gdt.h>
+#define GDT_ENTIRES 7
 
-GDTDescriptor gdt[5];
+GDTDescriptor gdt[GDT_ENTIRES];
 GDTPtr gdt_ptr;
 TSS tss;
 u8 double_fault_stack[4096] = {0};
@@ -40,7 +41,7 @@ void write_tss(int num) {
 extern void gdt_flush(u64 gdt_ptr_addr); // entry.asm
 
 void gdt_init() {
-    gdt_ptr.limit = (sizeof(GDTDescriptor) * 5) - 1;
+    gdt_ptr.limit = (sizeof(GDTDescriptor) * GDT_ENTIRES) - 1;
     gdt_ptr.base = (u64)&gdt;
 
     // 0: Null
@@ -53,17 +54,25 @@ void gdt_init() {
                                                     //  0x20 = 0010 0000 bit 5 is "Long mode"
     // 2: Kernel Data (Ring 0)
     // Access: 0x92 (Present, Ring0, Read/Write)
-    gdt_set_gate(2, 0, 0, 0x92, 0);                 // 0x92 can't exec
+    gdt_set_gate(2, 0, 0, 0x92, 0);                 //  0x92 = 1    00          1   0       0       1
 
-    for (u64 i = 0; i < sizeof(TSS); i++) ((u8*)&tss)[i] = 0; // hack. zeroifying tss struct
+    // 3: User Data (Ring 3)
+    // Access: 0xF2 (Present, Ring3, Read/Write)
+    gdt_set_gate(3, 0, 0, 0xF2, 0);                 //  0xF2 = 1    11          1   0       0       1
+
+    // 4: User Code (Ring 3)
+    // Access: 0xFA (Present, Ring3, RWX)
+    gdt_set_gate(4, 0, 0, 0xFA, 0x20);              //  0xFA = 1    11          1   1       0       1
+
+    for (u64 i = 0; i < sizeof(TSS); i++) ((u8*)&tss)[i] = 0; // zeroifying tss struct
 
     tss.iomap_base = sizeof(TSS);
     tss.ist1 = (u64)double_fault_stack + sizeof(double_fault_stack);
-    write_tss(3);
+    write_tss(5);
 
     gdt_flush((u64)&gdt_ptr);
 
-    // telling cpu that TSS info located at gdt[3]; offset = 3 * 8 = 24 = 0x18
-    __asm__ volatile ("ltr %%ax" :: "a" (0x18));
+    // telling cpu that TSS info located at gdt[5]; offset = 5 * 8 = 40 = 0x28
+    __asm__ volatile ("ltr %%ax" :: "a" (0x28));
 }
 

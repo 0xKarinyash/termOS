@@ -133,7 +133,7 @@ __attribute__((noreturn)) void panic_exception(Registers *regs) {
         u64 user        = (regs->err_code & (1 << 2)) != 0;
         u64 reserved    = (regs->err_code & (1 << 3)) != 0;
         u64 instruction = (regs->err_code & (1 << 4)) != 0;
-        kprintf("\t\t\t[^bP^!] ^yReason^! %s\n", present ? "Page Protection violation" : "Non-present page");
+        kprintf("\t\t\t[^bP^!] ^yReason^!: %s\n", present ? "Page Protection violation" : "Non-present page");
         kprintf("\t\t\t[^bW^!] ^yCaused by^! %s\n", write ? "WRITE" : "READ"); 
         kprintf("\t\t\t[^bU^!] ^yRing^! %s\n", user ? "3" : "0");
         if (reserved) kprintf("\t\t\t[^bR^!] CPU Wrote 1 to a reserved field in page table entry. ^rCorrupt page table?^!\n");

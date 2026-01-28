@@ -6,3 +6,4 @@ kernel/data
 tools/
 bootloader/
 bootloader/src/uefi
+initramfs/
