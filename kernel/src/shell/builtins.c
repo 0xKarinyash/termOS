@@ -29,13 +29,13 @@ void cmd_kfetch() {
 
     kprintf("\n\n");
     kprintf("^p %s ^!\t\t^g kernel^!@^gtermos\n^0", ascii_logo[0]);
-    kprintf("^p %s ^!\t\t^!-------------\n^!", ascii_logo[1]);   
+    kprintf("^p %s ^!\t\t^!-------------\n^!", ascii_logo[1]);
     kprintf("^p %s ^!\t\t^gOS^!: termOS %s\n^!", ascii_logo[2], TERMOS_VERSION);   
-    kprintf("^p %s ^!\t\t^gKernel^!: sucks\n^!", ascii_logo[3]);   
+    kprintf("^p %s ^!\t\t^gKernel^!: Dewar (x86_64), build: %s %s\n^!", ascii_logo[3], __DATE__, __TIME__);   
     kprintf("^p %s ^!\t\t^gUptime^!: %d seconds\n^!", ascii_logo[4], uptime_s);   
     kprintf("^p %s ^!\t\t^gShell^!: ksh\n^!", ascii_logo[5]);   
-    kprintf("^p %s ^p\t\t^gDE^!: shitgui\n^!", ascii_logo[6]);   
-    kprintf("^p %s ^p\t\t^gCPU^!: %s\n^!", ascii_logo[7], g_cpu.vendor);
+    kprintf("^p %s ^!\t\t^gDE^!: shitgui\n^!", ascii_logo[6]);   
+    kprintf("^p %s ^!\t\t^gCPU^!: %s\n^!", ascii_logo[7], g_cpu.vendor);
     kprintf("\n\n");
 }
 
@@ -71,6 +71,7 @@ void cmd_help() {
     kprintf("\t\t^yclear^!       \t\tClear console\n");
     kprintf("\t\t^yhelp^!        \t\tShow this menu\n");
     kprintf("\t\t^yrand^!        \t\tGet a random number\n");
+    kprintf("\t\t^yver^!         \t\tDisplays termOS's version\n");
 }
 
 void cmd_regs() {
@@ -105,4 +106,10 @@ void cmd_debug() {
     u64 status = debug();
     kprintf("\nDebug ended with code %d\n", status);
     return;
+}
+
+void cmd_ver() {
+    kprintf("termOS version %s\n", TERMOS_VERSION);
+    kprintf("Dewar Kernel (x86_64), build: %s %s\n", __DATE__, __TIME__);
+    kprintf("License: GPL-3.0-or-later\n");
 }

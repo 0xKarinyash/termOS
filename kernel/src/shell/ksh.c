@@ -37,6 +37,7 @@ typedef enum {
     TOKEN_CLEAR,
     TOKEN_BLINKING,
     TOKEN_RAND,
+    TOKEN_VER,
 
     TOKEN_BACK,
     TOKEN_FORWARD,
@@ -70,6 +71,8 @@ static const ksh_command_map token_map[] = {
     {"help", TOKEN_HELP},
     {"clear", TOKEN_CLEAR},
     {"rand", TOKEN_RAND},
+    {"ver", TOKEN_VER},
+
     {nullptr, TOKEN_NULL}
 };
 
@@ -92,6 +95,7 @@ void ksh() {
             case TOKEN_CLEAR: console_clear((u32) console_get_colors() & 0xFFFFFFFF); break;
             case TOKEN_BLINKING: console_toggle_cursor_blink(); break;
             case TOKEN_RAND: cmd_rand(); break;
+            case TOKEN_VER: cmd_ver(); break;
 
             case TOKEN_SLEEP: cmd_sleep(); break;
             case TOKEN_DEBUG: cmd_debug(); break;

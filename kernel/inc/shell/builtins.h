@@ -11,3 +11,4 @@ void print_regs();
 void cmd_sleep();
 void cmd_debug();
 void cmd_rand();
+void cmd_ver();

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(termOS_krn LANGUAGES C ASM_NASM)
+project(dewar LANGUAGES C ASM_NASM)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -9,7 +9,7 @@ if (NOT DEFINED ARCH)
     set(ARCH "x86_64")
 endif()
 
-message(STATUS "TermOS Kernel: Building for architecture '${ARCH}'")
+message(STATUS "Dewar kernel: Building for architecture '${ARCH}'")
 
 
 file(GLOB_RECURSE KERNEL_SOURCES CMAKE_CONFIGURE_DEPENDS
