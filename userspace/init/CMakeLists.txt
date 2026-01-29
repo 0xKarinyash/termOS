@@ -5,28 +5,29 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
-message(STATUS "Building termOS's init")
+get_filename_component(TOOLS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../tools/elf2hot" ABSOLUTE)
+set(FINAL_INIT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../initramfs/init")
 
-file(GLOB_RECURSE INIT_SOURCES CMAKE_CONFIGURE_DEPENDS
-    "src/*.asm"
-    "src/*.c"
+file(GLOB_RECURSE INIT_SOURCES "src/*.asm" "src/*.c")
+
+add_executable(init_elf ${INIT_SOURCES})
+
+set_target_properties(init_elf PROPERTIES 
+    OUTPUT_NAME "init"
+    LINKER_LANGUAGE C
 )
 
-add_executable(init ${INIT_SOURCES})
-set_target_properties(init PROPERTIES
-    SUFFIX ""
-    LINKER_LANGUAGE C 
-)
-
-target_link_options(init PRIVATE
+target_link_options(init_elf PRIVATE
     -nostdlib
     -static
-    -Wl,--oformat=binary
-    -Wl,-Ttext=0x400000
-    -Wl,-e,start
+    -T "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
 )
 
-add_custom_command(TARGET init POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:init> ${CMAKE_SOURCE_DIR}/initramfs/init
-    COMMENT "Installing init binary to initramfs"
+add_custom_command(TARGET init_elf POST_BUILD
+    COMMAND cargo run --release --quiet -- $<TARGET_FILE:init_elf> ${FINAL_INIT_PATH}
+    
+    WORKING_DIRECTORY ${TOOLS_DIR}
+    
+    COMMENT "Cargo is converting ELF to HOT! format..."
+    VERBATIM
 )

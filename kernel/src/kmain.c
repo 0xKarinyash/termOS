@@ -101,8 +101,8 @@ void kmain(Bootinfo* info) {
     c = console_getc();
     if (c != '\n') staying_in_ksh = true;
     
-    if (staying_in_ksh) sched_spawn(ksh, nullptr);
-    else sched_spawn(init_task_entry, nullptr);
+    if (staying_in_ksh) sched_spawn(ksh, nullptr, false, 0);
+    else sched_spawn(init_task_entry, nullptr, false, 0);
     
     __asm__ volatile("sti");
     

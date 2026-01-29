@@ -4,11 +4,16 @@
 #include <mm/pmm.h>
 #include <mm/memory.h>
 
+#include <core/panic.h>
+
 #include <gdt.h>
 #include <idt.h>
 
 #include <types.h>
 #include "bootinfo.h"
+
+#define USER_STACK_TOP  0x70000000
+#define USER_STACK_SIZE 0x4000
 
 u64* pml4_kernel = nullptr;
 u64 pml4_kernel_phys = 0;
@@ -155,4 +160,15 @@ u64 vmm_get_current_cr3() {
     u64 cr3;
     __asm__ volatile("mov %%cr3, %0" : "=r"(cr3));
     return cr3;
+}
+
+
+void vmm_setup_user_stack(u64* pml4_phys) {
+    u64 stack_bottom = USER_STACK_TOP - USER_STACK_SIZE;
+    for (u64 addr = stack_bottom; addr < USER_STACK_TOP; addr += 4096) {
+        void* phys = pmm_alloc_page();
+        if (!phys) panic("OOM in user stack setup");
+        memset((void*)PHYS_TO_HHDM((u64)phys), 0, 4096);
+        vmm_map_page((u64*)pml4_phys, (u64)phys, addr, PTE_PRESENT | PTE_RW | PTE_USER);
+    }
 }

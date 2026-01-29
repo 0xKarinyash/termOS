@@ -42,7 +42,7 @@ if(MCOPY_EXE AND MKFS_EXE AND CPIO_EXE)
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}
         COMMAND sh -c "find . -mindepth 1 ! -name '*.cpio' -print0 | ${CPIO_EXE} --null -ov -H newc > \"${INITRAMFS_CPIO_FILE}\""
         WORKING_DIRECTORY ${INITRAMFS_SRC_DIR}
-        DEPENDS ${INIT_FILES} init
+        DEPENDS ${INIT_FILES} init_elf
         VERBATIM
         COMMENT "Packing initramfs to cpio..."
     )

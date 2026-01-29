@@ -40,3 +40,4 @@ u64* vmm_map_page(u64* pml4, u64 phys, u64 virt, u64 flags);
 u64 vmm_create_address_space();
 u64 vmm_get_current_cr3();
 void load_cr3(u64 pml4_addr);
+void vmm_setup_user_stack(u64* pml4_phys);

@@ -86,7 +86,7 @@ ksh_token char2token(char* token) {
 }
 
 void ksh() {
-    sched_spawn(cursor_blinker_sched_task, nullptr);
+    sched_spawn(cursor_blinker_sched_task, nullptr, false, 0);
     while (true) {
         kprintf("ksh_> ");
         char cmdbuff[256];

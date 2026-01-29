@@ -2,5 +2,7 @@
 // Copyright (c) 2026 0xKarinyash
 
 #pragma once
+#include <types.h>
+#include <core/scheduler.h>
 
-void jump_to_userspace(void* entry, void* user_stack_top);
+u64 load_hot(process* proc, u8* data);

@@ -124,13 +124,5 @@ void cmd_ver() {
 }
 
 void cmd_userspace() {
-    process* init_proc = (process*)malloc(sizeof(process));
-    init_proc->pid = 1;
-    init_proc->state = RUNNING;
-    init_proc->pml4_phys = vmm_create_address_space();
-    strcpy(init_proc->name, "init");
-
-    curr_task->proc = init_proc;
-    kprintf("Trying to jump in ring 3...\n");
-    if (!exec_init(init_proc, "/init")) kprintf("Failed to jump.\n");
+    sched_spawn(init_task_entry, nullptr, false, 0);
 }

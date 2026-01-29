@@ -12,7 +12,6 @@
 task* curr_task = nullptr;
 u32 next_pid = 1;
 
-
 extern void irq0_handler();
 extern u64 pml4_kernel_phys;
 
@@ -33,7 +32,7 @@ void sched_init() {
     curr_task = kt;
 }
 
-task* sched_spawn(void(*entry)(), process* owner) {
+task* sched_spawn(void(*entry)(), process* owner, bool is_user, u64 fixed_user_stack) {
     task* t = (task*)malloc(sizeof(task));
     if (!t) return nullptr;
     if (!owner) owner = &kernel_process;
@@ -43,10 +42,17 @@ task* sched_spawn(void(*entry)(), process* owner) {
     if (!stack_base) panic("OOM for task stack");
     u64* rsp = (u64*)(stack_base + stack_size); 
 
-    *--rsp = 0x10; // SS -- Kernel data
-    *--rsp = (u64)stack_base + stack_size; // rsp
-    *--rsp = 0x202; // RFLAGS -- Interrupts Enabled | Reserved bit;
-    *--rsp = 0x08; // CS -- Kernel Code;
+    u64 cs = is_user ? 0x23 : 0x08;
+    u64 ss = is_user ? 0x1b : 0x10;
+    u64 rflags = 0x202;
+    u64 target_rsp = 0;
+    if (is_user) target_rsp = fixed_user_stack;
+    else target_rsp = (u64)stack_base + stack_size;
+
+    *--rsp = ss; // SS -- Kernel data
+    *--rsp = target_rsp; // rsp
+    *--rsp = rflags; // RFLAGS -- Interrupts Enabled | Reserved bit;
+    *--rsp = cs; // CS -- Kernel Code;
     *--rsp = (u64)entry; // RIP
 
     *--rsp = 0; // int no

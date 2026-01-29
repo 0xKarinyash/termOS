@@ -27,6 +27,6 @@ typedef struct task {
 } task;
 
 void sched_init();
-task* sched_spawn(void(*entry)(), process* owner);
+task* sched_spawn(void(*entry)(), process* owner, bool is_user, u64 fixed_user_stack);
 u64 sched_next(u64 curr_rsp);
 void yield(u64 ticks);
