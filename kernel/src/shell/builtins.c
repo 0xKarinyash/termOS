@@ -30,7 +30,7 @@ void cmd_kfetch() {
     kprintf("\n\n");
     kprintf("^p %s ^!\t\t^g kernel^!@^gtermos\n^0", ascii_logo[0]);
     kprintf("^p %s ^!\t\t^!-------------\n^!", ascii_logo[1]);   
-    kprintf("^p %s ^!\t\t^gOS^!: termOS 0.0.1\n^!", ascii_logo[2]);   
+    kprintf("^p %s ^!\t\t^gOS^!: termOS %s\n^!", ascii_logo[2], TERMOS_VERSION);   
     kprintf("^p %s ^!\t\t^gKernel^!: sucks\n^!", ascii_logo[3]);   
     kprintf("^p %s ^!\t\t^gUptime^!: %d seconds\n^!", ascii_logo[4], uptime_s);   
     kprintf("^p %s ^!\t\t^gShell^!: ksh\n^!", ascii_logo[5]);   

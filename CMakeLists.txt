@@ -6,14 +6,28 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-add_subdirectory(bootloader)
-add_subdirectory(kernel)
-
 find_program(MCOPY_EXE mcopy)
 find_program(MKFS_EXE mkfs.fat)
 find_program(CPIO_EXE cpio)
 find_program(QEMU_EXE qemu-system-x86_64)
 set(OVMF_PATH "/usr/share/edk2/ovmf/OVMF_CODE.fd" CACHE FILEPATH "Path to OVMF bios")
+
+execute_process(
+    COMMAND git describe --tags --always --dirty
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE KERNEL_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if(NOT KERNEL_VERSION)
+    set(KERNEL_VERSION "unknown-version")
+endif()
+
+message(STATUS "Building termOS version: ${KERNEL_VERSION}")
+add_compile_definitions(TERMOS_VERSION=\"${KERNEL_VERSION}\")
+
+add_subdirectory(bootloader)
+add_subdirectory(kernel)
 
 if(MCOPY_EXE AND MKFS_EXE AND CPIO_EXE)
     set(IMG_FILE "${CMAKE_BINARY_DIR}/termOS.img")

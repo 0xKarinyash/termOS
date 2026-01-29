@@ -54,7 +54,6 @@ const char* fun_messages[] = {
     "fuck off",
     "Your GPU is now mining Ethereum for me. Thanks.",
     "Your PC is locked!\n\t\t\t\tPay a fee of 0.019082006 bitcoins to a wallet 1KtoProchitalTotSosal to get decryption key!",
-
 };
 
 

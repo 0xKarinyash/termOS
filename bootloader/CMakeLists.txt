@@ -4,6 +4,7 @@ set(UEFI_COMPILE_OPTIONS
     -std=c23
     -target x86_64-unknown-windows-msvc
     -Wall -Wextra
+    -fno-builtin
     $<$<CONFIG:Release>:-Werror>
 )
 
