@@ -4,6 +4,7 @@
 #pragma once
 
 #include <types.h>
+#include <core/scheduler.h>
 
-bool exec_init(const char* path);
+bool exec_init(process* p, const char* path);
 void init_task_entry();

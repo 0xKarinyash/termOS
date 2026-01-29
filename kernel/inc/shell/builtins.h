@@ -12,3 +12,4 @@ void cmd_sleep();
 void cmd_debug();
 void cmd_rand();
 void cmd_ver();
+void cmd_userspace();

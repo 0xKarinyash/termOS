@@ -33,6 +33,7 @@ typedef enum {
     TOKEN_PANIC,
     TOKEN_PANIC_UD2,
     TOKEN_PANIC_PF,
+    TOKEN_USERSPACE,
 
     TOKEN_CLEAR,
     TOKEN_BLINKING,
@@ -61,6 +62,7 @@ static const ksh_command_map token_map[] = {
     {"panic", TOKEN_PANIC},
     {"ud2", TOKEN_PANIC_UD2},
     {"pf", TOKEN_PANIC_PF},
+    {"userspace", TOKEN_USERSPACE},
 
     // fun
     {"meow", TOKEN_MEOW},
@@ -84,7 +86,7 @@ ksh_token char2token(char* token) {
 }
 
 void ksh() {
-    sched_spawn(cursor_blinker_sched_task);
+    sched_spawn(cursor_blinker_sched_task, nullptr);
     while (true) {
         kprintf("ksh_> ");
         char cmdbuff[256];
@@ -103,7 +105,8 @@ void ksh() {
             case TOKEN_PANIC: panic("Manually initiated panic");
             case TOKEN_PANIC_UD2: __asm__ volatile ("ud2");
             case TOKEN_PANIC_PF: u64* bad_ptr = (u64*)0xDEADBEEF; *bad_ptr = 666;
-            
+            case TOKEN_USERSPACE: cmd_userspace(); break;
+
             case TOKEN_SPLASH: show_splash(console_get_context()); break;
             case TOKEN_KFETCH: cmd_kfetch(); break;
             case TOKEN_MEOW: cmd_meow(); break;

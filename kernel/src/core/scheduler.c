@@ -3,29 +3,41 @@
 
 #include <core/panic.h>
 #include <core/scheduler.h>
+#include <core/string.h>
 #include <mm/heap.h>
+#include <mm/vmm.h>
 #include <cpuinfo.h>
 #include <gdt.h>
 
 task* curr_task = nullptr;
 u32 next_pid = 1;
 
+
 extern void irq0_handler();
+extern u64 pml4_kernel_phys;
+
+static process kernel_process;
 
 void sched_init() {
-    task* kt = (task*)malloc(sizeof(task));
+    kernel_process.pid = 0;
+    kernel_process.state = RUNNING;
+    kernel_process.pml4_phys = pml4_kernel_phys;
+    strcpy(kernel_process.name, "kernel");
 
+    task* kt = (task*)malloc(sizeof(task));
     kt->id = 0;
+    kt->proc = &kernel_process;
     kt->sleep_ticks = 0;
     kt->next = kt;
 
     curr_task = kt;
 }
 
-task* sched_spawn(void(*entry)()) {
+task* sched_spawn(void(*entry)(), process* owner) {
     task* t = (task*)malloc(sizeof(task));
     if (!t) return nullptr;
-    
+    if (!owner) owner = &kernel_process;
+
     u64 stack_size = 16384;
     u8* stack_base = (u8*)malloc(stack_size);
     if (!stack_base) panic("OOM for task stack");
@@ -43,6 +55,7 @@ task* sched_spawn(void(*entry)()) {
     for (u8 i = 0; i < 15; i++) *--rsp = 0; // R15 .. RAX
 
     t->rsp = (u64)rsp;
+    t->proc = owner;
     t->id = next_pid++;
     t->sleep_ticks = 0;
     t->next = curr_task->next;
@@ -66,6 +79,8 @@ u64 sched_next(u64 curr_rsp) {
 
     task* next = curr_task->next;
     while (next != curr_task && next->sleep_ticks > 0) next = next->next; // what the fuck i just wrote  
+
+    if (next->proc->pml4_phys != curr_task->proc->pml4_phys) load_cr3(next->proc->pml4_phys);
 
     curr_task = next;
     tss.rsp0 = curr_task->kernel_stack_top;

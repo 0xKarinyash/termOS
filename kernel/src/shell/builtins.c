@@ -9,9 +9,18 @@
 #include <drivers/timer.h>
 
 #include <core/rand.h>
+#include <core/loader.h>
+#include <core/scheduler.h>
+#include <core/string.h>
+
+#include <mm/vmm.h>
+#include <mm/heap.h>
+
 #include <shell/dbgcmd.h>
 
 #include "../data/cats.h"
+
+extern task* curr_task;
 
 const char* ascii_logo[] = {
     "      /\\___/\\     ", 
@@ -48,7 +57,6 @@ void cmd_meow() {
 void cmd_help() {
     kprintf("Welcome to ^ptermOS^!'s ^gk^!ernel ^gsh^!ell!\n");
     kprintf("It loads when userspace is failed to load and acts as a basic rescue environment\n");
-    kprintf("At this moment i dont have userspace so it loads always\n");
     kprintf("Available commands:\n");
     
     kprintf("\t^rDebug^!:\n");
@@ -58,6 +66,7 @@ void cmd_help() {
     kprintf("\t\t^ypanic^!       \t\tPanics (lol)\n");
     kprintf("\t\t^yud2^!         \t\tPanics with #UD\n");
     kprintf("\t\t^ypf^!          \t\tPanics with #PF\n");
+    kprintf("\t\t^yuserspace^!   \t\tAttempt to jump in ring 3\n");
     
     kprintf("\t^pFun^!:\n");
     kprintf("\t\t^ysplash^!      \t\tShows splash (works kinda unstable)\n");
@@ -112,4 +121,16 @@ void cmd_ver() {
     kprintf("termOS version %s\n", TERMOS_VERSION);
     kprintf("Dewar Kernel (x86_64), build: %s %s\n", __DATE__, __TIME__);
     kprintf("License: GPL-3.0-or-later\n");
+}
+
+void cmd_userspace() {
+    process* init_proc = (process*)malloc(sizeof(process));
+    init_proc->pid = 1;
+    init_proc->state = RUNNING;
+    init_proc->pml4_phys = vmm_create_address_space();
+    strcpy(init_proc->name, "init");
+
+    curr_task->proc = init_proc;
+    kprintf("Trying to jump in ring 3...\n");
+    if (!exec_init(init_proc, "/init")) kprintf("Failed to jump.\n");
 }

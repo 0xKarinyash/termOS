@@ -3,15 +3,30 @@
 
 #pragma once
 #include <types.h>
+
+typedef enum process_state {
+    DEAD,
+    RUNNING,
+} process_state;
+
+typedef struct process {
+    u64 pid;
+    process_state state;
+    u64 pml4_phys;
+    struct process* parent;
+    char name[32];
+} process;
+
 typedef struct task {
     u64 rsp;
     struct task* next;
     u32 id;
     u32 sleep_ticks;
     u64 kernel_stack_top;
+    process* proc;
 } task;
 
 void sched_init();
-task* sched_spawn(void(*entry)());
+task* sched_spawn(void(*entry)(), process* owner);
 u64 sched_next(u64 curr_rsp);
 void yield(u64 ticks);
