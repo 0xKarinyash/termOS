@@ -10,4 +10,4 @@ void cmd_regs();
 void print_regs();
 void cmd_sleep();
 void cmd_debug();
-int rectest(int a);
+void cmd_rand();

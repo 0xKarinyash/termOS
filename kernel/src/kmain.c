@@ -2,6 +2,7 @@
 // Copyright (c) 2025 0xKarinyash
 
 #include "bootinfo.h"
+#include "core/rand.h"
 #include <shell/ksh.h>
 
 #include <types.h>
@@ -18,6 +19,7 @@
 #include <gdt.h>
 #include <idt.h>
 #include <pic.h>
+#include <cpuinfo.h>
 
 #include <mm/pmm.h>
 #include <mm/vmm.h>
@@ -40,6 +42,10 @@ void kmain(Bootinfo* info) {
 
     if (info->magic != BOOTINFO_MAGIC) panic("Corrupt bootinfo!");
 
+    cpuinfo_init();
+    kprintf("Got CPUINFO\n");
+    rng_init();
+    kprintf("RNG initialized\n");
     gdt_init();
     kprintf("GDT initialized\n");
     idt_init();

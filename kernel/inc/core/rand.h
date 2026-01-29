@@ -4,4 +4,5 @@
 #pragma once
 #include <types.h>
 
-u64 shitrand();
+void rng_init();
+u64 krand();

@@ -36,6 +36,7 @@ typedef enum {
 
     TOKEN_CLEAR,
     TOKEN_BLINKING,
+    TOKEN_RAND,
 
     TOKEN_BACK,
     TOKEN_FORWARD,
@@ -56,7 +57,6 @@ static const ksh_command_map token_map[] = {
     {"sleep", TOKEN_SLEEP},
     {"dbg", TOKEN_DEBUG},
     {"regs", TOKEN_REGS},
-    {"rectest", TOKEN_RECTEST},
     {"panic", TOKEN_PANIC},
     {"ud2", TOKEN_PANIC_UD2},
     {"pf", TOKEN_PANIC_PF},
@@ -69,6 +69,7 @@ static const ksh_command_map token_map[] = {
     // misc
     {"help", TOKEN_HELP},
     {"clear", TOKEN_CLEAR},
+    {"rand", TOKEN_RAND},
     {nullptr, TOKEN_NULL}
 };
 
@@ -90,11 +91,11 @@ void ksh() {
 
             case TOKEN_CLEAR: console_clear((u32) console_get_colors() & 0xFFFFFFFF); break;
             case TOKEN_BLINKING: console_toggle_cursor_blink(); break;
+            case TOKEN_RAND: cmd_rand(); break;
 
             case TOKEN_SLEEP: cmd_sleep(); break;
             case TOKEN_DEBUG: cmd_debug(); break;
             case TOKEN_REGS: cmd_regs(); break;
-            case TOKEN_RECTEST: rectest(0); break;
             case TOKEN_PANIC: panic("Manually initiated panic");
             case TOKEN_PANIC_UD2: __asm__ volatile ("ud2");
             case TOKEN_PANIC_PF: u64* bad_ptr = (u64*)0xDEADBEEF; *bad_ptr = 666;

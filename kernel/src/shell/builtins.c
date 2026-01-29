@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#include <drivers/console.h>
-#include <core/rand.h>
 
-#include <drivers/timer.h>
 #include <types.h>
+#include <cpuinfo.h>
+
+#include <drivers/console.h>
+#include <drivers/timer.h>
+
+#include <core/rand.h>
+#include <shell/dbgcmd.h>
 
 #include "../data/cats.h"
-#include "shell/dbgcmd.h"
 
 const char* ascii_logo[] = {
     "      /\\___/\\     ", 
@@ -21,12 +24,6 @@ const char* ascii_logo[] = {
     "     |_______|     " 
 };
 
-int rectest(int a) {
-    volatile int b = a + 1;
-    kprintf("%d", b);
-    return rectest(b * 2);
-}
-
 void cmd_kfetch() {
     u64 uptime_s = get_uptime() / 1000;
 
@@ -38,13 +35,13 @@ void cmd_kfetch() {
     kprintf("^p %s ^!\t\t^gUptime^!: %d seconds\n^!", ascii_logo[4], uptime_s);   
     kprintf("^p %s ^!\t\t^gShell^!: ksh\n^!", ascii_logo[5]);   
     kprintf("^p %s ^p\t\t^gDE^!: shitgui\n^!", ascii_logo[6]);   
-    kprintf("^p %s ^p\t\t^gCPU^!: %s\n^!", ascii_logo[7], "cool one");
+    kprintf("^p %s ^p\t\t^gCPU^!: %s\n^!", ascii_logo[7], g_cpu.vendor);
     kprintf("\n\n");
 }
 
 void cmd_meow() {
     u64 cats_count = sizeof(cats) / sizeof(cats[0]);
-    u8 rand_num = shitrand() % cats_count;
+    u8 rand_num = krand() % cats_count;
     kprintf("Nyaaa!!\n\n%s\n\n", cats[rand_num]);
 }
 
@@ -58,7 +55,6 @@ void cmd_help() {
     kprintf("\t\t^ysleep^!       \t\tSleep for 3seconds\n");
     kprintf("\t\t^ydbg^!         \t\tTest new stuff\n");
     kprintf("\t\t^yregs^!        \t\tPrint current regs\n");
-    kprintf("\t\t^yrectest^!     \t\tTSS test\n");
     kprintf("\t\t^ypanic^!       \t\tPanics (lol)\n");
     kprintf("\t\t^yud2^!         \t\tPanics with #UD\n");
     kprintf("\t\t^ypf^!          \t\tPanics with #PF\n");
@@ -74,6 +70,7 @@ void cmd_help() {
     kprintf("\t^bMisc^!:\n");
     kprintf("\t\t^yclear^!       \t\tClear console\n");
     kprintf("\t\t^yhelp^!        \t\tShow this menu\n");
+    kprintf("\t\t^yrand^!        \t\tGet a random number\n");
 }
 
 void cmd_regs() {
@@ -98,6 +95,10 @@ void print_regs(Registers *regs) {
 
 void cmd_sleep() {
     sleep(3000);
+}
+
+void cmd_rand() {
+    kprintf("Your rand number (0..100) is ... ^y%d^!!\n", krand() % 100);
 }
 
 void cmd_debug() {

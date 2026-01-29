@@ -51,7 +51,10 @@ const char* fun_messages[] = {
     "Attaboy, Jack. He's good. Really good.",
     "Zhenih priehal",
     "YOUR PC WAS BLOCKED BY FBI FOR WATCHING PORNOGRAPHY SEND 20 US DOLLARS",
-    "fuck off"
+    "fuck off",
+    "Your GPU is now mining Ethereum for me. Thanks.",
+    "Your PC is locked!\n\t\t\t\tPay a fee of 0.019082006 bitcoins to a wallet 1KtoProchitalTotSosal to get decryption key!",
+
 };
 
 
@@ -102,7 +105,7 @@ void draw_panic_bg() {
     console_set_default_color(0xFFFFFF);
     
     u64 msg_count = sizeof(fun_messages) / sizeof(fun_messages[0]);
-    u8 rand_num = shitrand() % msg_count;
+    u8 rand_num = krand() % msg_count;
 
     kprintf("\n\n");
     kprintf("\t\t\t\t^bKERNEL PANIC^!  :( \n");
