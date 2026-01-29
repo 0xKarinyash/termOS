@@ -4,6 +4,7 @@
 #include <core/panic.h>
 #include <core/scheduler.h>
 #include <mm/heap.h>
+#include <cpuinfo.h>
 #include <gdt.h>
 
 task* curr_task = nullptr;
@@ -68,6 +69,7 @@ u64 sched_next(u64 curr_rsp) {
 
     curr_task = next;
     tss.rsp0 = curr_task->kernel_stack_top;
+    g_cpu.kernel_rsp = curr_task->kernel_stack_top;
     return curr_task->rsp;
 }
 

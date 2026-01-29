@@ -2,7 +2,7 @@
 // Copyright (c) 2025 0xKarinyash
 
 #include "bootinfo.h"
-#include "core/rand.h"
+
 #include <shell/ksh.h>
 
 #include <types.h>
@@ -15,11 +15,14 @@
 #include <core/panic.h>
 #include <core/scheduler.h>
 #include <core/splash.h>
+#include <core/rand.h>
+#include <core/loader.h>
 
 #include <gdt.h>
 #include <idt.h>
 #include <pic.h>
 #include <cpuinfo.h>
+#include <syscall.h>
 
 #include <mm/pmm.h>
 #include <mm/vmm.h>
@@ -32,6 +35,7 @@
 #define BG_COLOR 0x111111
 
 extern u64 _kernel_end;
+extern void* stack_top;
 static SG_Context sg_ctx;
 
 void kmain(Bootinfo* info) {
@@ -42,7 +46,7 @@ void kmain(Bootinfo* info) {
 
     if (info->magic != BOOTINFO_MAGIC) panic("Corrupt bootinfo!");
 
-    cpuinfo_init();
+    cpuinfo_init((u64)&stack_top);
     kprintf("Got CPUINFO\n");
     rng_init();
     kprintf("RNG initialized\n");
@@ -64,6 +68,7 @@ void kmain(Bootinfo* info) {
     kprintf("Scheduler initialized\n");
     sg_init(&sg_ctx);
     kprintf("Shitgui initialized\n");
+    syscall_init();
 
     info = (Bootinfo*)PHYS_TO_HHDM((u64)info);
 
@@ -85,9 +90,20 @@ void kmain(Bootinfo* info) {
 
     show_splash(&sg_ctx);
 
-    sched_spawn(composer_task);
-    sched_spawn(ksh);
-    if (!info->initramfs.addr) kprintf("^rWARNING^!: Failed to load ^yinitramfs^!, VFS is empty.\n\n");
+    bool staying_in_ksh = false;
+    if (!info->initramfs.addr) { 
+        kprintf("^rWARNING^!: Failed to load ^yinitramfs^!! Staying in kernel rescue shell!\n\n"); 
+        staying_in_ksh = true; 
+    }
+
+    kprintf("Press any key to stay in ^gksh^!. \nPress ^yenter^! to continue booting in ring 3\n");
+    char c = '\n';
+    c = console_getc();
+    if (c != '\n') staying_in_ksh = true;
+    
+    if (staying_in_ksh) sched_spawn(ksh);
+    else sched_spawn(init_task_entry);
+    
     __asm__ volatile("sti");
     
     while (true) __asm__ volatile("hlt");

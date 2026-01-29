@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 0xKarinyash
-
+#pragma once
 #include <types.h>
 
 #define CPU_FEAT_FPU      (1ULL << 0)
@@ -24,7 +24,11 @@
 #define CPU_FEAT_HYPERVISOR (1ULL << 30) 
 
 typedef struct {
-    i32 features;
+    u64 user_rsp;
+    u64 kernel_rsp;
+    u64 self;
+
+    u64 features;
     char vendor[13];
     u32 family;
     u32 model;
@@ -32,5 +36,5 @@ typedef struct {
 
 extern cpu_info g_cpu;
 
-void cpuinfo_init();
+void cpuinfo_init(u64 kernel_stack_top);
 bool cpu_has(u64 feature);

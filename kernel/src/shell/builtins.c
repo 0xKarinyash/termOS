@@ -35,7 +35,7 @@ void cmd_kfetch() {
     kprintf("^p %s ^!\t\t^gUptime^!: %d seconds\n^!", ascii_logo[4], uptime_s);   
     kprintf("^p %s ^!\t\t^gShell^!: ksh\n^!", ascii_logo[5]);   
     kprintf("^p %s ^!\t\t^gDE^!: shitgui\n^!", ascii_logo[6]);   
-    kprintf("^p %s ^!\t\t^gCPU^!: %s\n^!", ascii_logo[7], g_cpu.vendor);
+    kprintf("^p %s ^!\t\t^gCPU^!: %s (^yFamily^!: %d; ^yModel^!: %d)\n^!", ascii_logo[7], g_cpu.vendor, g_cpu.family, g_cpu.model);
     kprintf("\n\n");
 }
 

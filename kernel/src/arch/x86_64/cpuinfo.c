@@ -4,6 +4,9 @@
 #include "types.h"
 #include <cpuinfo.h>
 
+#define MSR_GS_BASE         0xC0000101
+#define MSR_KERNEL_GS_BASE  0xC0000102
+
 cpu_info g_cpu = {0};
 
 static inline void cpuid(u32 leaf, u32 subleaf, u32 *eax, u32 *ebx, u32 *ecx, u32 *edx) {
@@ -13,7 +16,18 @@ static inline void cpuid(u32 leaf, u32 subleaf, u32 *eax, u32 *ebx, u32 *ecx, u3
     );
 }
 
-void cpuinfo_init() {
+static inline void wrmsr(u32 msr, u64 val) {
+    u32 low = (u32)val;
+    u32 high = (u32)(val >> 32);
+    __asm__ volatile("wrmsr" :: "a"(low), "d"(high), "c"(msr));
+}
+
+void cpuinfo_init(u64 kernel_stack_top) {
+    g_cpu.kernel_rsp = kernel_stack_top;
+    g_cpu.self = (u64)&g_cpu;
+    wrmsr(MSR_KERNEL_GS_BASE, (u64)&g_cpu);
+
+
     u32 eax, ebx, ecx, edx;
 
     cpuid(0, 0, &eax, &ebx, &ecx, &edx);
