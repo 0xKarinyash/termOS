@@ -124,5 +124,5 @@ void cmd_ver() {
 }
 
 void cmd_userspace() {
-    sched_spawn(init_task_entry, nullptr, false, 0);
+    kprintf("Command disabled due to be really broken\n");
 }
