@@ -3,13 +3,13 @@
 
 #include <process.h>
 
-extern u64 sys_spawn(const char* path);
-extern u64 sys_wait(u64 pid);
+extern i32 sys_spawn(const char* path);
+extern i32 sys_wait(u64 pid);
 
-u64 spawn(const char* path) {
+i32 spawn(const char* path) {
     return sys_spawn(path);
 }
 
-u64 wait(u64 pid) {
+i32 wait(u64 pid) {
     return sys_wait(pid);
 }

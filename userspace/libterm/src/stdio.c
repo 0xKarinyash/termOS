@@ -117,16 +117,22 @@ char* gets_s(char* str, u64 size) {
     while (i < size - 1) {
         c = getchar();
         if (c == EOF || c == '\n' || c == '\r') break;
+        if (c == '\b') {
+            if (i > 0) {
+                i--;
+                printf("\b \b");
+            } 
+            
+            continue;
+        }
         
         str[i++] = (char)c;
         
-        char ch = (char)c;
-        sys_write(1, &ch, 1);
+        putchar(c);
     }
     
     str[i] = '\0';
-    char nl = '\n';
-    sys_write(1, &nl, 1);
+    putchar('\n');
     
     return str;
 }

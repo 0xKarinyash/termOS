@@ -4,3 +4,4 @@
 #pragma once
 
 void not_implemented_yet();
+void cmd_spawn(const char* path);

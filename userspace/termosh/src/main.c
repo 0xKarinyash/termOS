@@ -22,7 +22,7 @@ int main() {
             case TOKEN_QUIT: return 0;
             case TOKEN_CLEAR: not_implemented_yet(); break;
             case TOKEN_HELP: not_implemented_yet(); break;
-            case TOKEN_SPAWN: not_implemented_yet(); break;
+            case TOKEN_SPAWN: if (tokens_count >= 2) cmd_spawn(tokens[1]); break;
             default: printf("Unknown command\n"); break;
         }
     }

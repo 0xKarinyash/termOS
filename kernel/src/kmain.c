@@ -96,10 +96,12 @@ void kmain(Bootinfo* info) {
         staying_in_ksh = true; 
     }
 
-    kprintf("Press any key to stay in ^gksh^!. \nPress ^yenter^! to continue booting in ring 3\n");
-    char c = '\n';
-    c = console_getc();
-    if (c != '\n') staying_in_ksh = true;
+    if (!staying_in_ksh) {
+        kprintf("Press any key to continue booting. \nPress ^yq^! to stay in ^gksh^!\n");
+        char c = '\n';
+        c = console_getc();
+        if (c == 'q') staying_in_ksh = true;
+    }
     
     if (staying_in_ksh) sched_spawn(ksh, nullptr, false, 0);
     else sched_spawn(init_task_entry, nullptr, false, 0);
