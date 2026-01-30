@@ -3,6 +3,7 @@
 
 #include <syscalls/proc.h>
 #include <core/scheduler.h>
+#include <core/panic.h>
 #include <drivers/console.h>
 #include <core/loader.h>
 

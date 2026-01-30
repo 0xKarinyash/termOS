@@ -6,7 +6,7 @@
 #include <malloc.h>
 
 int main() {
-    wait(spawn("termosh")); // TODO: read .cfg and spawn what stated there
+    wait(spawn("/bin/termosh")); // TODO: read .cfg and spawn what stated there
     printf("\nbaiii");
     return 0;
 }

@@ -58,9 +58,9 @@ i32 process_spawn(const char* path, const char* name) {
 }
 
 void init_task_entry() {
-    i32 pid = process_spawn("/init", "init");
+    i32 pid = process_spawn("/bin/init", "init");
     if (pid < 0) {
-        panic("FATAL: Failed to spawn /init");
+        panic("FATAL: Failed to spawn /bin/init");
     }
 
     while (1) { __asm__("sti; hlt"); }
