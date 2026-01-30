@@ -7,7 +7,7 @@
 // TODO: read .cfg and spawn what stated there
 int main() {
     while (1) {
-        i32 pid = spawn("/bin/termosh");
+        Int32 pid = spawn("/bin/termosh");
         if (pid < 0) return pid;
         wait(pid);
     }

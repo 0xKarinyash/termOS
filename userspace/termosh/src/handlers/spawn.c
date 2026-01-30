@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 void cmd_spawn(const char* path) {
-    i32 pid = spawn(path);
+    Int32 pid = spawn(path);
     if (pid < 0) {
         switch (pid) {
             case -1: printf("\"%s\" not found.\n", path); break;

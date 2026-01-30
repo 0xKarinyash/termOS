@@ -9,23 +9,23 @@
 #define EOF (-1)
 #define PRINTF_BUFFER_SIZE 1024
 
-extern u64 sys_read(u64 fd, void* buf, u64 len);
-extern u64 sys_write(u64 fd, const void* buf, u64 len);
+extern UInt64 sys_read(UInt64 fd, void* buf, UInt64 len);
+extern UInt64 sys_write(UInt64 fd, const void* buf, UInt64 len);
 
 static void putchar(char c) {
     sys_write(1, &c, 1);
 }
 
-static inline void buf_add(char* str, u64 size, u64* written, char c) {
+static inline void buf_add(char* str, UInt64 size, UInt64* written, char c) {
     if (*written < size - 1 && size > 0) {
         str[*written] = c;
     }
     (*written)++;
 }
 
-int vsnprintf(char* str, u64 size, const char* fmt, va_list args) {
-    u64 written = 0;
-    for (u32 i = 0; fmt[i] != '\0'; i++) {
+int vsnprintf(char* str, UInt64 size, const char* fmt, va_list args) {
+    UInt64 written = 0;
+    for (UInt32 i = 0; fmt[i] != '\0'; i++) {
         if (fmt[i] == '%') {
             i++;
             if (fmt[i] == '\0') break;
@@ -42,14 +42,14 @@ int vsnprintf(char* str, u64 size, const char* fmt, va_list args) {
                     break;
                 }
                 case 'd': {
-                    i64 n = va_arg(args, int);
+                    Int64 n = va_arg(args, int);
                     if (n < 0) {
                         buf_add(str, size, &written, '-');
                         n = -n;
                     }
-                    u64 u = (u64)n;
+                    UInt64 u = (UInt64)n;
                     char tmp[32];
-                    i32 pos = 0;
+                    Int32 pos = 0;
                     if (u == 0) tmp[pos++] = '0';
                     while (u > 0) {
                         tmp[pos++] = (u % 10) + '0';
@@ -61,8 +61,8 @@ int vsnprintf(char* str, u64 size, const char* fmt, va_list args) {
                 }
                 case 'x':
                 case 'X': {
-                    u64 u = va_arg(args, unsigned long long);
-                    u8 padding = (fmt[i] == 'X') ? 16 : 0;
+                    UInt64 u = va_arg(args, unsigned long long);
+                    UInt8 padding = (fmt[i] == 'X') ? 16 : 0;
 
                     char tmp[32];
                     int pos = 0;
@@ -117,7 +117,7 @@ int printf(const char *fmt, ...) {
     int len = vsnprintf(buf, sizeof(buf), fmt, args);    
     va_end(args);
 
-    u64 write_len = ((u64)len < sizeof(buf)) ? len : (sizeof(buf) - 1);
+    UInt64 write_len = ((UInt64)len < sizeof(buf)) ? len : (sizeof(buf) - 1);
     sys_write(1, buf, write_len);
     
     return (int)write_len;
@@ -155,10 +155,10 @@ char* gets(char* str) {
     return str;
 }
 
-char* gets_s(char* str, u64 size) {
+char* gets_s(char* str, UInt64 size) {
     if (size == 0) return str;
     
-    u64 i = 0;
+    UInt64 i = 0;
     int c;
     
     while (i < size - 1) {

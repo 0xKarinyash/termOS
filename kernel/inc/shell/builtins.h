@@ -3,13 +3,11 @@
 
 #pragma once
 
-void cmd_kfetch();
-void cmd_meow();
-void cmd_help();
-void cmd_regs();
-void print_regs();
-void cmd_sleep();
-void cmd_debug();
-void cmd_rand();
-void cmd_ver();
-void cmd_userspace();
+void KSHCommandKernelFetch();
+void KSHCommandMeow();
+void KSHCommandHelp();
+void KSHCommandRegisters();
+void KSHCommandSleep();
+void KSHCommandDebug();
+void KSHCommandRand();
+void KSHCommandVer();

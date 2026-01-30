@@ -18,14 +18,16 @@ file(GLOB_RECURSE KERNEL_SOURCES CMAKE_CONFIGURE_DEPENDS
     "src/arch/${ARCH}/*.c"
     "src/arch/${ARCH}/*.asm"
 
-    "src/core/*.c"
-    "src/drivers/*.c"
-    "src/mm/*.c"
+    "src/OS/*.c"
+    "src/OS/Exec/*.c"
+    "src/OS/Services/*.c"
+    "src/lib/*.c"
+    "src/IO/*.c"
+    "src/VM/*.c"
     "src/shell/*.c"
-    "src/fs/*.c"
-    "src/syscalls/*.c"
+    "src/FS/*.c"
     
-    "data/*.c"
+    "Data/*.c"
 )
 
 add_executable(kernel ${KERNEL_SOURCES})
@@ -34,7 +36,7 @@ target_include_directories(kernel PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/../common"
     "${CMAKE_CURRENT_SOURCE_DIR}/inc"
     "${CMAKE_CURRENT_SOURCE_DIR}/inc/arch/${ARCH}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/data"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Data"
 )
 
 target_compile_options(kernel PRIVATE

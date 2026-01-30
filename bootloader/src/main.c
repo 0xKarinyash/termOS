@@ -82,7 +82,7 @@ int main()
     
     if (EFI_ERROR(status)) {
         print_initramfs_warning(L"initramfs.cpio is missing");
-        boot_info->initramfs.addr = nullptr;
+        boot_info->initramfs.address = nullptr;
         boot_info->initramfs.size = 0;
     } else {
         status = initramfs_file->GetInfo(initramfs_file, &fi_guid, &iinfo_size, nullptr);
@@ -105,14 +105,14 @@ int main()
                 // just fucking kill me
                 uintn_t initramfs_size_read = (uintn_t)initramfs_size;
                 initramfs_file->Read(initramfs_file, &initramfs_size_read, (void*)initramfs_addr);
-                boot_info->initramfs.addr = (void*)initramfs_addr;
+                boot_info->initramfs.address = (void*)initramfs_addr;
                 boot_info->initramfs.size = initramfs_size;
             }
         }
     }
 
     boot_info->framebuffer.base = (uint32_t*)gop->Mode->FrameBufferBase;
-    boot_info->framebuffer.base_size = gop->Mode->FrameBufferSize;
+    boot_info->framebuffer.baseSize = gop->Mode->FrameBufferSize;
     boot_info->framebuffer.height = gop->Mode->Information->VerticalResolution;
     boot_info->framebuffer.width = gop->Mode->Information->HorizontalResolution;
     boot_info->framebuffer.pitch = gop->Mode->Information->PixelsPerScanLine;
@@ -139,11 +139,11 @@ int main()
             break;
         }
         
-        boot_info->mem.descriptor_size = desc_size;
-        boot_info->mem.descriptor_version = desc_version;
-        boot_info->mem.map_size = map_size;
-        boot_info->mem.map_key = map_key;
-        boot_info->mem.map = map;
+        boot_info->memoryMap.descriptorSize = desc_size;
+        boot_info->memoryMap.descriptorVersion = desc_version;
+        boot_info->memoryMap.mapSize = map_size;
+        boot_info->memoryMap.mapKey = map_key;
+        boot_info->memoryMap.map = map;
 
         status = gBS->ExitBootServices(IM, map_key);
         if (status == EFI_SUCCESS) {

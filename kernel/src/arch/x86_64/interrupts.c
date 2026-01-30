@@ -1,41 +1,49 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#include <io.h>
-#include <core/panic.h>
-#include <core/scheduler.h>
-#include <drivers/keyboard.h>
-#include <drivers/console.h>
-#include <drivers/timer.h>
-#include <shell/builtins.h>
-#include <syscalls/proc.h>
+#include <IO.h>
+#include <OS/OSPanic.h>
+#include <OS/OSScheduler.h>
+#include <IO/IOKeyboard.h>
+#include <IO/IOConsole.h>
+#include <IO/IOTimer.h>
+#include <OS/Services/OSServiceProcess.h>
 #include <types.h>
 
-extern task* curr_task;
-
-void isr_handler_c(Registers *regs) {
-    if (regs->int_no == 3) {
-        return print_regs();
+void isr_handler_c(CPURegisters* frame) {
+    if (frame->interruptNumber == 3) {
+        IOConsoleLog("--------------------------------\n");
+        IOConsoleLog("\t\t^gREGISTERS^!\n");
+        IOConsoleLog("--------------------------------\n");
+        IOConsoleLog("^gRAX^!=%X, ^gRBX^!=%X\n", frame->rax, frame->rbx);
+        IOConsoleLog("^gRCX^!=%X, ^gRDX^!=%X\n", frame->rcx, frame->rdx);
+        IOConsoleLog("^gRSI^!=%X, ^gRDI^!=%X\n", frame->rsi, frame->rdi);
+        IOConsoleLog("^gRBP^!=%X, ^gR8^! =%X\n", frame->rbp, frame->r8);
+        IOConsoleLog("^gR9^! =%X, ^gR10^!=%X \n", frame->r9, frame->r10);
+        IOConsoleLog("^gR11^!=%X, ^gR12^!=%X\n", frame->r11, frame->r12);
+        IOConsoleLog("^gR13^!=%X, ^gR14^!=%X\n", frame->r13, frame->r14);
+        IOConsoleLog("^gR15^!=%X\n",frame->r15);
+        IOConsoleLog("--------------------------------\n");
     }
-    if ((regs->cs & 3) != 0) {
-        kprintf("\n[Dewar] Process '%s' (PID %d) Segmentation Fault at %X\n", 
-                curr_task->proc->name, curr_task->proc->pid, regs->rip);
-        curr_task->task_state = DEAD;
-        sys_exit(-1);
-        sched_next((u64)regs);
+    if ((frame->cs & 3) != 0) {
+        IOConsoleLog("\n[Dewar] Process '%s' (PID %d) Segmentation Fault at %X\n", 
+                gOSSchedulerCurrentTask->process->name, gOSSchedulerCurrentTask->process->processId, frame->rip);
+        gOSSchedulerCurrentTask->taskState = kOSProcessStateDead;
+        OSServiceProcessExit(-1);
+        OSSchedulerNext((UInt64)frame);
         return;
     }
-    panic_exception(regs);
+    OSPanicException(frame);
 }
 
-u64 irq_handler_c(Registers *regs) {
-    u64 curr_rsp = (u64)regs;
-    switch (regs->int_no) {
-        case 32: curr_rsp = timer_handler(regs); break;
-        case 33: kb_handler(); break;
+UInt64 irq_handler_c(CPURegisters* regs) {
+    UInt64 curr_rsp = (UInt64)regs;
+    switch (regs->interruptNumber) {
+        case 32: curr_rsp = IOTimerInterruptsHandler(regs); break;
+        case 33: IOKeyboardInterruptsHandler(); break;
         default: break;
     }
 
-    outb(MASTER_COMMAND, 0x20);
+    IOPortWrite8(kIOMasterCommand, 0x20);
     return curr_rsp;
 }

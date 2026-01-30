@@ -7,13 +7,13 @@
 #define HEADER_MAGIC 0x1CE1CE
 
 typedef struct block_header {
-    u64 magic;
+    UInt64 magic;
     struct block_header* next;
     struct block_header* prev;
-    u64 size;
+    UInt64 size;
     bool is_free;
 } block_header;
 
-void* malloc(u64 size);
+void* malloc(UInt64 size);
 void free(void* ptr);
-void* realloc(void* ptr, u64 new_size);
+void* realloc(void* ptr, UInt64 new_size);

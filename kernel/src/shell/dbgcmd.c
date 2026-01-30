@@ -2,8 +2,8 @@
 // Copyright (c) 2026 0xKarinyash
 
 #include <shell/dbgcmd.h>
-#include <drivers/console.h>
+#include <IO/IOConsole.h>
 
-u64 debug() {
+UInt64 KSHDebug() {
     return 0;
 }

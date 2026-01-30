@@ -5,7 +5,7 @@
 #include <types.h>
 
 int printf(const char *fmt, ...);
-int snprintf(char* str, u64 size, const char* fmt, ...);
+int snprintf(char* str, UInt64 size, const char* fmt, ...);
 int getchar();
 char* gets(char* str);
-char* gets_s(char* str, u64 size);
+char* gets_s(char* str, UInt64 size);

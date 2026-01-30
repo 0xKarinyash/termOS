@@ -1,66 +1,66 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 0xKarinyash
 
-#include <cpuinfo.h>
+#include <OSCPU.h>
 #include <syscall.h>
 #include <types.h>
-#include <drivers/console.h>
-#include <mm/pmm.h>
-#include <mm/vmm.h>
+#include <IO/IOConsole.h>
+#include <VM/PMM.h>
+#include <VM/VMM.h>
 
-#include <syscalls/proc.h>
-#include <syscalls/mem.h>
-#include <syscalls/io.h>
+#include <OS/Services/OSServiceProcess.h>
+#include <OS/Services/OSServiceMemory.h>
+#include <OS/Services/OSServiceIO.h>
 
-static inline void wrmsr(u32 msr, u64 val) {
-    u32 low = (u32)val;
-    u32 high = (u32)(val >> 32);
+static inline void WRMSR(UInt32 msr, UInt64 value) {
+    UInt32 low = (UInt32)value;
+    UInt32 high = (UInt32)(value >> 32);
     __asm__ volatile("wrmsr" :: "a"(low), "d"(high), "c"(msr));
 }
 
-static inline u64 rdmsr(u32 msr) {
-    u32 low, high;
+static inline UInt64 RDMSR(UInt32 msr) {
+    UInt32 low, high;
     __asm__ volatile("rdmsr" : "=a"(low), "=d"(high) : "c"(msr));
-    return ((u64)high << 32) | low;
+    return ((UInt64)high << 32) | low;
 }
 
 extern void syscall_entry();
 
-void syscall_init() {
-    u64 efer = rdmsr(MSR_EFER);
-    wrmsr(MSR_EFER, efer | 1); // Enabling SCE in EFER. Just enabling 0 bit
+void OSServicesInitialize() {
+    UInt64 efer = RDMSR(kHALModelSpecificRegisterExtendedFeatureEnable);
+    WRMSR(kHALModelSpecificRegisterExtendedFeatureEnable, efer | 1); // Enabling SCE in EFER. Just enabling 0 bit
 
     // setting up STAR
     // 32:47 kernel selector (0x08)
     // 48:64 user selector (0x01 cuz sysret adds +16 for CS and +8 for SS)
-    u64 star = (0x13ULL << 48) | (0x08ULL << 32); 
-    wrmsr(MSR_STAR, star);
+    UInt64 star = (0x13ULL << 48) | (0x08ULL << 32); 
+    WRMSR(kHALModelSpecificRegisterSystemCallTarget, star);
 
-    wrmsr(MSR_LSTAR, (u64)syscall_entry); // setting handler adress
+    WRMSR(kHALModelSpecificRegisterLongSystemCallTarget, (UInt64)syscall_entry); // setting handler adress
 
     // masking flags (IA32_FMASK)
     // 9 bit for finterrupts in syscall (IF) and few more necessary flags
-    wrmsr(MSR_FMASK, 0x200); // masking only IF
+    WRMSR(kHALModelSpecificRegisterSystemCallFlagMask, 0x200); // masking only IF
 
-    if (g_cpu.kernel_rsp == 0) {
-        void* stack_phys = pmm_alloc_page();
-        g_cpu.kernel_rsp = (u64)stack_phys + HHDM_OFFSET + 4096;
+    if (gOSBootCPU.kernelStackPointer == 0) {
+        void* physicalStackPointer = VMPhysicalMemoryAllocatePage();
+        gOSBootCPU.kernelStackPointer = (UInt64)physicalStackPointer + HHDM_OFFSET + 4096;
     }
 
-    wrmsr(MSR_GS_BASE, (u64)&g_cpu);
-    wrmsr(MSR_KERNEL_GS_BASE, (u64)&g_cpu);
+    WRMSR(kHALModelSpecificRegisterGSBase, (UInt64)&gOSBootCPU);
+    WRMSR(kHALModelSpecificRegisterKernelGSBase, (UInt64)&gOSBootCPU);
 }
 
-u64 syscall_dispatch(u64 id, u64 arg1, u64 arg2, u64 arg3, u64 arg4, u64 arg5) {
+UInt64 syscall_dispatch(UInt64 id, UInt64 arg1, UInt64 arg2, UInt64 arg3, UInt64 arg4, UInt64 arg5) {
     switch (id) {
-        case SYS_EXIT:  return sys_exit(arg1);
-        case SYS_SPAWN: return sys_spawn((const char*)arg1);
-        case SYS_MEM:   return sys_mem(arg1);
-        case SYS_WRITE: return sys_write(arg1, arg2, arg3);
-        case SYS_READ:  return sys_read(arg1, arg2, arg3);
-        case SYS_WAIT:  return sys_wait(arg1);
+        case SYS_EXIT:  return OSServiceProcessExit(arg1);
+        case SYS_SPAWN: return OSServiceProcessSpawn((const char*)arg1);
+        case SYS_MEM:   return OSServiceMemoryGet(arg1);
+        case SYS_WRITE: return OSServiceWrite(arg1, arg2, arg3);
+        case SYS_READ:  return OSServiceRead(arg1, arg2, arg3);
+        case SYS_WAIT:  return OSServiceProcessWait(arg1);
         default: 
-            kprintf("[Dewar] Unknown syscall %d\n", id); 
+            IOConsoleLog("[Dewar] Unknown syscall %d\n", id); 
             return -1;
     }
 }

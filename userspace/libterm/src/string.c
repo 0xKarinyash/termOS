@@ -6,19 +6,19 @@
 static char* olds;
 
 void *memset(void *ptr, int value, usize num) {
-    u8 *p = (u8 *)ptr;
+    UInt8 *p = (UInt8 *)ptr;
     while (num--) {
-        *p++ = (u8)value;
+        *p++ = (UInt8)value;
     }
     return ptr;
 }
 
-void* memcpy(void* dest, const void* src, u64 n) {
-    u8* d = (u8*)dest;
-    const u8* s = (const u8*)src;
+void* memcpy(void* dest, const void* src, UInt64 n) {
+    UInt8* d = (UInt8*)dest;
+    const UInt8* s = (const UInt8*)src;
 
     while (n >= 8) {
-        *(u64*)d = *(const u64*)s;
+        *(UInt64*)d = *(const UInt64*)s;
         d += 8;
         s += 8;
         n -= 8;
@@ -32,7 +32,7 @@ void* memcpy(void* dest, const void* src, u64 n) {
     return dest;
 }
 
-i32 strcmp(const char *s1, const char *s2) {
+Int32 strcmp(const char *s1, const char *s2) {
     while (*s1 && (*s1 == *s2)) {
         s1++;
         s2++;
@@ -40,7 +40,7 @@ i32 strcmp(const char *s1, const char *s2) {
     return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
 
-i32 strncmp(const char* s1, const char* s2, u64 n) {
+Int32 strncmp(const char* s1, const char* s2, UInt64 n) {
     while (n > 0) {
         if (*s1 != *s2) return *(unsigned char*)s1 - *(unsigned char*)s2;
         if (*s1 == '\0') return 0;
@@ -59,7 +59,7 @@ char* strcpy(char* dest, const char* src) {
     return saved;
 }
 
-char* strncpy(char* dest, const char* src, u64 n) {
+char* strncpy(char* dest, const char* src, UInt64 n) {
     char* saved = dest;
     while (*src && n > 0) {
         *dest++ = *src++;
@@ -72,8 +72,8 @@ char* strncpy(char* dest, const char* src, u64 n) {
     return saved;
 }
 
-u64 strlen(const char* str) {
-    u64 res = 0;
+UInt64 strlen(const char* str) {
+    UInt64 res = 0;
     for (res = 0; str[res]; res++);
     return res;
 }
@@ -86,8 +86,8 @@ static inline int is_in_set(char c, const char* set) {
     return 0;
 }
 
-u64 strspn(const char* s, const char* accept) {
-    u64 count = 0;
+UInt64 strspn(const char* s, const char* accept) {
+    UInt64 count = 0;
     while (*s && is_in_set(*s, accept)) {
         count++;
         s++;

@@ -3,18 +3,18 @@
 
 #pragma once
 
-typedef unsigned char      u8;
-typedef unsigned short     u16;
-typedef unsigned int       u32;
-typedef unsigned long long u64; 
+typedef unsigned char      UInt8;
+typedef unsigned short     UInt16;
+typedef unsigned int       UInt32;
+typedef unsigned long long UInt64; 
 
-typedef signed char        i8;
-typedef signed short       i16;
-typedef signed int         i32;
-typedef signed long long   i64;
+typedef signed char        Int8;
+typedef signed short       Int16;
+typedef signed int         Int32;
+typedef signed long long   Int64;
 
-typedef u64 usize;
-typedef u64 uintptr_t;
+typedef UInt64 usize;
+typedef UInt64 uintptr_t;
 
 #ifndef __cplusplus
     #define bool _Bool

@@ -3,35 +3,35 @@
 
 #pragma once
 
-typedef unsigned int       bi_u32;
-typedef unsigned long long bi_u64; 
+typedef unsigned int       BIUInt32;
+typedef unsigned long long BIUInt64; 
 
 typedef struct {
-    bi_u32* base;
-    bi_u64 base_size;
-    bi_u64 width;
-    bi_u64 height;
-    bi_u64 pitch;
-} BI_Framebuffer;
+    BIUInt32* base;
+    BIUInt64 baseSize;
+    BIUInt64 width;
+    BIUInt64 height;
+    BIUInt64 pitch;
+} BIFramebuffer;
 
 typedef struct {
     void* map;             
-    bi_u64 map_size;       
-    bi_u64 descriptor_size;
-    bi_u32 map_key;
-    bi_u32 descriptor_version;
-} BI_MemoryMap;
+    BIUInt64 mapSize;       
+    BIUInt64 descriptorSize;
+    BIUInt32 mapKey;
+    BIUInt32 descriptorVersion;
+} BIMemoryMap;
 
 typedef struct {
-    void* addr;
-    bi_u64 size;
-} BI_Initramfs;
+    void* address;
+    BIUInt64 size;
+} BIInitramfs;
 
 typedef struct {
-    bi_u64 magic;
-    BI_Framebuffer framebuffer;
-    BI_MemoryMap mem;
-    BI_Initramfs initramfs;
+    BIUInt64 magic;
+    BIFramebuffer framebuffer;
+    BIMemoryMap memoryMap;
+    BIInitramfs initramfs;
 } Bootinfo;
 
 #define BOOTINFO_MAGIC 0x7465726D // term

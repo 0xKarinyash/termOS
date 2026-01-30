@@ -4,4 +4,4 @@
 #pragma once
 #include <types.h>
 
-u64 debug();
+UInt64 KSHDebug();

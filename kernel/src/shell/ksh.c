@@ -4,14 +4,15 @@
 #include <shell/ksh.h>
 #include <shell/builtins.h>
 
-#include <drivers/console.h>
-#include <drivers/shitgui.h>
+#include <IO/IOConsole.h>
+#include <IO/IOGraphics.h>
 
-#include <core/scheduler.h>
-#include <core/string.h>
-#include <core/rand.h>
-#include <core/splash.h>
-#include <core/panic.h>
+#include <OS/OSPanic.h>
+#include <OS/OSScheduler.h>
+
+#include <lib/String.h>
+#include <lib/Rand.h>
+#include <lib/Splash.h>
 
 typedef enum {
     TOKEN_EMPTY,
@@ -33,28 +34,22 @@ typedef enum {
     TOKEN_PANIC,
     TOKEN_PANIC_UD2,
     TOKEN_PANIC_PF,
-    TOKEN_USERSPACE,
 
     TOKEN_CLEAR,
-    TOKEN_BLINKING,
     TOKEN_RAND,
     TOKEN_VER,
 
     TOKEN_BACK,
     TOKEN_FORWARD,
-} ksh_token;
+} KSHToken;
 
 typedef struct {
     char* str;
-    ksh_token token;
-} ksh_command_map;
+    KSHToken token;
+} KSHCommandMap;
 
-static const ksh_command_map token_map[] = {
-    {"", TOKEN_EMPTY},
-
-    // customisation
-    {"blinking", TOKEN_BLINKING},
-    
+static const KSHCommandMap CommandMap[] = {
+    {"", TOKEN_EMPTY},    
     // debug
     {"sleep", TOKEN_SLEEP},
     {"dbg", TOKEN_DEBUG},
@@ -62,7 +57,6 @@ static const ksh_command_map token_map[] = {
     {"panic", TOKEN_PANIC},
     {"ud2", TOKEN_PANIC_UD2},
     {"pf", TOKEN_PANIC_PF},
-    {"userspace", TOKEN_USERSPACE},
 
     // fun
     {"meow", TOKEN_MEOW},
@@ -78,41 +72,38 @@ static const ksh_command_map token_map[] = {
     {nullptr, TOKEN_NULL}
 };
 
-ksh_token char2token(char* token) {
-    for (i32 i = 0; token_map[i].str != nullptr; i++) {
-        if (strcmp(token, token_map[i].str) == 0) return token_map[i].token;
+KSHToken char2token(char* token) {
+    for (Int32 i = 0; CommandMap[i].str != nullptr; i++) {
+        if (strcmp(token, CommandMap[i].str) == 0) return CommandMap[i].token;
     }
     return TOKEN_ILLEGAL;
 }
 
 void ksh() {
-    sched_spawn(cursor_blinker_sched_task, nullptr, false, 0);
     while (true) {
-        kprintf("ksh_> ");
+        IOConsoleLog("ksh_> ");
         char cmdbuff[256];
-        kgets(cmdbuff, 256);
+        IOConsoleReadLine(cmdbuff, 256);
         switch(char2token(cmdbuff)) {
             case TOKEN_EMPTY: continue;
 
-            case TOKEN_CLEAR: console_clear((u32) console_get_colors() & 0xFFFFFFFF); break;
-            case TOKEN_BLINKING: console_toggle_cursor_blink(); break;
-            case TOKEN_RAND: cmd_rand(); break;
-            case TOKEN_VER: cmd_ver(); break;
+            case TOKEN_CLEAR: IOConsoleClear((UInt32) IOConsoleGetColors() & 0xFFFFFFFF); break;
+            case TOKEN_RAND: KSHCommandRand(); break;
+            case TOKEN_VER: KSHCommandVer(); break;
 
-            case TOKEN_SLEEP: cmd_sleep(); break;
-            case TOKEN_DEBUG: cmd_debug(); break;
-            case TOKEN_REGS: cmd_regs(); break;
-            case TOKEN_PANIC: panic("Manually initiated panic");
+            case TOKEN_SLEEP: KSHCommandSleep(); break;
+            case TOKEN_DEBUG: KSHCommandDebug(); break;
+            case TOKEN_REGS: KSHCommandRegisters(); break;
+            case TOKEN_PANIC: OSPanic("Manually initiated panic");
             case TOKEN_PANIC_UD2: __asm__ volatile ("ud2");
-            case TOKEN_PANIC_PF: u64* bad_ptr = (u64*)0xDEADBEEF; *bad_ptr = 666;
-            case TOKEN_USERSPACE: cmd_userspace(); break;
+            case TOKEN_PANIC_PF: UInt64* bad_ptr = (UInt64*)0xDEADBEEF; *bad_ptr = 666;
 
-            case TOKEN_SPLASH: show_splash(console_get_context()); break;
-            case TOKEN_KFETCH: cmd_kfetch(); break;
-            case TOKEN_MEOW: cmd_meow(); break;
+            case TOKEN_SPLASH: SplashShow(IOConsoleGetGraphicsContext()); break;
+            case TOKEN_KFETCH: KSHCommandKernelFetch(); break;
+            case TOKEN_MEOW: KSHCommandMeow(); break;
             
-            case TOKEN_HELP: cmd_help(); break;
-            default: kprintf("Unknown command!!\n"); break;
+            case TOKEN_HELP: KSHCommandHelp(); break;
+            default: IOConsoleLog("Unknown command!!\n"); break;
         }
     }
 }

@@ -4,5 +4,5 @@
 #pragma once
 #include <types.h>
 
-i32 spawn(const char* path);
-i32 wait(u64 pid);
+Int32 spawn(const char* path);
+Int32 wait(UInt64 pid);

@@ -3,14 +3,18 @@
 
 #pragma once
 
-#define MSR_EFER           0xC0000080
-#define MSR_STAR           0xC0000081
-#define MSR_LSTAR          0xC0000082
-#define MSR_FMASK          0xC0000084
-#define MSR_GS_BASE        0xC0000101
-#define MSR_KERNEL_GS_BASE 0xC0000102
+enum {
+    kHALModelSpecificRegisterExtendedFeatureEnable = 0xC0000080, // EFER
+    kHALModelSpecificRegisterSystemCallTarget      = 0xC0000081, // STAR
+    kHALModelSpecificRegisterLongSystemCallTarget  = 0xC0000082, // LSTAR
+    kHALModelSpecificRegisterSystemCallFlagMask    = 0xC0000084, // FMASK
+    kHALModelSpecificRegisterGSBase                = 0xC0000101, // GS_BASE
+    kHALModelSpecificRegisterKernelGSBase          = 0xC0000102  // KERNEL_GS_BASE
+};
 
-#define EFER_SCE         0x01 // System Call Enable
+enum {
+    kHALEFERSystemCallExtensionsEnable = 0x01 // SCE
+};
 
 typedef enum {
     SYS_EXIT,
@@ -19,6 +23,6 @@ typedef enum {
     SYS_WRITE,
     SYS_READ,
     SYS_WAIT,
-} syscalls;
+} Services;
 
-void syscall_init();
+void OSServicesInitialize();

@@ -5,12 +5,12 @@
 #include <types.h>
 
 void *memset(void *ptr, int value, usize num);
-void* memcpy(void* dest, const void* src, u64 n);
-i32 strcmp(const char *s1, const char *s2);
-i32 strncmp(const char* s1, const char* s2, u64 n);
+void* memcpy(void* dest, const void* src, UInt64 n);
+Int32 strcmp(const char *s1, const char *s2);
+Int32 strncmp(const char* s1, const char* s2, UInt64 n);
 char* strcpy(char* dest, const char* src);
-char* strncpy(char* dest, const char* src, u64 n);
-u64 strlen(const char* str);
-u64 strspn(const char* s, const char* accept);
+char* strncpy(char* dest, const char* src, UInt64 n);
+UInt64 strlen(const char* str);
+UInt64 strspn(const char* s, const char* accept);
 char* strpbrk(const char* s, const char* accept);
 char* strtok(char *s, const char* delim);

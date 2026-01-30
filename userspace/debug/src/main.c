@@ -7,9 +7,9 @@
 #define VECTOR_BUFFER_SIZE 8
 
 typedef struct {
-    i32* data;
-    u64 size;
-    u64 capacity;
+    Int32* data;
+    UInt64 size;
+    UInt64 capacity;
 } Vector;
 
 void vector_init(Vector* vec) {
@@ -18,11 +18,11 @@ void vector_init(Vector* vec) {
     vec->capacity = 0;
 }
 
-u8 vector_append(Vector* vec, const i32 num) {
+UInt8 vector_append(Vector* vec, const Int32 num) {
     if (vec->size >= vec->capacity) {
-        u64 new_cap = (vec->capacity == 0) ? VECTOR_BUFFER_SIZE : vec->capacity * 2;
+        UInt64 new_cap = (vec->capacity == 0) ? VECTOR_BUFFER_SIZE : vec->capacity * 2;
 
-        i32* new_data = realloc(vec->data, new_cap * sizeof(i32));
+        Int32* new_data = realloc(vec->data, new_cap * sizeof(Int32));
         if (!new_data) return 2; // Out of memory
 
         vec->data = new_data;
@@ -38,9 +38,9 @@ void vector_reset(Vector* vec) {
     vec->size = 0;
 }
 
-u8 vector_reserve(Vector* vec, u64 new_cap) {
+UInt8 vector_reserve(Vector* vec, UInt64 new_cap) {
     if (new_cap <= vec->capacity) return 0;
-    i32* new_data = realloc(vec->data, new_cap * sizeof(i32));
+    Int32* new_data = realloc(vec->data, new_cap * sizeof(Int32));
     if (!new_data) return 2;
 
     vec->data = new_data;
@@ -58,7 +58,7 @@ void vector_free(Vector* vec) {
 void render_list(Vector* numbers) {
     printf("\nNumbers [%d/%d]: [", numbers->size, numbers->capacity);
     if (numbers->size == 0) printf("]");
-    for (u64 i = 0; i < numbers->size; i++) {
+    for (UInt64 i = 0; i < numbers->size; i++) {
         printf("%d", numbers->data[i]);
         if (i + 1 >= numbers->size) {
             printf("]");
@@ -74,7 +74,7 @@ int main() {
     printf("Heap test\n");
     printf("press any key to add 1 number press 'q' to exit\n");
     char c = 'd';
-    u64 i = 0;
+    UInt64 i = 0;
     while (c != 'q') {
         render_list(&nums);
         vector_append(&nums, i);
