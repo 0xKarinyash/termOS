@@ -80,7 +80,7 @@ void kmain(Bootinfo* info) {
     IOConsoleLog("VFS initialized\n");
 
     UInt32 *framebuffer = (UInt32*)info->framebuffer.base;
-    if (!framebuffer) return IOConsoleLog("No framebuffer found!!");
+    if (!framebuffer) return OSPanic("No framebuffer found!!");
 
     sIOGraphicsContext.framebuffer = framebuffer;
     sIOGraphicsContext.dimensions.height = info->framebuffer.height;

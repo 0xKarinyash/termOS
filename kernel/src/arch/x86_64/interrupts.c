@@ -24,6 +24,7 @@ void isr_handler_c(CPURegisters* frame) {
         IOConsoleLog("^gR13^!=%X, ^gR14^!=%X\n", frame->r13, frame->r14);
         IOConsoleLog("^gR15^!=%X\n",frame->r15);
         IOConsoleLog("--------------------------------\n");
+        return;
     }
     if ((frame->cs & 3) != 0) {
         IOConsoleLog("\n[Dewar] Process '%s' (PID %d) Segmentation Fault at %X\n", 
