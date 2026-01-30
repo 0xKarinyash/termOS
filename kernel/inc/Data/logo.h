@@ -1,6 +1,6 @@
 // Huge thanks to https://t.me/kinolenta2004 for this amazing logo
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2025 0xKarinyash
+// Copyright (c) 2026 0xKarinyash
 
 #pragma once
 #include <IO/IOGraphics.h>

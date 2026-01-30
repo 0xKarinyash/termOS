@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2025 0xKarinyash
+// Copyright (c) 2026 0xKarinyash
 
 #include <IO/IOKeyboard.h>
 #include <IO/IOConsole.h>

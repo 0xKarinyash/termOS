@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2025 0xKarinyash
+// Copyright (c) 2026 0xKarinyash
 
 #include <OS/OSPanic.h>
 #include <lib/Rand.h>
