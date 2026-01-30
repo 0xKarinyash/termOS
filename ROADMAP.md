@@ -23,7 +23,7 @@
 
 ### v0.5.4 (The Shell Update)
 *Focus: Interactive Userspace*
-- [ ] **Userspace Shell (`ush`)**
+- [ ] **Userspace Shell (`termosh`)**
     - Porting `ksh` logic into a standalone `.hot` binary.
     - Standard I/O abstraction (stdin/stdout) to pass keyboard input to active process.
 - [ ] **Basic Utils**

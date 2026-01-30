@@ -6,9 +6,7 @@
 #include <malloc.h>
 
 int main() {
-    wait(spawn("debug"));
-    printf("\nStill here?\n");
-    while (1) {
-        printf("1");
-    }
+    wait(spawn("termosh")); // TODO: read .cfg and spawn what stated there
+    printf("\nbaiii");
+    return 0;
 }

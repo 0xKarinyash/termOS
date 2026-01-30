@@ -3,6 +3,8 @@
 
 #include <string.h>
 
+static char* olds;
+
 void *memset(void *ptr, int value, usize num) {
     u8 *p = (u8 *)ptr;
     while (num--) {
@@ -74,4 +76,51 @@ u64 strlen(const char* str) {
     u64 res = 0;
     for (res = 0; str[res]; res++);
     return res;
+}
+
+static inline int is_in_set(char c, const char* set) {
+    while (*set) {
+        if (*set == c) return 1;
+        set++;
+    }
+    return 0;
+}
+
+u64 strspn(const char* s, const char* accept) {
+    u64 count = 0;
+    while (*s && is_in_set(*s, accept)) {
+        count++;
+        s++;
+    }
+    return count;
+}
+
+char* strpbrk(const char* s, const char* accept) {
+    while (*s) {
+        if (is_in_set(*s, accept)) {
+            return (char*)s;
+        }
+        s++;
+    }
+    return nullptr;
+}
+// took from https://github.com/walac/glibc/blob/master/string/strtok.c
+char* strtok(char *s, const char* delim) {
+    char* token;
+    if (s == nullptr) s = olds;
+    s += strspn(s, delim);
+    if (*s == '\0') {
+        olds = s;
+        return nullptr;
+    }
+
+    token = s;
+    s = strpbrk(token, delim);
+    if (s == nullptr) olds = token + strlen(token);
+    else {
+        *s = '\0';
+        olds = s + 1;
+    }
+
+    return token;
 }

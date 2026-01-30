@@ -1,17 +1,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2025 0xKarinyash
 
-#include "drivers/timer.h"
 #include <io.h>
 #include <core/panic.h>
+#include <core/scheduler.h>
 #include <drivers/keyboard.h>
+#include <drivers/console.h>
+#include <drivers/timer.h>
 #include <shell/builtins.h>
+#include <syscalls/proc.h>
 #include <types.h>
 
+extern task* curr_task;
 
 void isr_handler_c(Registers *regs) {
     if (regs->int_no == 3) {
         return print_regs();
+    }
+    if ((regs->cs & 3) != 0) {
+        kprintf("\n[Dewar] Process '%s' (PID %d) Segmentation Fault at %X\n", 
+                curr_task->proc->name, curr_task->proc->pid, regs->rip);
+        curr_task->task_state = DEAD;
+        sys_exit(-1);
+        sched_next((u64)regs);
+        return;
     }
     panic_exception(regs);
 }

@@ -11,3 +11,6 @@ i32 strncmp(const char* s1, const char* s2, u64 n);
 char* strcpy(char* dest, const char* src);
 char* strncpy(char* dest, const char* src, u64 n);
 u64 strlen(const char* str);
+u64 strspn(const char* s, const char* accept);
+char* strpbrk(const char* s, const char* accept);
+char* strtok(char *s, const char* delim);
