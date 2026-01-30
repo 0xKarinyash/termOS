@@ -4,7 +4,8 @@
 #pragma once
 #include <types.h>
 
-void printf(const char *fmt, ...);
+int printf(const char *fmt, ...);
+int snprintf(char* str, u64 size, const char* fmt, ...);
 int getchar();
 char* gets(char* str);
 char* gets_s(char* str, u64 size);

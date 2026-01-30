@@ -23,7 +23,11 @@ int main() {
             case TOKEN_CLEAR: not_implemented_yet(); break;
             case TOKEN_HELP: not_implemented_yet(); break;
             case TOKEN_SPAWN: if (tokens_count >= 2) cmd_spawn(tokens[1]); break;
-            default: printf("Unknown command\n"); break;
+            default: {
+                char buff[256];
+                snprintf(buff, sizeof(buff), "/bin/%s", tokens[0]);
+                cmd_spawn(buff);
+            }
         }
     }
 }

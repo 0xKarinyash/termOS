@@ -23,12 +23,11 @@
 
 ### v0.5.4 (The Shell Update)
 *Focus: Interactive Userspace*
-- [ ] **Userspace Shell (`termosh`)**
+- [x] **Userspace Shell (`termosh`)**
     - Porting `ksh` logic into a standalone `.hot` binary.
     - Standard I/O abstraction (stdin/stdout) to pass keyboard input to active process.
-- [ ] **Basic Utils**
-    - `ls`, `cat`, `echo`, `ver` as standalone programs.
-    - Remove built-in commands from the kernel.
+- [ ] ~~**Basic Utils** (`ls`, `cat`, `echo`)~~ *(Moved to v0.6.1 — awaiting Apple-style API)*
+
 
 ---
 
@@ -36,6 +35,11 @@
 *Goal: Total independence from external libraries and architectural hygiene.*
 
 ### v0.6.0 (Architecture Overhaul)
+- [ ] **System-wide Naming & API Refactoring (Apple-style)**
+    - Replace generic types with PascalCase branding (`u64` -> `UInt64`, `i32` -> `Int32`).
+    - Standardize system prefixes: `VM` for Virtual Memory, `OS` for Core, `CPU` for HAL.
+    - Transition from `snake_case` to `PascalCase` for all kernel functions and structures.
+    - Implement `OSReturn` status codes for unified error handling.
 - [ ] **Bootloader Independence**
     - Remove `posix-uefi` library.
     - Write custom UEFI entry point (pure PE).

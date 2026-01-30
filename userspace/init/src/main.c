@@ -2,11 +2,13 @@
 // Copyright (c) 2026 0xKarinyash
 
 #include <process.h>
-#include <stdio.h>
 #include <malloc.h>
 
+// TODO: read .cfg and spawn what stated there
 int main() {
-    wait(spawn("/bin/termosh")); // TODO: read .cfg and spawn what stated there
-    printf("\nbaiii");
-    return 0;
+    while (1) {
+        i32 pid = spawn("/bin/termosh");
+        if (pid < 0) return pid;
+        wait(pid);
+    }
 }
