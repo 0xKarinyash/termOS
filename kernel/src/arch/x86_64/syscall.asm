@@ -60,7 +60,6 @@ syscall_entry:
     pop r11 ; rflags
     add rsp, 8 ; skip rsp
 
-    mov [gs:8], rsp
     mov rsp, [gs:0]
     swapgs
 

@@ -2,8 +2,9 @@
 // Copyright (c) 2026 0xKarinyash
 
 #pragma once
-
 #include <types.h>
 
-i32 process_spawn(const char* path, const char* name);
-void init_task_entry();
+void printf(const char *fmt, ...);
+int getchar();
+char* gets(char* str);
+char* gets_s(char* str, u64 size);

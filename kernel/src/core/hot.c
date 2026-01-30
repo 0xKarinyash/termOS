@@ -19,27 +19,30 @@ u64 load_hot(process* proc, u8* data) {
     }
 
     hot_segment* segments = (hot_segment*)(data + sizeof(hot_header));
-    u64 kernel_cr3 = vmm_get_current_cr3();
     for (u64 i = 0; i < header->segments_count; i++) {
         hot_segment* seg = &segments[i];
         if (seg->memsz == 0) continue;
 
-        u64 start = seg->vaddr & ~(0xFFF);
-        u64 end = (seg->vaddr + seg->memsz + 0xFFF) & ~(0xFFF);
+        u64 start = seg->vaddr & ~(0xFFFULL);
+        u64 end = (seg->vaddr + seg->memsz + 0xFFF) & ~(0xFFFULL);
+
         for (u64 addr = start; addr < end; addr += PAGE_SIZE) {
             void* phys = pmm_alloc_page();
-            vmm_map_page((u64*)proc->pml4_phys, (u64)phys, addr, PTE_USER | PTE_RW | PTE_PRESENT);  
-        }
+            vmm_map_page((u64*)proc->pml4_phys, (u64)phys, addr, PTE_USER | PTE_RW | PTE_PRESENT);
+            void* kernel_virt = (void*)((u64)phys + HHDM_OFFSET);
+            memset(kernel_virt, 0, PAGE_SIZE);
+            u64 page_overleap_start = (addr > seg->vaddr) ? addr : seg->vaddr;
+            u64 page_overleap_end = (addr + PAGE_SIZE < seg->vaddr + seg->filesz) 
+                ? (addr + PAGE_SIZE) 
+                : (seg->vaddr + seg->filesz);
+            if (page_overleap_start < page_overleap_end) {
+                u64 copy_size = page_overleap_end - page_overleap_start;
+                u64 src_offset = seg->offset + (page_overleap_start - seg->vaddr);
+                u64 dst_offset = page_overleap_start - addr;
 
-        load_cr3(proc->pml4_phys);
-        if (seg->filesz > 0) memcpy((void*)seg->vaddr, data + seg->offset, seg->filesz);
-        if (seg->memsz > seg->filesz) {
-            u64 bss_start = seg->vaddr + seg->filesz;
-            u64 bss_len = seg->memsz - seg->filesz;
-            memset((void*)bss_start, 0, bss_len);
+                memcpy((u8*)kernel_virt + dst_offset, data + src_offset, copy_size);
+            }
         }
-
-        load_cr3(kernel_cr3);
     }
 
     return header->entry_point;

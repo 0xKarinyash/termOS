@@ -2,8 +2,7 @@
 // Copyright (c) 2026 0xKarinyash
 
 #pragma once
-
 #include <types.h>
 
-i32 process_spawn(const char* path, const char* name);
-void init_task_entry();
+u64 sys_write(u64 fd, u64 buff, u64 len);
+u64 sys_read(u64 fd, u64 buff, u64 count);

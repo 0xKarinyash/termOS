@@ -80,7 +80,7 @@ void console_set_cursor_pos(SG_Point *p) {
     s_cursor_pos.y = p->y;
 }
 
-static void console_putc(char c) {
+void console_putc(char c) {
     serial_writec(c);
     if (!ctx_ptr) return;
     if (c == '\n') {

@@ -1,16 +1,12 @@
-static inline void sys_write(const char* str) {
-    __asm__ volatile (
-        "mov $2, %%rax\n\t"   
-        "mov %0, %%rdi\n\t"
-        "syscall"
-        :
-        : "r"(str)
-        : "rax", "rdi", "rcx", "r11", "memory" 
-    );
-}
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 0xKarinyash
+
+#include <process.h>
+#include <stdio.h>
+#include <malloc.h>
 
 int main() {
-    sys_write("Meowww!!!\n");
-    sys_write("Nyaaaaa");
-    for (int i = 0; i < 100; i++) sys_write("a"); 
+    printf("Launching debug\n");
+    spawn("debug");
+    while (1) {}
 }

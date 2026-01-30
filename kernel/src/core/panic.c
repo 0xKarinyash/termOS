@@ -32,7 +32,6 @@ const char* fun_messages[] = {
     "Code have been eaten by Aliens",
     "That's all, folks!",
     "Raiden, answer me, Raiden, respond! Raiden?! RAIDEEEEEEEEEN!",
-    "Fatal error has been occurred.\n\t\t\t\t Your device will be terminated in 30 seconds.",
     "I'll be back",
     "Hastla la vista, baby",
     "Ti chego mne tut nagovoril...",

@@ -23,6 +23,7 @@ file(GLOB_RECURSE KERNEL_SOURCES CMAKE_CONFIGURE_DEPENDS
     "src/mm/*.c"
     "src/shell/*.c"
     "src/fs/*.c"
+    "src/syscalls/*.c"
     
     "data/*.c"
 )

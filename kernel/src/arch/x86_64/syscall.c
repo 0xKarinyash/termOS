@@ -8,6 +8,10 @@
 #include <mm/pmm.h>
 #include <mm/vmm.h>
 
+#include <syscalls/proc.h>
+#include <syscalls/mem.h>
+#include <syscalls/io.h>
+
 static inline void wrmsr(u32 msr, u64 val) {
     u32 low = (u32)val;
     u32 high = (u32)(val >> 32);
@@ -47,20 +51,14 @@ void syscall_init() {
 }
 
 u64 syscall_dispatch(u64 id, u64 arg1, u64 arg2, u64 arg3, u64 arg4, u64 arg5) {
+    __asm__ volatile("cli");
     switch (id) {
-        case SYS_EXIT: {
-            kprintf("\n[Dewar] process exited with code %d", arg1);
-            while(1) __asm__ ("hlt"); // stub
-            return 0;
-        }
-        case SYS_EXEC: {
-            kprintf("\n[Dewar] process called exec syscall");
-            return 0; // stub as well
-        }
-        case SYS_WRITE: {
-            kprintf("%s", (char*)arg1);
-            return 0;
-        }
+        case SYS_EXIT:  return sys_exit(arg1);
+        case SYS_SPAWN: return sys_spawn((const char*)arg1);
+        case SYS_MEM:   return sys_mem(arg1);
+        case SYS_WRITE: return sys_write(arg1, arg2, arg3);
+        case SYS_READ: return sys_read(arg1, arg2, arg3);
         default: kprintf("[Dewar] Unknown syscall %d\n", id); return -1;
     }
+    __asm__ volatile("sti");
 }

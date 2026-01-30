@@ -6,6 +6,7 @@
 #include <core/string.h>
 #include <mm/heap.h>
 #include <mm/vmm.h>
+#include <mm/memory.h>
 #include <cpuinfo.h>
 #include <gdt.h>
 
@@ -17,6 +18,12 @@ extern u64 pml4_kernel_phys;
 
 static process kernel_process;
 
+void idle_task() {
+    while (1) {
+        __asm__ volatile ("hlt");
+    }
+}
+
 void sched_init() {
     kernel_process.pid = 0;
     kernel_process.state = RUNNING;
@@ -24,12 +31,15 @@ void sched_init() {
     strcpy(kernel_process.name, "kernel");
 
     task* kt = (task*)malloc(sizeof(task));
+    memset(kt, 0, sizeof(task));
     kt->id = 0;
     kt->proc = &kernel_process;
     kt->sleep_ticks = 0;
     kt->next = kt;
+    kt->task_state = RUNNING;
 
     curr_task = kt;
+    sched_spawn(idle_task, &kernel_process, false, 0);
 }
 
 task* sched_spawn(void(*entry)(), process* owner, bool is_user, u64 fixed_user_stack) {
@@ -66,6 +76,7 @@ task* sched_spawn(void(*entry)(), process* owner, bool is_user, u64 fixed_user_s
     t->sleep_ticks = 0;
     t->next = curr_task->next;
     t->kernel_stack_top = (u64)stack_base + stack_size;
+    t->task_state = RUNNING;
     curr_task->next = t;
     return t;
 }
@@ -84,6 +95,12 @@ u64 sched_next(u64 curr_rsp) {
     if (curr_task->sleep_ticks > 0) curr_task->sleep_ticks--;
 
     task* next = curr_task->next;
+    while (next->task_state == DEAD) {
+        // TODO: add gc here;
+        next = next->next;
+        if (next == curr_task) panic("no alive tasks");
+    }
+
     while (next != curr_task && next->sleep_ticks > 0) next = next->next; // what the fuck i just wrote  
 
     if (next->proc->pml4_phys != curr_task->proc->pml4_phys) load_cr3(next->proc->pml4_phys);

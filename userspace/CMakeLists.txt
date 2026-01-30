@@ -7,4 +7,6 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 message(STATUS "Building termOS's userspace")
 
+add_subdirectory(libterm)
 add_subdirectory(init)
+add_subdirectory(debug)

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 0xKarinyash
 
-#include "types.h"
+#include <types.h>
 #include <cpuinfo.h>
 
 #define MSR_GS_BASE         0xC0000101

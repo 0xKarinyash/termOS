@@ -13,8 +13,10 @@
 
 typedef enum {
     SYS_EXIT,
-    SYS_EXEC,
+    SYS_SPAWN,
+    SYS_MEM,
     SYS_WRITE,
+    SYS_READ,
 } syscalls;
 
 void syscall_init();

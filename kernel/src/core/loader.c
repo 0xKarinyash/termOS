@@ -20,28 +20,48 @@
 #include <types.h>
 
 extern task* curr_task;
+extern u32 next_pid;
 
 #define USER_STACK_TOP  0x70000000
+#define HEAP_START 0x40000000
 
-void init_task_entry() {
-    process* init_proc = (process*)malloc(sizeof(process));
-    init_proc->pid = 1; 
-    init_proc->state = RUNNING; 
-    init_proc->pml4_phys = vmm_create_address_space();
-    strcpy(init_proc->name, "init");
+i32 process_spawn(const char* path, const char* name) {
+    fs_node* file = vfs_open(path);
+    if (!file) return -1;
 
-    fs_node* file = vfs_open("/init");
-    if (!file) panic("FATAL: /init not found!");
+    process* new_proc = (process*)malloc(sizeof(process));
+    if (!new_proc) return -2;
+    memset(new_proc, 0, sizeof(process));
+    new_proc->pid = next_pid++; 
+    new_proc->state = RUNNING; 
+    new_proc->pml4_phys = vmm_create_address_space();
+    new_proc->heap_start = HEAP_START;
+    new_proc->heap_cur = HEAP_START;
+    strncpy(new_proc->name, name, 31);
 
     u8* file_buffer = (u8*)malloc(file->len);
+    if (!file_buffer) {
+        free(new_proc);
+        return -3;
+    }
     vfs_read(file, 0, file->len, file_buffer);
 
-    u64 entry = load_hot(init_proc, file_buffer);
-    if (!entry) panic("Invalid HOT executable");
-    
-    free(file_buffer); 
-    vmm_setup_user_stack((u64*)init_proc->pml4_phys);
-    sched_spawn((void(*)())entry, init_proc, true, USER_STACK_TOP);
+    u64 entry = load_hot(new_proc, file_buffer);
+    if (!entry) return -4;
 
-    while(1) { __asm__("sti; hlt"); } 
+    free(file_buffer);
+
+    vmm_setup_user_stack((u64*)new_proc->pml4_phys);
+    sched_spawn((void(*)())entry, new_proc, true, USER_STACK_TOP);
+
+    return new_proc->pid;
+}
+
+void init_task_entry() {
+    i32 pid = process_spawn("/init", "init");
+    if (pid < 0) {
+        panic("FATAL: Failed to spawn /init");
+    }
+
+    while (1) { __asm__("sti; hlt"); }
 }

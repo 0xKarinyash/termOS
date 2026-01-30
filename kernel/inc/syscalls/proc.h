@@ -5,5 +5,5 @@
 
 #include <types.h>
 
-i32 process_spawn(const char* path, const char* name);
-void init_task_entry();
+u64 sys_exit(i32 code);
+u64 sys_spawn(const char* path);

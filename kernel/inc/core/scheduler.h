@@ -15,6 +15,8 @@ typedef struct process {
     u64 pml4_phys;
     struct process* parent;
     char name[32];
+    u64 heap_start;
+    u64 heap_cur;
 } process;
 
 typedef struct task {
@@ -22,6 +24,7 @@ typedef struct task {
     struct task* next;
     u32 id;
     u32 sleep_ticks;
+    process_state task_state; // reusing process_state cuz wn
     u64 kernel_stack_top;
     process* proc;
 } task;
