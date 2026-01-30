@@ -3,6 +3,8 @@ project(libterm LANGUAGES C ASM_NASM)
 
 set(USER_C_FLAGS
     -ffreestanding
+    -fno-builtin
+    -Wno-incompatible-library-redeclaration # stfu
     -nostdlib
     -nostdinc
     -fno-stack-protector

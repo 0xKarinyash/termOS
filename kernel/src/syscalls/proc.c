@@ -11,6 +11,7 @@ extern task* curr_task;
 u64 sys_exit(i32 code) {
     kprintf("\n[Dewar] process %s exited with code %d", curr_task->proc->name, code);
     sched_exit();
+    return code;
 }
 
 
@@ -20,4 +21,5 @@ u64 sys_spawn(const char* path) {
 
 u64 sys_wait(u64 pid) {
     sched_block(pid);
+    return pid;
 }
