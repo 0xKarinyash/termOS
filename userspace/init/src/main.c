@@ -6,7 +6,9 @@
 #include <malloc.h>
 
 int main() {
-    printf("Launching debug\n");
-    spawn("debug");
-    while (1) {}
+    wait(spawn("debug"));
+    printf("\nStill here?\n");
+    while (1) {
+        printf("1");
+    }
 }

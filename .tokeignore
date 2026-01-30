@@ -3,7 +3,6 @@ build
 .venv
 kernel/data
 *.md
-tools/
 bootloader/
 bootloader/src/uefi
 initramfs/

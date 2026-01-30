@@ -63,16 +63,37 @@ isr%1:
 global %2
 %2:
     push 0   ; dummy err code 
-    push %1         
+    push %1  ; int_no
+
+    ; [rsp] = int_no (8)
+    ; [rsp + 8] = err_code (8)
+    ; [rsp + 16] = RIP (8)
+    ; [rsp + 24] = CS (8) 
+
+    test qword [rsp + 24], 3 
+    jz .skip_swap
+    swapgs     
     
+.skip_swap:
+
     PUSHALL
     
     mov rdi, rsp
     cld 
     call irq_handler_c
 
-    mov rsp, rax
+    mov rsp, rax 
+
+    ; PUSHALL - 15 * 8 = 120 bytes
+    ; + int_no (8) + err_code (8) = 136 bytes
+    ; [rsp + 136] = RIP
+    ; [rsp + 144] = CS 
     
+    test qword [rsp + 144], 3 
+    jz .skip_swap_back
+    swapgs
+.skip_swap_back:
+
     POPALL
     add rsp, 16 
     iretq
@@ -112,13 +133,18 @@ ISR_ERRCODE   30  ; Security Exception
 ISR_NOERRCODE 31  ; Reserved
 
 isr_common_stub:
+    test qword [rsp + 24], 3
+    jz .skip_swap
+    swapgs
+.skip_swap:
     PUSHALL
-
     mov rdi, rsp
     call isr_handler_c
-
+    test qword [rsp + 144], 3
+    jz .skip_swap_back
+    swapgs
+.skip_swap_back:
     POPALL
-
     add rsp, 16
     iretq
 

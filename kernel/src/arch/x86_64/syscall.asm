@@ -58,9 +58,9 @@ syscall_entry:
     pop rbp
     pop rcx ; rip
     pop r11 ; rflags
-    add rsp, 8 ; skip rsp
+    
+    pop rsp
 
-    mov rsp, [gs:0]
     swapgs
 
     o64 sysret

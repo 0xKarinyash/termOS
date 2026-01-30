@@ -5,3 +5,4 @@
 #include <types.h>
 
 u64 spawn(const char* path);
+u64 wait(u64 pid);

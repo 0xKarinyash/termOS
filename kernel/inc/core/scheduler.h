@@ -7,6 +7,9 @@
 typedef enum process_state {
     DEAD,
     RUNNING,
+    READY,
+    BLOCKED,
+    SLEEPING,
 } process_state;
 
 typedef struct process {
@@ -27,9 +30,13 @@ typedef struct task {
     process_state task_state; // reusing process_state cuz wn
     u64 kernel_stack_top;
     process* proc;
+    i32 waiting_on_pid;
 } task;
 
 void sched_init();
 task* sched_spawn(void(*entry)(), process* owner, bool is_user, u64 fixed_user_stack);
 u64 sched_next(u64 curr_rsp);
 void yield(u64 ticks);
+void sched_block(u32 pid);
+void sched_wakeup(u32 pid);
+void sched_exit(); // suicide

@@ -23,13 +23,13 @@
 
 ### v0.5.3 (Immediate Priority)
 *Focus: Lifecycle & Memory*
-- [ ] **Syscall: Memory Management**
-    - Implement `sys_sbrk` or `sys_mem`.
+- [x] **Syscall: Memory Management**
+    - Implement `sys_mem`.
     - Allow userspace to dynamically allocate pages (User Heap).
-- [ ] **Syscall: Process Lifecycle**
+- [x] **Syscall: Process Lifecycle**
     - `sys_spawn(path)`: Load `.hot` files via VFS, create new process structures.
     - `sys_exit(code)`: Proper termination, ZOMBIE state, resource cleanup in scheduler.
-- [ ] **Userspace Lib (mini-libc)**
+- [x] **Userspace Lib (mini-libc)**
     - Wrappers: `malloc`, `free`, `exec`, `exit`.
     - `crt0.asm` for proper `main()` entry.
 
@@ -51,7 +51,7 @@
 - [ ] **Bootloader Independence**
     - Remove `posix-uefi` library.
     - Write custom UEFI entry point (pure PE).
-    - Kernel itself becomes a valid `.hot` executable (or loaded by custom bootloader).
+    - Kernel itself becomes a valid `.hot` executable.
 - [ ] **HOT! Format Hardening**
     - Fix segment alignment (Page Alignment) in `elf2hot` and kernel loader.
     - Add metadata headers (stack size, permissions).

@@ -10,9 +10,7 @@ extern task* curr_task;
 
 u64 sys_exit(i32 code) {
     kprintf("\n[Dewar] process %s exited with code %d", curr_task->proc->name, code);
-    curr_task->task_state = DEAD;
-    sched_next(curr_task->rsp); 
-    while (1) { __asm__ ("hlt"); }
+    sched_exit();
 }
 
 
@@ -20,3 +18,6 @@ u64 sys_spawn(const char* path) {
     return process_spawn(path, path);
 }
 
+u64 sys_wait(u64 pid) {
+    sched_block(pid);
+}

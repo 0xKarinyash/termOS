@@ -47,18 +47,20 @@ void syscall_init() {
         g_cpu.kernel_rsp = (u64)stack_phys + HHDM_OFFSET + 4096;
     }
 
+    wrmsr(MSR_GS_BASE, (u64)&g_cpu);
     wrmsr(MSR_KERNEL_GS_BASE, (u64)&g_cpu);
 }
 
 u64 syscall_dispatch(u64 id, u64 arg1, u64 arg2, u64 arg3, u64 arg4, u64 arg5) {
-    __asm__ volatile("cli");
     switch (id) {
         case SYS_EXIT:  return sys_exit(arg1);
         case SYS_SPAWN: return sys_spawn((const char*)arg1);
         case SYS_MEM:   return sys_mem(arg1);
         case SYS_WRITE: return sys_write(arg1, arg2, arg3);
-        case SYS_READ: return sys_read(arg1, arg2, arg3);
-        default: kprintf("[Dewar] Unknown syscall %d\n", id); return -1;
+        case SYS_READ:  return sys_read(arg1, arg2, arg3);
+        case SYS_WAIT:  return sys_wait(arg1);
+        default: 
+            kprintf("[Dewar] Unknown syscall %d\n", id); 
+            return -1;
     }
-    __asm__ volatile("sti");
 }

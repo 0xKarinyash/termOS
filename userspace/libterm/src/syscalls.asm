@@ -10,6 +10,7 @@ global sys_spawn
 global sys_mem
 global sys_write
 global sys_read
+global sys_wait
 
 sys_exit:
     mov rax, 0
@@ -33,5 +34,10 @@ sys_write:
 
 sys_read:
     mov rax, 4
+    syscall
+    ret
+
+sys_wait:
+    mov rax, 5
     syscall
     ret

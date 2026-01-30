@@ -111,5 +111,4 @@ void kb_handler() {
             default: break;
         }
     }
-    outb(MASTER_COMMAND, 0x20);
 }

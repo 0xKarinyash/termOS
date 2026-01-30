@@ -7,3 +7,4 @@
 
 u64 sys_exit(i32 code);
 u64 sys_spawn(const char* path);
+u64 sys_wait(u64 pid);

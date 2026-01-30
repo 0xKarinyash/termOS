@@ -21,7 +21,7 @@ u64 irq_handler_c(Registers *regs) {
     switch (regs->int_no) {
         case 32: curr_rsp = timer_handler(regs); break;
         case 33: kb_handler(); break;
-        default: outb(SLAVE_COMMAND, 0x20); break;
+        default: break;
     }
 
     outb(MASTER_COMMAND, 0x20);

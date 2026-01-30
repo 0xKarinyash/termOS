@@ -26,9 +26,9 @@ void timer_init(u32 freq) {
 
 u64 timer_handler(Registers *regs) {
     ticks++;
-    outb(MASTER_COMMAND, 0x20);
     return sched_next((u64)regs);
 }
+
 
 void sleep(u64 ms) {
     u64 start = ticks;
