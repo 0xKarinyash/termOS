@@ -8,7 +8,7 @@
 
 ---
 
-## Current Status: v0.5.2 (Alpha)
+## Current Status: v0.5.3 (Alpha)
 *Where we are now.*
 - **Core:** Ring 0 / Ring 3 isolation implemented.
 - **Mem:** PMM (bitmap), VMM (PML4, HHDM).
@@ -20,18 +20,6 @@
 
 ## 📅 Phase 1
 *Goal: Transform the decorative userspace into a functional mechanism.*
-
-### v0.5.3 (Immediate Priority)
-*Focus: Lifecycle & Memory*
-- [x] **Syscall: Memory Management**
-    - Implement `sys_mem`.
-    - Allow userspace to dynamically allocate pages (User Heap).
-- [x] **Syscall: Process Lifecycle**
-    - `sys_spawn(path)`: Load `.hot` files via VFS, create new process structures.
-    - `sys_exit(code)`: Proper termination, ZOMBIE state, resource cleanup in scheduler.
-- [x] **Userspace Lib (mini-libc)**
-    - Wrappers: `malloc`, `free`, `exec`, `exit`.
-    - `crt0.asm` for proper `main()` entry.
 
 ### v0.5.4 (The Shell Update)
 *Focus: Interactive Userspace*
@@ -101,6 +89,7 @@
 
 | Version | Date | Key Features |
 | :--- | :--- | :--- |
+| **v0.5.3** | 2026-01-30 | `sys_mem`, `sys_spawn`, `sys_wait`, `sys_exit` |
 | **v0.5.2** | 2026-01-30 | **HOT!** format, Ring 3 isolation, VFS, CPIO parsing. |
 | **v0.5.1** | 2026-01-29 | Initial userspace jumps, syscall mechanics. |
 | **v0.5.0** | 2026-01-29 | Kernel officially named "Dewar". Versioning standardized. |
