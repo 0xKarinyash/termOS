@@ -59,7 +59,7 @@ FSVNode* FSCPIOMount(void* baseAddress, UInt64 totalSize) {
     UInt8* currentPointer = (UInt8*)baseAddress;
     UInt8* endPointer = currentPointer + totalSize;
 
-    FSVNode* rootNode = (FSVNode*)malloc(sizeof(FSVNode));
+    FSVNode* rootNode = (FSVNode*)VMHeapAllocate(sizeof(FSVNode));
     if (!rootNode) OSPanic("CPIO: Failed to allocate memory for root node");
     
     memset(rootNode, 0, sizeof(FSVNode));
@@ -86,7 +86,7 @@ FSVNode* FSCPIOMount(void* baseAddress, UInt64 totalSize) {
         UInt64 offsetToData = FSCPIO_ALIGN4(headerAndNameLength);
         void* fileContent = (void*)(currentPointer + offsetToData);
 
-        FSVNode* newNode = (FSVNode*)malloc(sizeof(FSVNode));
+        FSVNode* newNode = (FSVNode*)VMHeapAllocate(sizeof(FSVNode));
         if (!newNode) OSPanic("CPIO: Failed to allocate memory for new node");
         
         memset(newNode, 0, sizeof(FSVNode));

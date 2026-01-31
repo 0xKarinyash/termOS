@@ -11,7 +11,7 @@
 extern UInt64* gVMKernelPML4;
 static VMHeapBlockHeader* sVMHeapListHead = nullptr;
 
-void combine_forward(VMHeapBlockHeader* current) {
+static void sVMHeapCombineForward(VMHeapBlockHeader* current) {
     if (!current->next || !current->next->isFree) return;
     current->size += sizeof(VMHeapBlockHeader) + current->next->size;
     current->next = current->next->next;
@@ -30,14 +30,14 @@ void VMHeapInitialize() {
     }
 
     sVMHeapListHead = (VMHeapBlockHeader*)heapStart;
-    sVMHeapListHead->magic = HEADER_MAGIC;
+    sVMHeapListHead->magic = kVMHeapBlockHeaderMagic;
     sVMHeapListHead->size = (kVMHeapSizePages * kVMPageSize) - sizeof(VMHeapBlockHeader);
     sVMHeapListHead->isFree = true;
     sVMHeapListHead->next = nullptr;
     sVMHeapListHead->previous = nullptr;
 }
 
-void* malloc(UInt64 size) {
+void* VMHeapAllocate(UInt64 size) {
     if (size == 0) return nullptr;
     UInt64 alignedSize = (size + 15) & ~15;
 
@@ -50,7 +50,7 @@ void* malloc(UInt64 size) {
                 new_block->isFree = true;
                 new_block->next = current->next;
                 new_block->previous = current;
-                new_block->magic = HEADER_MAGIC;
+                new_block->magic = kVMHeapBlockHeaderMagic;
                 
                 if (current->next) current->next->previous = new_block;
                 current->next = new_block;
@@ -65,21 +65,21 @@ void* malloc(UInt64 size) {
     return nullptr;
 }
 
-void free(void* pointer) {
+void VMHeapFree(void* pointer) {
     if (!pointer) return;
 
     VMHeapBlockHeader* current = (VMHeapBlockHeader*)((UInt64)pointer - sizeof(VMHeapBlockHeader));
-    if (current->magic != HEADER_MAGIC) return;
+    if (current->magic != kVMHeapBlockHeaderMagic) return;
     
     current->isFree = true;
-    if (current->next && current->next->isFree) combine_forward(current);
-    if (current->previous && current->previous->isFree) combine_forward(current->previous);
+    if (current->next && current->next->isFree) sVMHeapCombineForward(current);
+    if (current->previous && current->previous->isFree) sVMHeapCombineForward(current->previous);
 }
 
-void* realloc(void* pointer, UInt64 newSize) {
-    if (!pointer) return malloc(newSize);
+void* VMHeapResize(void* pointer, UInt64 newSize) {
+    if (!pointer) return VMHeapAllocate(newSize);
     if (newSize == 0) { 
-        free(pointer); 
+        VMHeapFree(pointer); 
         return nullptr; 
     }
 
@@ -89,15 +89,15 @@ void* realloc(void* pointer, UInt64 newSize) {
     if (current->next &&
         current->next->isFree &&
         (current->size + sizeof(VMHeapBlockHeader) + current->next->size) >= newSize) { // why ts so fucking unreadable
-            combine_forward(current);
+            sVMHeapCombineForward(current);
             return pointer;
     }
 
-    void* newPointer = malloc(newSize);
+    void* newPointer = VMHeapAllocate(newSize);
     if (!newPointer) return nullptr;
 
     memcpy(newPointer, pointer, current->size);
-    free(pointer);
+    VMHeapFree(pointer);
 
     return newPointer;
 }

@@ -29,7 +29,7 @@ void OSSchedulerInitialize() {
     sOSSchedulerKernelProcess.physicalPML4 = gVMKernelPML4Physical;
     strcpy(sOSSchedulerKernelProcess.name, "kernel");
 
-    OSTask* kernelTask = (OSTask*)malloc(sizeof(OSTask));
+    OSTask* kernelTask = (OSTask*)VMHeapAllocate(sizeof(OSTask));
     memset(kernelTask, 0, sizeof(OSTask));
     kernelTask->id = 0;
     kernelTask->process = &sOSSchedulerKernelProcess;
@@ -43,12 +43,12 @@ void OSSchedulerInitialize() {
 }
 
 OSTask* OSSchedulerSpawn(void(*entry)(), OSProcess* owner, Boolean isUser, UInt64 fixedUserStackPointer) {
-    OSTask* task = (OSTask*)malloc(sizeof(OSTask));
+    OSTask* task = (OSTask*)VMHeapAllocate(sizeof(OSTask));
     if (!task) return nullptr;
     if (!owner) owner = &sOSSchedulerKernelProcess;
 
     UInt64 stackSize = 16384;
-    UInt8* stackBaseAddress = (UInt8*)malloc(stackSize);
+    UInt8* stackBaseAddress = (UInt8*)VMHeapAllocate(stackSize);
     if (!stackBaseAddress) OSPanic("OOM for task stack");
     UInt64* rsp = (UInt64*)(stackBaseAddress + stackSize); 
 

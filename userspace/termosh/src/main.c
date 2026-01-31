@@ -25,7 +25,7 @@ int main() {
             case TOKEN_SPAWN: if (tokens_count >= 2) cmd_spawn(tokens[1]); break;
             default: {
                 char buff[256];
-                snprintf(buff, sizeof(buff), "/bin/%s", tokens[0]);
+                snprintf(buff, sizeof(buff), "/System/CoreServices/%s", tokens[0]);
                 cmd_spawn(buff);
             }
         }

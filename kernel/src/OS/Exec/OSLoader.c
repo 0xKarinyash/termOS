@@ -31,7 +31,7 @@ Int32 OSLoaderProcessSpawn(const char* executablePath, const char* processName) 
         return -1;
     }
 
-    OSProcess* newProcess = (OSProcess*)malloc(sizeof(OSProcess));
+    OSProcess* newProcess = (OSProcess*)VMHeapAllocate(sizeof(OSProcess));
     if (!newProcess) {
         return -2;
     }
@@ -44,9 +44,9 @@ Int32 OSLoaderProcessSpawn(const char* executablePath, const char* processName) 
     newProcess->heapCurrentPointer = kOSHeapStart;
     strncpy(newProcess->name, processName, 31);
 
-    UInt8* imageBuffer = (UInt8*)malloc(executableFile->dataLength);
+    UInt8* imageBuffer = (UInt8*)VMHeapAllocate(executableFile->dataLength);
     if (!imageBuffer) {
-        free(newProcess);
+        VMHeapFree(newProcess);
         return -3;
     }
 
@@ -54,12 +54,12 @@ Int32 OSLoaderProcessSpawn(const char* executablePath, const char* processName) 
 
     UInt64 entryPoint = HOTLoad(newProcess, imageBuffer);
     if (!entryPoint) {
-        free(imageBuffer);
-        free(newProcess);
+        VMHeapFree(imageBuffer);
+        VMHeapFree(newProcess);
         return -4;
     }
 
-    free(imageBuffer);
+    VMHeapFree(imageBuffer);
 
     VMVirtualMemorySetupUserStack((UInt64*)newProcess->physicalPML4);
     
@@ -69,9 +69,9 @@ Int32 OSLoaderProcessSpawn(const char* executablePath, const char* processName) 
 }
 
 void init_task_entry() {
-    Int32 pid = OSLoaderProcessSpawn("/bin/init", "init");
+    Int32 pid = OSLoaderProcessSpawn("/System/CoreServices/init", "init");
     if (pid < 0) {
-        OSPanic("FATAL: Failed to spawn /bin/init");
+        OSPanic("FATAL: Failed to spawn /System/CoreServices/init");
     }
 
     while (1) { __asm__("sti; hlt"); }

@@ -54,7 +54,9 @@ function(add_termos_executable NAME SOURCES)
     )
 
     set(ELF2HOT_DIR "${CMAKE_SOURCE_DIR}/tools/elf2hot")
-    set(FINAL_HOT_PATH "${CMAKE_SOURCE_DIR}/initramfs/bin/${NAME}")
+    set(STARTUP_VOLUME_DIR "${CMAKE_BINARY_DIR}/StartupVolume/System/CoreServices")
+    file(MAKE_DIRECTORY "${STARTUP_VOLUME_DIR}")
+    set(FINAL_HOT_PATH "${STARTUP_VOLUME_DIR}/${NAME}")
 
     add_custom_command(TARGET ${NAME} POST_BUILD
         COMMAND cargo run --release --quiet -- $<TARGET_FILE:${NAME}> ${FINAL_HOT_PATH}

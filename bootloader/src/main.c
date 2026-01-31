@@ -78,10 +78,10 @@ int main()
     efi_file_handle_t* initramfs_file;
     uintn_t iinfo_size = 0;
     efi_file_info_t* ifile_info = nullptr;
-    status = root->Open(root, &initramfs_file, L"initramfs.cpio", EFI_FILE_MODE_READ, 0);
+    status = root->Open(root, &initramfs_file, L"StartupVolume.cpio", EFI_FILE_MODE_READ, 0);
     
     if (EFI_ERROR(status)) {
-        print_initramfs_warning(L"initramfs.cpio is missing");
+        print_initramfs_warning(L"StartupVolume.cpio is missing");
         boot_info->initramfs.address = nullptr;
         boot_info->initramfs.size = 0;
     } else {

@@ -30,23 +30,27 @@ add_subdirectory(bootloader)
 add_subdirectory(kernel)
 add_subdirectory(userspace)
 
+set(SYSTEM_SERVICES
+    init
+    debug
+    termosh
+)
+
+set(VOLUME_ROOT "${CMAKE_BINARY_DIR}/StartupVolume")
+set(INITRAMFS_CPIO_FILE "${CMAKE_BINARY_DIR}/StartupVolume.cpio")
+set(IMG_FILE "${CMAKE_BINARY_DIR}/termOS.img")
+
 if(MCOPY_EXE AND MKFS_EXE AND CPIO_EXE)
-    set(IMG_FILE "${CMAKE_BINARY_DIR}/termOS.img")
-    
-    set(INITRAMFS_SRC_DIR "${CMAKE_SOURCE_DIR}/initramfs")
-    set(INITRAMFS_CPIO_FILE "${CMAKE_BINARY_DIR}/initramfs.cpio")
-    file(GLOB_RECURSE INIT_FILES "${INITRAMFS_SRC_DIR}/*")
-
-    add_custom_command(
+add_custom_command(
         OUTPUT ${INITRAMFS_CPIO_FILE}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${VOLUME_ROOT}
         COMMAND sh -c "find . -mindepth 1 ! -name '*.cpio' -print0 | ${CPIO_EXE} --null -ov -H newc > \"${INITRAMFS_CPIO_FILE}\""
-        WORKING_DIRECTORY ${INITRAMFS_SRC_DIR}
-        DEPENDS ${INIT_FILES} init debug termosh
+        WORKING_DIRECTORY ${VOLUME_ROOT}
+        DEPENDS ${SYSTEM_SERVICES}
         VERBATIM
-        COMMENT "Packing initramfs to cpio..."
+        COMMENT "Packing StartupVolume to cpio..."
     )
-
+    
     add_custom_command(
         OUTPUT ${IMG_FILE}
         COMMAND dd if=/dev/zero of=${IMG_FILE} bs=1M count=64 status=none
@@ -54,7 +58,7 @@ if(MCOPY_EXE AND MKFS_EXE AND CPIO_EXE)
         COMMAND mmd -i ${IMG_FILE} ::/EFI ::/EFI/BOOT
         COMMAND ${MCOPY_EXE} -i ${IMG_FILE} $<TARGET_FILE:BOOTX64> ::/EFI/BOOT/BOOTX64.EFI
         COMMAND ${MCOPY_EXE} -i ${IMG_FILE} ${CMAKE_BINARY_DIR}/bin/kernel.bin ::/kernel.bin
-        COMMAND ${MCOPY_EXE} -i ${IMG_FILE} ${INITRAMFS_CPIO_FILE} ::/initramfs.cpio
+        COMMAND ${MCOPY_EXE} -i ${IMG_FILE} ${INITRAMFS_CPIO_FILE} ::/StartupVolume.cpio
         DEPENDS BOOTX64 kernel ${INITRAMFS_CPIO_FILE}
         VERBATIM
         COMMENT "Generating bootable image: ${IMG_FILE}"
