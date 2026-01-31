@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 0xKarinyash
 
-#include <shell/ksh.h>
-#include <shell/builtins.h>
+#include <KSH/KSHEntry.h>
+#include <KSH/KSHBuiltins.h>
 
 #include <IO/IOConsole.h>
 #include <IO/IOGraphics.h>
@@ -72,19 +72,19 @@ static const KSHCommandMap CommandMap[] = {
     {nullptr, TOKEN_NULL}
 };
 
-KSHToken char2token(char* token) {
+KSHToken KSHCharacter2Token(char* token) {
     for (Int32 i = 0; CommandMap[i].str != nullptr; i++) {
         if (StringCompare(token, CommandMap[i].str) == 0) return CommandMap[i].token;
     }
     return TOKEN_ILLEGAL;
 }
 
-void ksh() {
+void KSHEntry() {
     while (true) {
         IOConsoleLog("ksh_> ");
         char cmdbuff[256];
         IOConsoleReadLine(cmdbuff, 256);
-        switch(char2token(cmdbuff)) {
+        switch(KSHCharacter2Token(cmdbuff)) {
             case TOKEN_EMPTY: continue;
 
             case TOKEN_CLEAR: IOConsoleClear((UInt32) IOConsoleGetColors() & 0xFFFFFFFF); break;

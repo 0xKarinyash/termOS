@@ -3,7 +3,7 @@
 
 #include "bootinfo.h"
 
-#include <shell/ksh.h>
+#include <KSH/KSHEntry.h>
 
 #include <types.h>
 
@@ -107,7 +107,7 @@ void kmain(Bootinfo* info) {
         if (c == 'q') rescueMode = true;
     }
     
-    if (rescueMode) OSSchedulerSpawn(ksh, nullptr, false, 0);
+    if (rescueMode) OSSchedulerSpawn(KSHEntry, nullptr, false, 0);
     else OSSchedulerSpawn(init_task_entry, nullptr, false, 0);
     
     __asm__ volatile("sti");

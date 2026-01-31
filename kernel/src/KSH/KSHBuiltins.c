@@ -15,7 +15,7 @@
 #include <VM/VMM.h>
 #include <VM/Heap.h>
 
-#include <shell/dbgcmd.h>
+#include <KSH/KSHDebug.h>
 
 #include <Data/cats.h>
 

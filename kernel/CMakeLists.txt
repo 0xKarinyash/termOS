@@ -24,7 +24,7 @@ file(GLOB_RECURSE KERNEL_SOURCES CMAKE_CONFIGURE_DEPENDS
     "src/lib/*.c"
     "src/IO/*.c"
     "src/VM/*.c"
-    "src/shell/*.c"
+    "src/KSH/*.c"
     "src/FS/*.c"
     
     "Data/*.c"
