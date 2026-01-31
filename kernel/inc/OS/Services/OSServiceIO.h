@@ -4,5 +4,5 @@
 #pragma once
 #include <types.h>
 
-UInt64 OSServiceWrite(UInt64 fileDescriptor, UInt64 buffer, UInt64 length);
-UInt64 OSServiceRead(UInt64 fileDescriptor, UInt64 buffer, UInt64 count);
+UInt64 OSServiceIOWrite(UInt64 fileDescriptor, UInt64 buffer, UInt64 length);
+UInt64 OSServiceIORead(UInt64 fileDescriptor, UInt64 buffer, UInt64 count);

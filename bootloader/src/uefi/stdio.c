@@ -46,7 +46,7 @@ void __stdio_cleanup(void)
         BS->FreePool(__argvutf8);
 #endif
     if(__blk_devs) {
-        free(__blk_devs);
+        MemoryFree(__blk_devs);
         __blk_devs = NULL;
         __blk_ndevs = 0;
     }
@@ -127,7 +127,7 @@ int fclose (FILE *__stream)
         if(__stream == (FILE*)__blk_devs[i].bio)
             return 1;
     status = __stream->Close(__stream);
-    free(__stream);
+    MemoryFree(__stream);
     return !EFI_ERROR(status);
 }
 
@@ -188,7 +188,7 @@ err:    __stdio_seterrno(status);
         return -1;
     }
     /* no need for fclose(f); */
-    free(f);
+    MemoryFree(f);
     return 0;
 }
 
@@ -250,7 +250,7 @@ FILE *fopen (const char_t *__filename, const char_t *__modes)
                 /* workaround a bug in TianoCore, it reports zero size even though the data is in the buffer */
                 if(handle_size < 1)
                     handle_size = (uintn_t)sizeof(handles) / sizeof(efi_handle_t);
-                __blk_devs = (block_file_t*)malloc(handle_size * sizeof(block_file_t));
+                __blk_devs = (block_file_t*)MemoryAllocate(handle_size * sizeof(block_file_t));
                 if(__blk_devs) {
                     memset(__blk_devs, 0, handle_size * sizeof(block_file_t));
                     for(i = __blk_ndevs = 0; i < handle_size; i++)
@@ -276,7 +276,7 @@ FILE *fopen (const char_t *__filename, const char_t *__modes)
         errno = ENODEV;
         return NULL;
     }
-    ret = (FILE*)malloc(sizeof(FILE));
+    ret = (FILE*)MemoryAllocate(sizeof(FILE));
     if(!ret) return NULL;
     /* normally write means read,write,create. But for remove (internal '*' mode), we need read,write without create
      * also mode 'w' in POSIX means write-only (without read), but that's not working on certain firmware, we must
@@ -292,16 +292,16 @@ FILE *fopen (const char_t *__filename, const char_t *__modes)
         __modes[1] == CL('d') ? EFI_FILE_DIRECTORY : 0);
     if(EFI_ERROR(status)) {
 err:    __stdio_seterrno(status);
-        free(ret); return NULL;
+        MemoryFree(ret); return NULL;
     }
     if(__modes[0] == CL('*')) return ret;
     status = ret->GetInfo(ret, &infGuid, &fsiz, &info);
     if(EFI_ERROR(status)) goto err;
     if(__modes[1] == CL('d') && !(info.Attribute & EFI_FILE_DIRECTORY)) {
-        ret->Close(ret); free(ret); errno = ENOTDIR; return NULL;
+        ret->Close(ret); MemoryFree(ret); errno = ENOTDIR; return NULL;
     }
     if(__modes[1] != CL('d') && (info.Attribute & EFI_FILE_DIRECTORY)) {
-        ret->Close(ret); free(ret); errno = EISDIR; return NULL;
+        ret->Close(ret); MemoryFree(ret); errno = EISDIR; return NULL;
     }
     if(__modes[0] == CL('a')) fseek(ret, 0, SEEK_END);
     if(__modes[0] == CL('w')) {
@@ -713,7 +713,7 @@ int sprintf(char_t *dst, const char_t* fmt, ...)
     return ret;
 }
 
-int snprintf(char_t *dst, size_t maxlen, const char_t* fmt, ...)
+int StringFormat(char_t *dst, size_t maxlen, const char_t* fmt, ...)
 {
     int ret;
     __builtin_va_list args;
@@ -738,7 +738,7 @@ int vprintf(const char_t* fmt, __builtin_va_list args)
     return ret;
 }
 
-int printf(const char_t* fmt, ...)
+int ConsolePrint(const char_t* fmt, ...)
 {
     int ret;
     __builtin_va_list args;
@@ -800,7 +800,7 @@ int getchar_ifany (void)
     return EFI_ERROR(status) ? 0 : key.UnicodeChar;
 }
 
-int getchar (void)
+int ConsoleGetCharacter (void)
 {
     uintn_t idx;
     BS->WaitForEvent(1, &ST->ConIn->WaitForKey, &idx);

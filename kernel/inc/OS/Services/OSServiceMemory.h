@@ -4,4 +4,4 @@
 #pragma once
 #include <types.h>
 
-UInt64 OSServiceMemoryGet(UInt64 size);
+UInt64 OSServiceMemoryAllocate(UInt64 size);

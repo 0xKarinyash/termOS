@@ -9,7 +9,7 @@
 #include <VM/VMM.h>
 #include <lib/String.h>
 
-UInt64 OSServiceMemoryGet(UInt64 size) {
+UInt64 OSServiceMemoryAllocate(UInt64 size) {
     if (size == 0) return 0;
     OSProcess* currentProcess = gOSSchedulerCurrentTask->process;
     UInt64 addressToReturn = currentProcess->heapCurrentPointer;

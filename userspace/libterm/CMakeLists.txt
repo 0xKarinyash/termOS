@@ -22,12 +22,12 @@ set(USER_C_FLAGS
 set(CMAKE_ASM_NASM_FLAGS "-f elf64")
 
 set(LIBTERM_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/syscalls.asm
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/stdio.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/malloc.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/string.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ctype.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/process.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/OSServices.asm
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Console.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Memory.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/String.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Character.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Process.c
 )
 
 add_library(term STATIC ${LIBTERM_SOURCES})
@@ -36,13 +36,13 @@ target_compile_options(term PRIVATE $<$<COMPILE_LANGUAGE:C>:${USER_C_FLAGS}>)
 
 target_include_directories(term PUBLIC inc)
 
-add_library(crt0_obj OBJECT src/crt0.asm)
-target_compile_options(crt0_obj PRIVATE $<$<COMPILE_LANGUAGE:C>:${USER_C_FLAGS}>)
+add_library(RuntimeEntryObject OBJECT src/RuntimeEntry.asm)
+target_compile_options(RuntimeEntryObject PRIVATE $<$<COMPILE_LANGUAGE:C>:${USER_C_FLAGS}>)
 
 function(add_termos_executable NAME SOURCES)
     add_executable(${NAME} ${SOURCES})
     
-    target_sources(${NAME} PRIVATE $<TARGET_OBJECTS:crt0_obj>)
+    target_sources(${NAME} PRIVATE $<TARGET_OBJECTS:RuntimeEntryObject>)
     
     target_compile_options(${NAME} PRIVATE $<$<COMPILE_LANGUAGE:C>:${USER_C_FLAGS}>)
     target_link_libraries(${NAME} PRIVATE term)

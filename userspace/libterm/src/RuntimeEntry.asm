@@ -6,9 +6,9 @@
 section .text
 global _start
 extern main
-extern sys_exit
+extern OSServiceProcessExit
 
 _start:
     call main
     mov rdi, rax
-    call sys_exit
+    call OSServiceProcessExit

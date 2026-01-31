@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 0xKarinyash
 
-#include <process.h>
-#include <malloc.h>
+#include <termOS.h>
 
 // TODO: read .cfg and spawn what stated there
 int main() {
     while (1) {
-        Int32 pid = spawn("/System/CoreServices/termosh");
+        Int32 pid = ProcessSpawn("/System/CoreServices/termosh");
         if (pid < 0) return pid;
-        wait(pid);
+        ProcessWait(pid);
     }
 }

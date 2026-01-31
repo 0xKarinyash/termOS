@@ -5,39 +5,39 @@ bits 64
 
 section .text
 
-global sys_exit
-global sys_spawn
-global sys_mem
-global sys_write
-global sys_read
-global sys_wait
+global OSServiceProcessExit
+global OSServiceProcessSpawn
+global OSServiceMemoryAllocate
+global OSServiceIOWrite
+global OSServiceIORead
+global OSServiceProcessWait
 
-sys_exit:
+OSServiceProcessExit:
     mov rax, 0
     syscall
     ret
 
-sys_spawn:
+OSServiceProcessSpawn:
     mov rax, 1
     syscall
     ret
 
-sys_mem:
+OSServiceMemoryAllocate:
     mov rax, 2
     syscall
     ret
 
-sys_write:
+OSServiceIOWrite:
     mov rax, 3
     syscall
     ret
 
-sys_read:
+OSServiceIORead:
     mov rax, 4
     syscall
     ret
 
-sys_wait:
+OSServiceProcessWait:
     mov rax, 5
     syscall
     ret

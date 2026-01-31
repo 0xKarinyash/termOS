@@ -116,7 +116,7 @@ void *memrmem(const void *haystack, size_t hl, const void *needle, size_t nl)
     return NULL;
 }
 
-char_t *strcpy(char_t *dst, const char_t *src)
+char_t *StringCopy(char_t *dst, const char_t *src)
 {
     char_t *s = dst;
     if(src && dst && src != dst) {
@@ -178,7 +178,7 @@ int strncmp(const char_t *s1, const char_t *s2, size_t n)
 char_t *strdup(const char_t *s)
 {
     size_t i = (strlen(s)+1) * sizeof(char_t);
-    char_t *s2 = (char_t *)malloc(i);
+    char_t *s2 = (char_t *)MemoryAllocate(i);
     if(s2 != NULL) memcpy(s2, (const void*)s, i);
     return s2;
 }

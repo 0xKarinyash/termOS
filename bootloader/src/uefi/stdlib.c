@@ -77,7 +77,7 @@ int64_t strtol (const char_t *s, char_t **__endptr, int __base)
     return v * sign;
 }
 
-void *malloc (size_t __size)
+void *MemoryAllocate (size_t __size)
 {
     void *ret = NULL;
     efi_status_t status;
@@ -106,20 +106,20 @@ void *malloc (size_t __size)
 
 void *calloc (size_t __nmemb, size_t __size)
 {
-    void *ret = malloc(__nmemb * __size);
+    void *ret = MemoryAllocate(__nmemb * __size);
     if(ret) memset(ret, 0, __nmemb * __size);
     return ret;
 }
 
-void *realloc (void *__ptr, size_t __size)
+void *MemoryReallocate (void *__ptr, size_t __size)
 {
     void *ret = NULL;
     efi_status_t status;
 #ifndef UEFI_NO_TRACK_ALLOC
     uintn_t i;
 #endif
-    if(!__ptr) return malloc(__size);
-    if(!__size) { free(__ptr); return NULL; }
+    if(!__ptr) return MemoryAllocate(__size);
+    if(!__size) { MemoryFree(__ptr); return NULL; }
 #ifndef UEFI_NO_TRACK_ALLOC
     /* get the slot which stores the old size for this buffer */
     for(i = 0; i < __stdlib_numallocs && __stdlib_allocs[i] != (uintptr_t)__ptr; i += 2);
@@ -145,7 +145,7 @@ void *realloc (void *__ptr, size_t __size)
     return ret;
 }
 
-void free (void *__ptr)
+void MemoryFree (void *__ptr)
 {
     efi_status_t status;
 #ifndef UEFI_NO_TRACK_ALLOC
@@ -341,7 +341,7 @@ uint8_t *getenv(char_t *name, uintn_t *len)
 #else
     status = RT->GetVariable(name, &globGuid, &attr, len, &tmp);
 #endif
-    if(EFI_ERROR(status) || *len < 1 || !(ret = malloc((*len) + 1))) {
+    if(EFI_ERROR(status) || *len < 1 || !(ret = MemoryAllocate((*len) + 1))) {
         *len = 0;
         return NULL;
     }

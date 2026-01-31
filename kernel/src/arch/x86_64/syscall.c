@@ -55,9 +55,9 @@ UInt64 syscall_dispatch(UInt64 id, UInt64 arg1, UInt64 arg2, UInt64 arg3, UInt64
     switch (id) {
         case SYS_EXIT:  return OSServiceProcessExit(arg1);
         case SYS_SPAWN: return OSServiceProcessSpawn((const char*)arg1);
-        case SYS_MEM:   return OSServiceMemoryGet(arg1);
-        case SYS_WRITE: return OSServiceWrite(arg1, arg2, arg3);
-        case SYS_READ:  return OSServiceRead(arg1, arg2, arg3);
+        case SYS_MEM:   return OSServiceMemoryAllocate(arg1);
+        case SYS_WRITE: return OSServiceIOWrite(arg1, arg2, arg3);
+        case SYS_READ:  return OSServiceIORead(arg1, arg2, arg3);
         case SYS_WAIT:  return OSServiceProcessWait(arg1);
         default: 
             IOConsoleLog("[Dewar] Unknown syscall %d\n", id); 

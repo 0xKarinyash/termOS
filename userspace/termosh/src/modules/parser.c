@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 0xKarinyash
-#include <string.h>
+#include <termOS.h>
 
 #include "parser.h"
 #include "tokens.h"
@@ -27,7 +27,7 @@ static const termosh_token_map token_map[] = {
 
 termosh_token char2token(char* token) {
     for (int i = 0; token_map[i].str != nullptr; i++) {
-        if (strcmp(token, token_map[i].str) == 0) {
+        if (StringCompare(token, token_map[i].str) == 0) {
             return token_map[i].token;
         }
     }
@@ -36,12 +36,12 @@ termosh_token char2token(char* token) {
 }
 
 int tokenize(char* buffer, char* tokens[], int max_tokens) {
-    char* token = strtok(buffer, delim);
+    char* token = StringTokenize(buffer, delim);
 
     int i = 0;
     while (token != nullptr && i < max_tokens) {
         tokens[i] = token;
-        token = strtok(nullptr, delim);
+        token = StringTokenize(nullptr, delim);
         i++;
     }
 

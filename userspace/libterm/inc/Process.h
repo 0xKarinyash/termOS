@@ -2,7 +2,7 @@
 // Copyright (c) 2026 0xKarinyash
 
 #pragma once
-#include <types.h>
+#include <Types.h>
 
-Int32 spawn(const char* path);
-Int32 wait(UInt64 pid);
+Int32 ProcessSpawn(const char* path);
+Int32 ProcessWait(UInt64 pid);

@@ -1,5 +1,5 @@
-#include <stdio.h>
+#include <termOS.h>
 
 void not_implemented_yet() {
-    printf("Not implemented yet!\n");
+    ConsolePrint("Not implemented yet!\n");
 }
