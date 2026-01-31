@@ -53,7 +53,7 @@ static UInt64* sVMVirtualMemoryMapPageInternal(UInt64* pml4, UInt64 phys, UInt64
         UInt64* addr = VMPhysicalMemoryAllocatePage();
         if (!addr) return nullptr;
         UInt64* addr_virt = sVMGetVirtualTable((UInt64)addr);
-        memset(addr_virt, 0, kVMPageSize);
+        MemorySet(addr_virt, 0, kVMPageSize);
         pml4_virt[pml4_idx] = (UInt64)addr | table_flags; 
     } else {
         pml4_virt[pml4_idx] |= (flags & PTE_USER);
@@ -66,7 +66,7 @@ static UInt64* sVMVirtualMemoryMapPageInternal(UInt64* pml4, UInt64 phys, UInt64
         UInt64* addr = VMPhysicalMemoryAllocatePage();
         if (!addr) return nullptr;
         UInt64* addr_virt = sVMGetVirtualTable((UInt64)addr);
-        memset(addr_virt, 0, kVMPageSize);
+        MemorySet(addr_virt, 0, kVMPageSize);
         pdpt_virt[pdpt_idx] = (UInt64)addr | table_flags;
     } else {
         pdpt_virt[pdpt_idx] |= (flags & PTE_USER);
@@ -79,7 +79,7 @@ static UInt64* sVMVirtualMemoryMapPageInternal(UInt64* pml4, UInt64 phys, UInt64
         UInt64* addr = VMPhysicalMemoryAllocatePage();
         if (!addr) return nullptr;
         UInt64* addr_virt = sVMGetVirtualTable((UInt64)addr);
-        memset(addr_virt, 0, kVMPageSize);
+        MemorySet(addr_virt, 0, kVMPageSize);
         pd_virt[pd_idx] = (UInt64)addr | table_flags;
     } else {
         pd_virt[pd_idx] |= (flags & PTE_USER);
@@ -145,7 +145,7 @@ void VMLoadCR3(UInt64 pml4_addr) {
 void VMVirtualMemoryInitialize(Bootinfo* info) {
     gVMKernelPML4Physical = (UInt64)VMPhysicalMemoryAllocatePage();
     gVMKernelPML4 = (UInt64*)gVMKernelPML4Physical;
-    memset(gVMKernelPML4, 0, kVMPageSize);
+    MemorySet(gVMKernelPML4, 0, kVMPageSize);
 
     UInt64 k_virt_start = (UInt64)&_kernel_start; 
     UInt64 k_virt_end   = (UInt64)&_kernel_end;
@@ -177,7 +177,7 @@ UInt64 VMVirtualMemoryCreateAddressSpace() {
     };
 
     UInt64* virt = (UInt64*)PHYS_TO_HHDM(phys);
-    memset(virt, 0, kVMPageSize);
+    MemorySet(virt, 0, kVMPageSize);
 
     UInt64* kernel_pml4_virt = sVMGetVirtualTable((UInt64)gVMKernelPML4);
 
@@ -201,7 +201,7 @@ void VMVirtualMemorySetupUserStack(UInt64* pml4_phys) {
     for (UInt64 addr = stack_bottom; addr < kVMUserStackTop; addr += 4096) {
         void* phys = VMPhysicalMemoryAllocatePage();
         if (!phys) OSPanic("OOM in user stack setup");
-        memset((void*)PHYS_TO_HHDM((UInt64)phys), 0, 4096);
+        MemorySet((void*)PHYS_TO_HHDM((UInt64)phys), 0, 4096);
         VMVirtualMemoryMapPage((UInt64*)pml4_phys, (UInt64)phys, addr, PTE_PRESENT | PTE_RW | PTE_USER);
     }
 }

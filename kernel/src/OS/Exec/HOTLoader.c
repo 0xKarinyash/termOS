@@ -29,7 +29,7 @@ UInt64 HOTLoad(OSProcess* process, UInt8* data) {
             void* physicalPage = VMPhysicalMemoryAllocatePage();
             VMVirtualMemoryMapPage((UInt64*)process->physicalPML4, (UInt64)physicalPage, address, PTE_USER | PTE_RW | PTE_PRESENT);
             void* kernelVirtAddress = (void*)((UInt64)physicalPage + HHDM_OFFSET);
-            memset(kernelVirtAddress, 0, kVMPageSize);
+            MemorySet(kernelVirtAddress, 0, kVMPageSize);
             UInt64 pageOverleapStart = (address > segment->vaddr) ? address : segment->vaddr;
             UInt64 pageOverleapEnd = (address + kVMPageSize < segment->vaddr + segment->filesz) 
                 ? (address + kVMPageSize) 
@@ -39,7 +39,7 @@ UInt64 HOTLoad(OSProcess* process, UInt8* data) {
                 UInt64 sourceOffset = segment->offset + (pageOverleapStart - segment->vaddr);
                 UInt64 destinationOffset = pageOverleapStart - address;
 
-                memcpy((UInt8*)kernelVirtAddress + destinationOffset, data + sourceOffset, copySize);
+                MemoryCopy((UInt8*)kernelVirtAddress + destinationOffset, data + sourceOffset, copySize);
             }
         }
     }

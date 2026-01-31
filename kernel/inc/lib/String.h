@@ -4,9 +4,10 @@
 #pragma once
 #include <types.h>
 
-Int32 strcmp(const char* s1, const char* s2);
-Int32 strncmp(const char* s1, const char* s2, UInt64 n);
-char* strcpy(char* dest, const char* src);
-char* strncpy(char* dest, const char* src, UInt64 n);
-void *memset(void *ptr, int value, Size num);
-void* memcpy(void* dest, const void* src, UInt64 n);
+void* MemorySet(void* destination, UInt8 value, UInt64 count);
+void* MemoryCopy(void* destination, const void* source, UInt64 count);
+Int32 StringCompare(const char* firstString, const char* secondString);
+Int32 StringCompareWithLimit(const char* firstString, const char* secondString, UInt64 limit);
+char* StringCopy(char* destination, const char* source);
+char* StringCopyWithLimit(char* destination, const char* source, UInt64 limit);
+UInt64 StringGetLength(const char* string);

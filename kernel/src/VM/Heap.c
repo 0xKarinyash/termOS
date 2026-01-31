@@ -122,7 +122,7 @@ void* VMHeapResize(void* pointer, UInt64 newSize) {
 
     void* newPointer = sVMHeapAllocateInternal(newSize);
     if (newPointer) {
-        memcpy(newPointer, pointer, current->size);
+        MemoryCopy(newPointer, pointer, current->size);
         sVMHeapFreeInternal(pointer);
     }
 

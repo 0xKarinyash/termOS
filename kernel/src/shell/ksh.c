@@ -74,7 +74,7 @@ static const KSHCommandMap CommandMap[] = {
 
 KSHToken char2token(char* token) {
     for (Int32 i = 0; CommandMap[i].str != nullptr; i++) {
-        if (strcmp(token, CommandMap[i].str) == 0) return CommandMap[i].token;
+        if (StringCompare(token, CommandMap[i].str) == 0) return CommandMap[i].token;
     }
     return TOKEN_ILLEGAL;
 }

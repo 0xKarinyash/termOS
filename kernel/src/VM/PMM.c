@@ -71,7 +71,7 @@ void VMPhysicalMemoryInitialize(BIMemoryMap *memoryMap) {
     gVMPhycalMemoryBitmap = (UInt8*)bitmapHostDescriptor->physicalStart;
     gVMPhycalMemoryBitmapSize = bitmapSize; 
 
-    memset(gVMPhycalMemoryBitmap, 0xFF, bitmapSize);
+    MemorySet(gVMPhycalMemoryBitmap, 0xFF, bitmapSize);
 
     for (UInt64 i = 0; i < descriptorCount; i++) {
         OSMemoryDescriptor *descriptor = (OSMemoryDescriptor*)((UInt8*)memoryMap->map + (i * memoryMap->descriptorSize));

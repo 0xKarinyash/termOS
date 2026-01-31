@@ -75,12 +75,12 @@ void OSSchedulerInitialize() {
     sOSSchedulerKernelProcess.processId = 0;
     sOSSchedulerKernelProcess.state = kOSProcessStateRunning;
     sOSSchedulerKernelProcess.physicalPML4 = gVMKernelPML4Physical;
-    strcpy(sOSSchedulerKernelProcess.name, "kernel");
+    StringCopy(sOSSchedulerKernelProcess.name, "kernel");
 
     OSTask* kernelTask = (OSTask*)VMHeapAllocate(sizeof(OSTask));
     if (!kernelTask) OSPanic("Failed to initialize scheduler: OOm");
 
-    memset(kernelTask, 0, sizeof(OSTask));
+    MemorySet(kernelTask, 0, sizeof(OSTask));
 
     kernelTask->id = 0;
     kernelTask->process = &sOSSchedulerKernelProcess;

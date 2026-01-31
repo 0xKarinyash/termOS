@@ -51,7 +51,7 @@ UInt64 FSCPIORead(FSVNode* node, UInt64 offset, UInt64 size, UInt8* buffer) {
     if (offset > node->dataLength) return 0;
     if ((offset + size) > node->dataLength) size = node->dataLength - offset;
 
-    memcpy(buffer, (char*)node->implementationData + offset, size);
+    MemoryCopy(buffer, (char*)node->implementationData + offset, size);
     return size;
 }
 
@@ -62,8 +62,8 @@ FSVNode* FSCPIOMount(void* baseAddress, UInt64 totalSize) {
     FSVNode* rootNode = (FSVNode*)VMHeapAllocate(sizeof(FSVNode));
     if (!rootNode) OSPanic("CPIO: Failed to allocate memory for root node");
     
-    memset(rootNode, 0, sizeof(FSVNode));
-    strcpy(rootNode->name, "/");
+    MemorySet(rootNode, 0, sizeof(FSVNode));
+    StringCopy(rootNode->name, "/");
     rootNode->flags = kFSVNodeFlagDirectory;
     rootNode->operations = &gFSCPIOOperations;
 
@@ -72,7 +72,7 @@ FSVNode* FSCPIOMount(void* baseAddress, UInt64 totalSize) {
     while (currentPointer < endPointer) {
         FSCPIOHeader* header = (FSCPIOHeader*)currentPointer;
 
-        if (strncmp(header->magic, "070701", 6) != 0) {
+        if (StringCompareWithLimit(header->magic, "070701", 6) != 0) {
             OSPanic("CPIO: Invalid magic detected in initramfs");
         }
 
@@ -80,7 +80,7 @@ FSVNode* FSCPIOMount(void* baseAddress, UInt64 totalSize) {
         UInt64 fileSize = sFSCPIOHexadecimalToUInt64(header->fileLength, 8);
 
         char* fileName = (char*)(currentPointer + sizeof(FSCPIOHeader));
-        if (strcmp(fileName, "TRAILER!!!") == 0) break;
+        if (StringCompare(fileName, "TRAILER!!!") == 0) break;
 
         UInt64 headerAndNameLength = sizeof(FSCPIOHeader) + nameSize;
         UInt64 offsetToData = FSCPIO_ALIGN4(headerAndNameLength);
@@ -89,8 +89,8 @@ FSVNode* FSCPIOMount(void* baseAddress, UInt64 totalSize) {
         FSVNode* newNode = (FSVNode*)VMHeapAllocate(sizeof(FSVNode));
         if (!newNode) OSPanic("CPIO: Failed to allocate memory for new node");
         
-        memset(newNode, 0, sizeof(FSVNode));
-        strncpy(newNode->name, fileName, sizeof(newNode->name) - 1);
+        MemorySet(newNode, 0, sizeof(FSVNode));
+        StringCopyWithLimit(newNode->name, fileName, sizeof(newNode->name) - 1);
 
         newNode->dataLength = fileSize;
         newNode->inodeIdentifier = sFSCPIOHexadecimalToUInt64(header->inode, 8);

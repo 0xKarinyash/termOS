@@ -3,69 +3,75 @@
 
 #include <lib/String.h>
 
-Int32 strcmp(const char *s1, const char *s2) {
-    while (*s1 && (*s1 == *s2)) {
-        s1++;
-        s2++;
+void* MemorySet(void* destination, UInt8 value, UInt64 count) {
+    UInt8* bytePointer = (UInt8*) destination;
+    while (count--) {
+        *bytePointer++ = (UInt8)value;
     }
-    return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+    return destination;
 }
 
-Int32 strncmp(const char* s1, const char* s2, UInt64 n) {
-    while (n > 0) {
-        if (*s1 != *s2) return *(unsigned char*)s1 - *(unsigned char*)s2;
-        if (*s1 == '\0') return 0;
-        s1++;
-        s2++;
-        n--;
+void* MemoryCopy(void* destination, const void* source, UInt64 count) {
+    UInt8* destinationBuffer = (UInt8*)destination;
+    const UInt8* sourceBuffer = (const UInt8*)source;
+
+    while (count >= 8) {
+        *(UInt64*)destinationBuffer = *(const UInt64*)sourceBuffer;
+        destinationBuffer += 8;
+        sourceBuffer += 8;
+        count -= 8;
+    }
+
+    while (count > 0) {
+        *destinationBuffer++ = *sourceBuffer++;
+        count--;
+    }
+
+    return destination;
+}
+
+Int32 StringCompare(const char* firstString, const char* secondString) {
+    while (*firstString && (*firstString == *secondString)) {
+        firstString++;
+        secondString++;
+    }
+    return *(const unsigned char*)firstString - *(const unsigned char*)secondString;
+}
+
+Int32 StringCompareWithLimit(const char* firstString, const char* secondString, UInt64 limit) {
+    while (limit > 0) {
+        if (*firstString != *secondString) return *(unsigned char*)firstString - *(unsigned char*)secondString;
+        if (*firstString == '\0') return 0;
+        firstString++;
+        secondString++;
+        limit--;
     }
     
     return 0;
 }
 
-char* strcpy(char* dest, const char* src) {
-    char* saved = dest;
-    while (*src) *dest++ = *src++;
-    *dest = 0;
+char* StringCopy(char* destination, const char* source) {
+    char* saved = destination;
+    while (*source) *destination++ = *source++;
+    *destination = 0;
     return saved;
 }
 
-char* strncpy(char* dest, const char* src, UInt64 n) {
-    char* saved = dest;
-    while (*src && n > 0) {
-        *dest++ = *src++;
-        n--;
+char* StringCopyWithLimit(char* destination, const char* source, UInt64 limit) {
+    char* saved = destination;
+    while (*source && limit > 0) {
+        *destination++ = *source++;
+        limit--;
     }
-    while (n > 0) {
-        *dest++ = 0;
-        n--;
+    while (limit > 0) {
+        *destination++ = 0;
+        limit--;
     }
     return saved;
 }
 
-void *memset(void *ptr, int value, Size num) {
-    UInt8 *p = (UInt8 *)ptr;
-    while (num--) {
-        *p++ = (UInt8)value;
-    }
-    return ptr;
-}
-
-void* memcpy(void* dest, const void* src, UInt64 n) {
-    UInt8* d = (UInt8*)dest;
-    const UInt8* s = (const UInt8*)src;
-
-    while (n >= 8) {
-        *(UInt64*)d = *(const UInt64*)s;
-        d += 8;
-        s += 8;
-        n -= 8;
-    }
-
-    while (n > 0) {
-        *d++ = *s++;
-        n--;
-    }
-
-    return dest;
+UInt64 StringGetLength(const char* string) {
+    UInt64 result = 0;
+    for (result = 0; string[result]; result++);
+    return result;
 }

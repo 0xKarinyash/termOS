@@ -23,7 +23,7 @@ FSVNode* FSVirtualFileSystemOpenPath(const char* path) {
         return nullptr;
     }
 
-    if (strcmp(path, "/") == 0) {
+    if (StringCompare(path, "/") == 0) {
         return gFSVirtualFileSystemRoot;
     }
     
@@ -34,7 +34,7 @@ FSVNode* FSVirtualFileSystemOpenPath(const char* path) {
 
     FSVNode* nodeIterator = gFSVirtualFileSystemRoot->childNode;
     while (nodeIterator != nullptr) {
-        if (strcmp(nodeIterator->name, searchName) == 0) {
+        if (StringCompare(nodeIterator->name, searchName) == 0) {
             if (nodeIterator->operations && nodeIterator->operations->open) {
                 nodeIterator->operations->open(nodeIterator);
             }

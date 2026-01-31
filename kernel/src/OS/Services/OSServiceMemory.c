@@ -21,7 +21,7 @@ UInt64 OSServiceMemoryAllocate(UInt64 size) {
         if (!phycialAddress) return 0;
 
         VMVirtualMemoryMapPage((UInt64*)currentProcess->physicalPML4, (UInt64)phycialAddress, currentProcess->heapCurrentPointer, PTE_PRESENT | PTE_RW | PTE_USER);
-        memset((void*)PHYS_TO_HHDM((UInt64)phycialAddress), 0, kVMPageSize);
+        MemorySet((void*)PHYS_TO_HHDM((UInt64)phycialAddress), 0, kVMPageSize);
 
         currentProcess->heapCurrentPointer += kVMPageSize;
     }

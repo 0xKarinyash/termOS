@@ -5,7 +5,7 @@
 
 static char* olds;
 
-void* MemorySet(void* destination, UInt8 value, usize count) {
+void* MemorySet(void* destination, UInt8 value, UInt64 count) {
     UInt8* bytePointer = (UInt8*) destination;
     while (count--) {
         *bytePointer++ = (UInt8)value;

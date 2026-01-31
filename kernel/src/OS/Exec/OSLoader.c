@@ -36,13 +36,13 @@ Int32 OSLoaderProcessSpawn(const char* executablePath, const char* processName) 
         return -2;
     }
 
-    memset(newProcess, 0, sizeof(OSProcess));
+    MemorySet(newProcess, 0, sizeof(OSProcess));
     newProcess->processId = gOSSchedulerNextProcessID++; 
     newProcess->state = kOSProcessStateRunning; 
     newProcess->physicalPML4 = VMVirtualMemoryCreateAddressSpace();
     newProcess->heapStartPointer = kOSHeapStart;
     newProcess->heapCurrentPointer = kOSHeapStart;
-    strncpy(newProcess->name, processName, 31);
+    StringCopyWithLimit(newProcess->name, processName, 31);
 
     UInt8* imageBuffer = (UInt8*)VMHeapAllocate(executableFile->dataLength);
     if (!imageBuffer) {
