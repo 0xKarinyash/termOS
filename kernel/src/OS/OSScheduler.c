@@ -19,14 +19,15 @@ extern UInt64 gVMKernelPML4Physical;
 static OSProcess sOSSchedulerKernelProcess;
 static OSSpinlock sOSSchedulerLock;
 
+static OSTask* sOSSchedulerGarbageCollectorTask = nullptr;
+
 void idle_task() {
     while (1) {
         __asm__ volatile ("hlt");
     }
 }
 
-
-void OSSchedulerGarbadgeCollector() {
+void OSSchedulerGarbageCollector() {
     OSTask* self = gOSSchedulerCurrentTask;
 
     while (true) {
@@ -58,6 +59,18 @@ void OSSchedulerGarbadgeCollector() {
     }
 }
 
+static void sOSSchedulerPostGarbageCollectorSignal() {
+    if (!sOSSchedulerGarbageCollectorTask) return;
+
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sOSSchedulerLock, &state);
+
+    sOSSchedulerGarbageCollectorTask->taskState = kOSProcessStateRunning;
+    sOSSchedulerGarbageCollectorTask->sleepTicks = 0;
+
+    OSSpinlockUnlockIRQ(&sOSSchedulerLock, &state);
+}
+
 void OSSchedulerInitialize() {
     sOSSchedulerKernelProcess.processId = 0;
     sOSSchedulerKernelProcess.state = kOSProcessStateRunning;
@@ -78,7 +91,7 @@ void OSSchedulerInitialize() {
 
     gOSSchedulerCurrentTask = kernelTask;
     OSSchedulerSpawn(idle_task, &sOSSchedulerKernelProcess, false, 0);
-    OSSchedulerSpawn(OSSchedulerGarbadgeCollector, &sOSSchedulerKernelProcess, false, 0);
+    sOSSchedulerGarbageCollectorTask = OSSchedulerSpawn(OSSchedulerGarbageCollector, &sOSSchedulerKernelProcess, false, 0);
     return;
 }
 
@@ -89,7 +102,15 @@ OSTask* OSSchedulerSpawn(void(*entry)(), OSProcess* owner, Boolean isUser, UInt6
 
     UInt64 stackSize = 16384;
     UInt8* stackBaseAddress = (UInt8*)VMHeapAllocate(stackSize);
-    if (!stackBaseAddress) OSPanic("OOM for task stack");
+    if (!stackBaseAddress) {
+        sOSSchedulerPostGarbageCollectorSignal();
+        OSSchedulerYield(0);
+        stackBaseAddress = (UInt8*)VMHeapAllocate(stackSize);
+        if (!stackBaseAddress) {
+            VMHeapFree(task);
+            return nullptr;
+        }
+    }
     UInt64* rsp = (UInt64*)(stackBaseAddress + stackSize); 
 
     UInt64 cs = isUser ? 0x23 : 0x08;
@@ -188,16 +209,18 @@ void OSSchedulerWakeup(UInt32 processID) {
     OSSpinlockUnlockIRQ(&sOSSchedulerLock, &state);
 }
 
+
 void OSSchedulerTerminate() {
     UInt32 processID = gOSSchedulerCurrentTask->id;
     gOSSchedulerCurrentTask->taskState = kOSProcessStateDead;
 
     OSSchedulerWakeup(processID);
+    sOSSchedulerPostGarbageCollectorSignal();
     __asm__ volatile("int $32");
 }
 
 void OSSchedulerYield(UInt64 ticks) {
     gOSSchedulerCurrentTask->sleepTicks = ticks;
     gOSSchedulerCurrentTask->taskState = kOSProcessStateSleeping;
-    __asm__ volatile("hlt");
+    __asm__ volatile("int $32");
 }

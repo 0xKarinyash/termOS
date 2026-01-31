@@ -63,7 +63,10 @@ Int32 OSLoaderProcessSpawn(const char* executablePath, const char* processName) 
 
     VMVirtualMemorySetupUserStack((UInt64*)newProcess->physicalPML4);
     
-    OSSchedulerSpawn((void(*)())entryPoint, newProcess, true, kOSUserStackTop);
+    if (!OSSchedulerSpawn((void(*)())entryPoint, newProcess, true, kOSUserStackTop)) {
+        VMHeapFree(newProcess);
+        return -5;
+    }
 
     return newProcess->processId;
 }
