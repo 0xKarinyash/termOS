@@ -73,7 +73,7 @@ FSVNode* FSCPIOMount(void* baseAddress, UInt64 totalSize) {
         FSCPIOHeader* header = (FSCPIOHeader*)currentPointer;
 
         if (StringCompareWithLimit(header->magic, "070701", 6) != 0) {
-            OSPanic("CPIO: Invalid magic detected in initramfs");
+            OSPanic("CPIO: Invalid magic detected in StartupVolume");
         }
 
         UInt64 nameSize = sFSCPIOHexadecimalToUInt64(header->nameLength, 8);
