@@ -3,6 +3,8 @@
 
 #include <IO/IOKeyboard.h>
 #include <IO/IOConsole.h>
+#include <OS/OSSpinlock.h>
+#include <OS/OSScheduler.h>
 
 #include <IO.h>
 #include <types.h>
@@ -87,19 +89,20 @@ static unsigned char sIOKeyboardMapShifted[128] = {
 
 static Boolean sIOKeyboardIsShiftPressed = false;
 
-IOKeyboardBuffer gIOKeyboardInputBuffer = {0};
+IOKeyboardController gIOKeyboardController = {0};
 
 void IOKeyboardInterruptsHandler() {
-    UInt16 nextHead = (gIOKeyboardInputBuffer.head + 1) % kIOKeyboardBufferSize;
+    OSSpinlockLock(&gIOKeyboardController.lock);
+    UInt16 nextHead = (gIOKeyboardController.head + 1) % kIOKeyboardBufferSize;
 
     UInt8 scancode = IOPortRead8(0x60);
     // make code 0x00 - 0x7F; break code = make code + 0x80
     if (scancode < 0x80) {
         unsigned char* keyMap = sIOKeyboardIsShiftPressed ? sIOKeyboardMapShifted : sIOKeyboardMap;
         char ascii = keyMap[scancode];
-        if (ascii && nextHead != gIOKeyboardInputBuffer.tail) {
-            gIOKeyboardInputBuffer.buffer[gIOKeyboardInputBuffer.head] = ascii;
-            gIOKeyboardInputBuffer.head = nextHead;
+        if (ascii && nextHead != gIOKeyboardController.tail) {
+            gIOKeyboardController.buffer[gIOKeyboardController.head] = ascii;
+            gIOKeyboardController.head = nextHead;
         } else {
             switch (scancode) {
                 case 0x2A: sIOKeyboardIsShiftPressed = true; break;
@@ -111,5 +114,28 @@ void IOKeyboardInterruptsHandler() {
             case 0xAA: sIOKeyboardIsShiftPressed = false; break;
             default: break;
         }
+    }
+
+    OSSpinlockUnlock(&gIOKeyboardController.lock);
+}
+
+char IOKeyboardGetCharacter() {
+    char ascii = 0;
+    OSSpinlockState state;
+
+    while (true) {
+        OSSpinlockLockIRQ(&gIOKeyboardController.lock, &state);
+        
+        if (gIOKeyboardController.head != gIOKeyboardController.tail) {
+            ascii = gIOKeyboardController.buffer[gIOKeyboardController.tail];
+            gIOKeyboardController.tail = (gIOKeyboardController.tail + 1) % kIOKeyboardBufferSize;
+            
+            OSSpinlockUnlockIRQ(&gIOKeyboardController.lock, &state);
+            return ascii;
+        }
+        
+        OSSpinlockUnlockIRQ(&gIOKeyboardController.lock, &state);
+        __asm__ volatile ("sti");
+        OSSchedulerYield(1);
     }
 }

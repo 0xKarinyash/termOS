@@ -29,6 +29,7 @@ typedef struct OSTask {
     UInt32 sleepTicks;
     OSProcessState taskState; // reusing process_state cuz wn
     UInt64 kernelStackTop;
+    void* kernelStackBase;
     OSProcess* process;
     Int32 waitingForProcess;
 } OSTask;

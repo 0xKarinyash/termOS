@@ -29,7 +29,6 @@ IOGraphicsSize IOConsoleGetDimensions();
 void IOConsoleSetForegroundColor(IOGraphicsColor color);
 void IOConsoleSetDefaultForegroundColor(UInt32 color);
 void IOConsoleSetCursorPosition(IOGraphicsPoint* point);
-char IOConsoleGetCharacter();
 void IOConsoleReadLine(char* buffer, UInt32 limit);
 void IOConsolePutcharacter(char character);
 void IOConsolePrint(const char *string);

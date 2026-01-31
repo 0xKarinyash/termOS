@@ -6,10 +6,12 @@
 #include <VM/VMM.h>
 #include <lib/String.h>
 #include <OS/OSPanic.h>
+#include <OS/OSSpinlock.h>
 #include <types.h>
 
 extern UInt64* gVMKernelPML4;
 static VMHeapBlockHeader* sVMHeapListHead = nullptr;
+static OSSpinlock sVMHeapLock = {0};
 
 static void sVMHeapCombineForward(VMHeapBlockHeader* current) {
     if (!current->next || !current->next->isFree) return;
@@ -37,7 +39,7 @@ void VMHeapInitialize() {
     sVMHeapListHead->previous = nullptr;
 }
 
-void* VMHeapAllocate(UInt64 size) {
+static void* sVMHeapAllocateInternal(UInt64 size) {
     if (size == 0) return nullptr;
     UInt64 alignedSize = (size + 15) & ~15;
 
@@ -65,7 +67,7 @@ void* VMHeapAllocate(UInt64 size) {
     return nullptr;
 }
 
-void VMHeapFree(void* pointer) {
+static void sVMHeapFreeInternal(void* pointer) {
     if (!pointer) return;
 
     VMHeapBlockHeader* current = (VMHeapBlockHeader*)((UInt64)pointer - sizeof(VMHeapBlockHeader));
@@ -76,6 +78,25 @@ void VMHeapFree(void* pointer) {
     if (current->previous && current->previous->isFree) sVMHeapCombineForward(current->previous);
 }
 
+void* VMHeapAllocate(UInt64 size) {
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sVMHeapLock, &state);
+    
+    void* result = sVMHeapAllocateInternal(size);
+    
+    OSSpinlockUnlockIRQ(&sVMHeapLock, &state);
+    return result;
+}
+
+void VMHeapFree(void* pointer) {
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sVMHeapLock, &state);
+    
+    sVMHeapFreeInternal(pointer);
+    
+    OSSpinlockUnlockIRQ(&sVMHeapLock, &state);
+}
+
 void* VMHeapResize(void* pointer, UInt64 newSize) {
     if (!pointer) return VMHeapAllocate(newSize);
     if (newSize == 0) { 
@@ -83,21 +104,28 @@ void* VMHeapResize(void* pointer, UInt64 newSize) {
         return nullptr; 
     }
 
-    VMHeapBlockHeader* current = (VMHeapBlockHeader*)((UInt64)pointer - sizeof(VMHeapBlockHeader));
-    if (current->size >= newSize) return pointer;
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sVMHeapLock, &state);
 
-    if (current->next &&
-        current->next->isFree &&
+    VMHeapBlockHeader* current = (VMHeapBlockHeader*)((UInt64)pointer - sizeof(VMHeapBlockHeader));
+    if (current->size >= newSize) { 
+        OSSpinlockUnlockIRQ(&sVMHeapLock, &state);
+        return pointer;
+    }
+
+    if (current->next && current->next->isFree &&
         (current->size + sizeof(VMHeapBlockHeader) + current->next->size) >= newSize) { // why ts so fucking unreadable
             sVMHeapCombineForward(current);
+            OSSpinlockUnlockIRQ(&sVMHeapLock, &state);
             return pointer;
     }
 
-    void* newPointer = VMHeapAllocate(newSize);
-    if (!newPointer) return nullptr;
+    void* newPointer = sVMHeapAllocateInternal(newSize);
+    if (newPointer) {
+        memcpy(newPointer, pointer, current->size);
+        sVMHeapFreeInternal(pointer);
+    }
 
-    memcpy(newPointer, pointer, current->size);
-    VMHeapFree(pointer);
-
+    OSSpinlockUnlockIRQ(&sVMHeapLock, &state);
     return newPointer;
 }

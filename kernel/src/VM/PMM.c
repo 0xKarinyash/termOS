@@ -6,7 +6,9 @@
 #include <lib/String.h>
 #include <lib/Math.h>
 
-#include <OS/OSPanic.h> 
+#include <OS/OSPanic.h>
+#include <OS/OSSpinlock.h>
+
 #include <types.h>
 
 #include "bootinfo.h"
@@ -15,6 +17,8 @@
 UInt8*  gVMPhycalMemoryBitmap = nullptr;
 UInt64  gVMPhycalMemoryBitmapSize = 0;
 UInt64  gVMPhycalMemoryTotalMemorySize = 0;
+
+static OSSpinlock sVMPMMLock = {0};
 
 extern UInt64 _kernel_start; 
 extern UInt64 _kernel_end;
@@ -96,6 +100,9 @@ void VMPhysicalMemoryInitialize(BIMemoryMap *memoryMap) {
 }
 
 void* VMPhysicalMemoryAllocatePage() {
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sVMPMMLock, &state);
+
     for (UInt64 i = 0; i < gVMPhycalMemoryBitmapSize; i++) {
         if (gVMPhycalMemoryBitmap[i] == 0xFF) continue;
         
@@ -103,13 +110,22 @@ void* VMPhysicalMemoryAllocatePage() {
             if ((gVMPhycalMemoryBitmap[i] & (1 << bit)) == 0) { 
                 UInt64 address = (i * 8 + bit) * kVMPageSize;
                 BITMAP_SET(gVMPhycalMemoryBitmap, address);
+
+                OSSpinlockUnlockIRQ(&sVMPMMLock, &state);
                 return (void*)address;
             }
         }
     }
+
+    OSSpinlockUnlockIRQ(&sVMPMMLock, &state);
     return nullptr; // Out of memory
 }
 
 void VMPhysicalMemoryFreePage(void* address) {
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sVMPMMLock, &state);
+
     BITMAP_UNSET(gVMPhycalMemoryBitmap, (UInt64)address);
+
+    OSSpinlockUnlockIRQ(&sVMPMMLock, &state);
 }

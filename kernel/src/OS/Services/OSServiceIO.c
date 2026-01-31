@@ -3,6 +3,7 @@
 
 #include <OS/Services/OSServiceIO.h>
 #include <IO/IOConsole.h>
+#include <IO/IOKeyboard.h>
 
 UInt64 OSServiceWrite(UInt64 fileDescriptor, UInt64 buffer, UInt64 length) {
     if (fileDescriptor == 1 || fileDescriptor == 2) {
@@ -19,7 +20,7 @@ UInt64 OSServiceRead(UInt64 fileDescriptor, UInt64 buffer, UInt64 count) {
     char* readBuffer = (char*)buffer;
     if (fileDescriptor == 0) {
         for (UInt64 i = 0; i < count; i++) {
-            readBuffer[i] = IOConsoleGetCharacter();
+            readBuffer[i] = IOKeyboardGetCharacter();
         }
         return count;
     }

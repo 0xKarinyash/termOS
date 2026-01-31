@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 0xKarinyash
 
-#include <OS/OSPanic.h>
 #include <OS/OSScheduler.h>
+#include <OS/OSSpinlock.h>
+#include <OS/OSPanic.h>
 #include <lib/String.h>
 #include <VM/Heap.h>
 #include <VM/VMM.h>
@@ -16,10 +17,44 @@ extern void irq0_handler();
 extern UInt64 gVMKernelPML4Physical;
 
 static OSProcess sOSSchedulerKernelProcess;
+static OSSpinlock sOSSchedulerLock;
 
 void idle_task() {
     while (1) {
         __asm__ volatile ("hlt");
+    }
+}
+
+
+void OSSchedulerGarbadgeCollector() {
+    OSTask* self = gOSSchedulerCurrentTask;
+
+    while (true) {
+        OSTask* previousTask = self;
+        OSTask* nextTask = previousTask->next;
+
+        while (nextTask != self) {
+            if (nextTask->taskState == kOSProcessStateDead) {
+                OSSpinlockState lockState;
+                OSSpinlockLockIRQ(&sOSSchedulerLock, &lockState);
+                
+                previousTask->next = nextTask->next;
+                
+                OSSpinlockUnlockIRQ(&sOSSchedulerLock, &lockState);
+
+                if (nextTask->kernelStackBase) {
+                    VMHeapFree(nextTask->kernelStackBase);
+                }
+                VMHeapFree(nextTask);
+
+                nextTask = previousTask->next;
+            } else {
+                previousTask = nextTask;
+                nextTask = nextTask->next;
+            }
+        }
+
+        OSSchedulerYield(200);
     }
 }
 
@@ -30,7 +65,10 @@ void OSSchedulerInitialize() {
     strcpy(sOSSchedulerKernelProcess.name, "kernel");
 
     OSTask* kernelTask = (OSTask*)VMHeapAllocate(sizeof(OSTask));
+    if (!kernelTask) OSPanic("Failed to initialize scheduler: OOm");
+
     memset(kernelTask, 0, sizeof(OSTask));
+
     kernelTask->id = 0;
     kernelTask->process = &sOSSchedulerKernelProcess;
     kernelTask->sleepTicks = 0;
@@ -40,6 +78,8 @@ void OSSchedulerInitialize() {
 
     gOSSchedulerCurrentTask = kernelTask;
     OSSchedulerSpawn(idle_task, &sOSSchedulerKernelProcess, false, 0);
+    OSSchedulerSpawn(OSSchedulerGarbadgeCollector, &sOSSchedulerKernelProcess, false, 0);
+    return;
 }
 
 OSTask* OSSchedulerSpawn(void(*entry)(), OSProcess* owner, Boolean isUser, UInt64 fixedUserStackPointer) {
@@ -74,16 +114,26 @@ OSTask* OSSchedulerSpawn(void(*entry)(), OSProcess* owner, Boolean isUser, UInt6
     task->process = owner;
     task->id = owner->processId;
     task->sleepTicks = 0;
-    task->next = gOSSchedulerCurrentTask->next;
     task->kernelStackTop = (UInt64)stackBaseAddress + stackSize;
+    task->kernelStackBase = stackBaseAddress;
     task->taskState = kOSProcessStateRunning;
     task->waitingForProcess = -1;
+
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sOSSchedulerLock, &state);
+
+    task->next = gOSSchedulerCurrentTask->next;
     gOSSchedulerCurrentTask->next = task;
+
+    OSSpinlockUnlockIRQ(&sOSSchedulerLock, &state);
+
     return task;
 }
 
 UInt64 OSSchedulerNext(UInt64 currentStackPointer) {
     if (!gOSSchedulerCurrentTask) return currentStackPointer;
+
+    OSSpinlockLock(&sOSSchedulerLock);
 
     gOSSchedulerCurrentTask->stackPointer = currentStackPointer;
     OSTask* taskIterator = gOSSchedulerCurrentTask->next;
@@ -95,12 +145,12 @@ UInt64 OSSchedulerNext(UInt64 currentStackPointer) {
 
     if (gOSSchedulerCurrentTask->sleepTicks > 0) gOSSchedulerCurrentTask->sleepTicks--;
 
-    OSTask* nextTask = gOSSchedulerCurrentTask;
+    OSTask* nextTask = gOSSchedulerCurrentTask->next;
     while (1) {
-        // TODO: add gc here;
-        nextTask = nextTask->next;
         if (nextTask->taskState == kOSProcessStateSleeping && nextTask->sleepTicks == 0) nextTask->taskState = kOSProcessStateRunning;
         if (nextTask->taskState == kOSProcessStateRunning) break;
+        nextTask = nextTask->next;
+
         if (nextTask == gOSSchedulerCurrentTask) {
             if (gOSSchedulerCurrentTask->taskState == kOSProcessStateRunning) break;
             OSPanic("no running tasks");
@@ -111,6 +161,8 @@ UInt64 OSSchedulerNext(UInt64 currentStackPointer) {
     gOSSchedulerCurrentTask = nextTask;
     gHALTaskStateSegment.rsp0 = gOSSchedulerCurrentTask->kernelStackTop;
     gOSBootCPU.kernelStackPointer = gOSSchedulerCurrentTask->kernelStackTop;
+
+    OSSpinlockUnlock(&sOSSchedulerLock);
     return gOSSchedulerCurrentTask->stackPointer;
 }
 
@@ -121,6 +173,9 @@ void OSSchedulerBlock(UInt32 processID) {
 }
 
 void OSSchedulerWakeup(UInt32 processID) {
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sOSSchedulerLock, &state);
+
     OSTask* iteratorTask = gOSSchedulerCurrentTask;
     do {
         if (iteratorTask->taskState == kOSProcessStateBlocked && iteratorTask->waitingForProcess == (Int32)processID) {
@@ -129,6 +184,8 @@ void OSSchedulerWakeup(UInt32 processID) {
         }
         iteratorTask = iteratorTask->next;
     } while (iteratorTask != gOSSchedulerCurrentTask);
+
+    OSSpinlockUnlockIRQ(&sOSSchedulerLock, &state);
 }
 
 void OSSchedulerTerminate() {

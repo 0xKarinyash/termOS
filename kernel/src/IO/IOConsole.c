@@ -238,19 +238,10 @@ void IOConsoleSetDefaultForegroundColor(UInt32 color) {
     sIOConsoleDefaultForegroundColor = color;
 }
 
-char IOConsoleGetCharacter() {
-    while (gIOKeyboardInputBuffer.head == gIOKeyboardInputBuffer.tail) { __asm__ volatile ("sti"); OSSchedulerYield(1); }
-    __asm__ volatile ("cli");
-    char temp = gIOKeyboardInputBuffer.buffer[gIOKeyboardInputBuffer.tail];
-    gIOKeyboardInputBuffer.tail = (gIOKeyboardInputBuffer.tail + 1) % kIOKeyboardBufferSize;
-    __asm__ volatile ("sti");
-    return temp;
-}
-
 void IOConsoleReadLine(char* buffer, UInt32 limit) {
     UInt32 i = 0;
     while (true) {
-        char character = IOConsoleGetCharacter();
+        char character = IOKeyboardGetCharacter();
         switch (character) {
             case '\n': { 
                 buffer[i] = '\0';

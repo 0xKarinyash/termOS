@@ -4,6 +4,7 @@
 #include <VM/PMM.h>
 
 #include <OS/OSPanic.h>
+#include <OS/OSSpinlock.h>
 
 #include <GDT.h>
 #include <IDT.h>
@@ -20,6 +21,7 @@ enum {
 
 UInt64* gVMKernelPML4 = nullptr;
 UInt64 gVMKernelPML4Physical = 0;
+static OSSpinlock sVMVMMlock = {0};
 static bool isInitialized = false;
 
 extern UInt64 _kernel_start; 
@@ -36,7 +38,7 @@ static UInt64* sVMGetVirtualTable(UInt64 phys) {
     return (UInt64*)phys;
 }
 
-UInt64* VMVirtualMemoryMapPage(UInt64* pml4, UInt64 phys, UInt64 virt, UInt64 flags) {
+static UInt64* sVMVirtualMemoryMapPageInternal(UInt64* pml4, UInt64 phys, UInt64 virt, UInt64 flags) {
     UInt64 pt_idx = VMM_PT_INDEX(virt);
     UInt64 pd_idx = VMM_PD_INDEX(virt);
     UInt64 pdpt_idx = VMM_PDPT_INDEX(virt);
@@ -92,7 +94,7 @@ UInt64* VMVirtualMemoryMapPage(UInt64* pml4, UInt64 phys, UInt64 virt, UInt64 fl
     return (UInt64*)virt;
 }
 
-void VMVirtualMemoryUnmapPage(UInt64* pml4, UInt64 virt) {
+static void sVMVirtualMemoryUnmapPageInternal(UInt64* pml4, UInt64 virt) {
     UInt64 pt_idx = VMM_PT_INDEX(virt);
     UInt64 pd_idx = VMM_PD_INDEX(virt);
     UInt64 pdpt_idx = VMM_PDPT_INDEX(virt);
@@ -114,6 +116,27 @@ void VMVirtualMemoryUnmapPage(UInt64* pml4, UInt64 virt) {
     
     __asm__ volatile("invlpg (%0)" :: "r" (virt) : "memory");
 }
+
+
+UInt64* VMVirtualMemoryMapPage(UInt64* pml4, UInt64 phys, UInt64 virt, UInt64 flags) {
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sVMVMMlock, &state);
+
+    UInt64* result = sVMVirtualMemoryMapPageInternal(pml4, phys, virt, flags);
+
+    OSSpinlockUnlockIRQ(&sVMVMMlock, &state);
+    return result;
+}
+
+void VMVirtualMemoryUnmapPage(UInt64* pml4, UInt64 virt) {
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sVMVMMlock, &state);
+
+    sVMVirtualMemoryUnmapPageInternal(pml4, virt);
+
+    OSSpinlockUnlockIRQ(&sVMVMMlock, &state);
+}
+
 
 void VMLoadCR3(UInt64 pml4_addr) {
     __asm__ volatile ("mov %0, %%cr3" :: "r"(pml4_addr) : "memory");
@@ -144,8 +167,14 @@ void VMVirtualMemoryInitialize(Bootinfo* info) {
 }
 
 UInt64 VMVirtualMemoryCreateAddressSpace() {
+    OSSpinlockState state;
+    OSSpinlockLockIRQ(&sVMVMMlock, &state);
+    
     UInt64 phys = (UInt64)VMPhysicalMemoryAllocatePage();
-    if (!phys) return 0;
+    if (!phys) {
+        OSSpinlockUnlockIRQ(&sVMVMMlock, &state);
+        return 0;
+    };
 
     UInt64* virt = (UInt64*)PHYS_TO_HHDM(phys);
     memset(virt, 0, kVMPageSize);
@@ -156,6 +185,7 @@ UInt64 VMVirtualMemoryCreateAddressSpace() {
         virt[i] = kernel_pml4_virt[i];
     }
 
+    OSSpinlockUnlockIRQ(&sVMVMMlock, &state);
     return phys;
 }
 

@@ -11,6 +11,7 @@
 #include <IO/IOSerial.h>
 #include <IO/IOConsole.h>
 #include <IO/IOTimer.h>
+#include <IO/IOKeyboard.h>
 
 #include <OS/OSPanic.h>
 #include <OS/OSScheduler.h>
@@ -93,20 +94,20 @@ void kmain(Bootinfo* info) {
 
     SplashShow(&sIOGraphicsContext);
 
-    bool staying_in_ksh = false;
+    bool rescueMode = false;
     if (!info->initramfs.address) { 
-        IOConsoleLog("^rWARNING^!: Failed to load ^yinitramfs^!! Staying in kernel rescue shell!\n\n"); 
-        staying_in_ksh = true; 
+        IOConsoleLog("^rWARNING^!: Failed to load ^yStartupVolume^!! Staying in kernel rescue shell!\n\n"); 
+        rescueMode = true; 
     }
 
-    if (!staying_in_ksh) {
+    if (!rescueMode) {
         IOConsoleLog("Press any key to continue booting. \nPress ^yq^! to stay in ^gksh^!\n");
         char c = '\n';
-        c = IOConsoleGetCharacter();
-        if (c == 'q') staying_in_ksh = true;
+        c = IOKeyboardGetCharacter();
+        if (c == 'q') rescueMode = true;
     }
     
-    if (staying_in_ksh) OSSchedulerSpawn(ksh, nullptr, false, 0);
+    if (rescueMode) OSSchedulerSpawn(ksh, nullptr, false, 0);
     else OSSchedulerSpawn(init_task_entry, nullptr, false, 0);
     
     __asm__ volatile("sti");

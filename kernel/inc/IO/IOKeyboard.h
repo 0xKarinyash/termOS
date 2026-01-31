@@ -3,17 +3,20 @@
 
 #pragma once
 #include <types.h>
+#include <OS/OSSpinlock.h>
 
 enum {
     kIOKeyboardBufferSize = 256,
 };
 
 typedef struct { 
+    OSSpinlock lock;
     char buffer[kIOKeyboardBufferSize];
-    UInt16 head;
-    UInt16 tail;
-} IOKeyboardBuffer;
+    volatile UInt16 head;
+    volatile UInt16 tail;
+} IOKeyboardController;
 
-extern IOKeyboardBuffer gIOKeyboardInputBuffer;
+extern IOKeyboardController gIOKeyboardController;
 
 void IOKeyboardInterruptsHandler();
+char IOKeyboardGetCharacter();

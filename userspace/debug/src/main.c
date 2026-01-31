@@ -69,6 +69,7 @@ void render_list(Vector* numbers) {
 }
 
 int main() {
+    UInt64* bad_ptr = (UInt64*)0xDEADBEEF; *bad_ptr = 666;
     Vector nums;
     vector_init(&nums);
     printf("Heap test\n");

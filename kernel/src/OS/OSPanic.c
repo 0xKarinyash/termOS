@@ -35,8 +35,6 @@ static const char* sOSPanicFunMessages[] = {
     "I'll be back",
     "Hastla la vista, baby",
     "Ti chego mne tut nagovoril...",
-    "Your access has been denied because of your region.\n\t\t\t\tPlease, use Chultem VPN and try again later.",
-    "Fatal error has been occurred. \n\t\t\t\tYour device will be transformed into Niva in a few seconds.",
     "Have you tried turning it off and on again?",
     "Put it in rice maybe?",
     "Just hit the monitor, it usually helps",
