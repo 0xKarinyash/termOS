@@ -7,7 +7,9 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 message(STATUS "Building termOS's userspace")
 
+add_subdirectory(libobjc)
 add_subdirectory(libterm)
 add_subdirectory(init)
 add_subdirectory(debug)
+add_subdirectory(testOBJC)
 add_subdirectory(termosh)

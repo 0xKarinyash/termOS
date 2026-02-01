@@ -34,6 +34,7 @@ set(SYSTEM_SERVICES
     init
     debug
     termosh
+    testOBJC
 )
 
 set(VOLUME_ROOT "${CMAKE_BINARY_DIR}/StartupVolume")
