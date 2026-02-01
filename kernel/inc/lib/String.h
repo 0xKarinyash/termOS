@@ -11,3 +11,4 @@ Int32 StringCompareWithLimit(const char* firstString, const char* secondString, 
 char* StringCopy(char* destination, const char* source);
 char* StringCopyWithLimit(char* destination, const char* source, UInt64 limit);
 UInt64 StringGetLength(const char* string);
+const char* StringFindLastOccurrenceOfCharacter(const char* string, char separator);

@@ -75,3 +75,12 @@ UInt64 StringGetLength(const char* string) {
     for (result = 0; string[result]; result++);
     return result;
 }
+
+const char* StringFindLastOccurrenceOfCharacter(const char* string, char separator) {
+    const char* lastSeparator = nullptr;
+    do {
+        if (*string == separator) lastSeparator = (char*)string;
+    } while (*string++);
+
+    return lastSeparator;
+}

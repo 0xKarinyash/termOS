@@ -7,6 +7,9 @@
 #include <OS/Exec/OSLoader.h>
 #include <IO/IOConsole.h>
 
+
+#include <lib/String.h>
+
 Int32 OSServiceProcessExit(Int32 code) {
     IOConsoleLog("\n[Dewar] process \"%s\" exited with code %d\n", gOSSchedulerCurrentTask->process->name, code);
     OSSchedulerTerminate();
@@ -15,7 +18,12 @@ Int32 OSServiceProcessExit(Int32 code) {
 
 
 Int32 OSServiceProcessSpawn(const char* path) {
-    return OSLoaderProcessSpawn(path, path);
+    const char* name = StringFindLastOccurrenceOfCharacter(path, '/');
+    
+    if (name) name++;
+    else name = path;
+
+    return OSLoaderProcessSpawn(path, name);
 }
 
 Int32 OSServiceProcessWait(UInt64 processID) {
